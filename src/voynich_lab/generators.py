@@ -193,6 +193,8 @@ PROCESS_PRIOR: dict[str, dict[str, tuple[float, float, str]]] = {
     "abjad": {},
     "verbose": {
         "p_alphabet": (12, 22, "i"),
+        "p_drop_vowels": (0, 1, "b"),
+        "p_short": (0.3, 1.0, "f"),
         "p_by_syllable": (0, 1, "b"),
         "p_split": (0.05, 0.7, "m"),
     },
@@ -541,9 +543,17 @@ def verbose(
     korunur; kelime içine rastgele boşluk eklenir; ya da her hece ayrı kelime
     yazılır (hece = ünsüzler + ünlü grubu). Son ikisi "Voynich kelimesi düz
     metnin kelimesi değil, bir parçasıdır" hipotezinin karşılığıdır.
+
+    İki ayar daha: şifrelemeden önce seslilerin atılması (abjad + verbose
+    bileşimi; sesliler atılınca hece modu boşa düşer, çünkü hece sınırı ünlüye
+    bakar) ve kodların ne kadar kısa olduğu (1'e yakınsa sık harfler tek glif
+    alır, şifre düz ikameye yaklaşır).
     """
     k = Knobs(fixed, rec)
     alphabet = _symbols(int(k.get("p_alphabet", lambda: int(rng.integers(12, 23)))))
+    if bool(k.get("p_drop_vowels", lambda: float(rng.random() < 0.3))):
+        words = [("".join(ch for ch in w if not is_vowel(ch)) or w[0]) for w in words]
+    short_base = float(k.get("p_short", lambda: float(rng.uniform(0.3, 1.0))))
     letters, counts = np.unique([ch for w in words for ch in w], return_counts=True)
     order = letters[np.argsort(-counts)]
 
@@ -551,7 +561,7 @@ def verbose(
     used: set[str] = set()
     for rank, letter in enumerate(order):
         # Sık harfler için kısa kod olasılığı daha yüksek.
-        p_short = max(0.1, 0.6 - 0.04 * rank)
+        p_short = max(0.1, short_base - 0.04 * rank)
         while True:
             length = 1 if rng.random() < p_short else int(rng.integers(2, 4))
             code = "".join(rng.choice(alphabet, size=length))
