@@ -16,7 +16,8 @@ Bu dosya projenin devir notudur. Kararların gerekçesi burada, kodu değiştirm
 ## Komutlar
 
 ```bash
-pip install -e ".[dev]"
+uv sync --extra dev --locked        # sürümler uv.lock ile sabit, Python 3.12
+source .venv/bin/activate
 python -m voynich_lab.cli fetch     # ham veri -> data/raw (depoya girmez)
 python -m voynich_lab.cli build     # sentetik feature tablosu, ~80 sn
 python -m voynich_lab.cli report    # CV + eğitim + Voynich analizi -> results/report.md
@@ -50,7 +51,8 @@ Yeni süreç eklemek: fonksiyonu `generators.py` içine yaz, ilgili sözlüğe e
 Tam rapor: `results/report.md`.
 
 - **Sentetik veride CV doğruluğu 0.995.** Bu iyi haber değil: sınıflar fazla kolay ayrışıyor, yani üreteçler birbirinden karikatür düzeyinde farklı.
-- **Voynich üç görünümde de dağılım dışı.** En yakın sınıfa mesafesi, o sınıfın kendi medyanının 8 ila 9 katı, yüzdelik 100. Dolayısıyla sınıf olasılıkları (EVA'da `verbose`, v101'de `selfcite` önde) şu an bulgu değil, "en az kötü eşleşme".
+- **Voynich üç görünümde de dağılım dışı.** En yakın sınıfa mesafesi, o sınıfın kendi medyanının 8 ila 9 katı, yüzdelik 100. Dolayısıyla sınıf olasılıkları (`eva_basic`'te `verbose` 0.50, `eva_glyph`'te `plain` 0.35, v101'de `plain` 0.40 önde) şu an bulgu değil, "en az kötü eşleşme".
+- **Sınıf tahmini ortama da duyarlı.** İlk v0 raporu başka bir ortamda `eva_glyph` için `verbose`, v101 için `selfcite` vermişti; aynı kod ve seed ile bu ortamda ikisi de `plain` çıktı. CV, feature ortalamaları ve OOD oranları değişmedi. Bu yüzden sürümler `uv.lock` ile sabitlendi (2026-11-23). Kilit güncellenirse rapor yeniden üretilir ve fark raporlanır.
 - **Karar transliterasyona göre değişiyor.** İlke 5'in neden var olduğunun kanıtı.
 - **Feature'lar bilinen Voynich anomalilerini kendiliğinden yakaladı**, bu hattın doğru şeyi ölçtüğünü gösteriyor:
   - `h2` (koşullu entropi) EVA'da 2.04, doğal dillerde 3.0 ila 3.5. Literatürdeki değerlerle uyumlu.

@@ -2,7 +2,7 @@
 name = "voynich-lab"
 version = "0.1.0"
 description = "Voynich el yazmasını üreten süreci simülasyon tabanlı çıkarımla sınıflandırır"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = ["numpy", "pandas", "scikit-learn", "xgboost"]
 
 [project.optional-dependencies]
