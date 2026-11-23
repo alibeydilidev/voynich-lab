@@ -1,4 +1,4 @@
-"""Komut satırı: python -m voynich_lab.cli {fetch,build,report,all,abc}
+"""Komut satırı: python -m voynich_lab.cli {fetch,build,report,all,abc,checks}
 
   fetch  : ham veriyi data/raw altına indirir
   build  : sentetik feature tablosunu üretir (results/synthetic.csv)
@@ -6,6 +6,7 @@
   all    : ilk üçünü sırayla çalıştırır
   abc    : büyük sentetik tablo üretir (results/abc_synthetic.csv), her hipotezin
            Voynich'e en fazla ne kadar yaklaştığını ölçer, results/abc.md yazar
+  checks : hattın kendi sonuçlarını sınayan deneyler, results/checks.md yazar
 """
 
 from __future__ import annotations
@@ -106,9 +107,20 @@ def cmd_abc(args: argparse.Namespace) -> None:
     print(md)
 
 
+def cmd_checks(args: argparse.Namespace) -> None:
+    from .checks import evaize_experiment, render_markdown
+
+    out = Path(args.results)
+    result = evaize_experiment(pd.read_csv(out / "synthetic.csv"), args.window, model_seed=args.seed)
+    (out / "checks.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    md = render_markdown(result)
+    (out / "checks.md").write_text(md, encoding="utf-8")
+    print(md)
+
+
 def main() -> None:
     p = argparse.ArgumentParser(prog="voynich_lab")
-    p.add_argument("command", choices=["fetch", "build", "report", "all", "abc"])
+    p.add_argument("command", choices=["fetch", "build", "report", "all", "abc", "checks"])
     p.add_argument("--raw", default="data/raw")
     p.add_argument("--results", default="results")
     p.add_argument("--window", type=int, default=2000, help="pencere boyutu (kelime)")
@@ -125,6 +137,7 @@ def main() -> None:
         "build": [cmd_build],
         "report": [cmd_report],
         "abc": [cmd_abc],
+        "checks": [cmd_checks],
     }
     for step in steps.get(args.command, [cmd_fetch, cmd_build, cmd_report]):
         step(args)

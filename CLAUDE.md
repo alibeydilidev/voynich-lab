@@ -47,6 +47,7 @@ python -m voynich_lab.cli build     # sentetik feature tablosu, ~80 sn
 python -m voynich_lab.cli report    # CV + eğitim + Voynich analizi -> results/report.md
 python -m voynich_lab.cli all       # fetch + build + report, ~1 dk
 python -m voynich_lab.cli abc       # büyük tablo + ABC raporu -> results/abc.md, 4 çekirdekte ~3 dk
+python -m voynich_lab.cli checks    # hattın kendi sonuçlarını sınayan deneyler -> results/checks.md
 pytest -q
 ```
 
@@ -64,6 +65,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | `model.py` | XGBoost, `GroupKFold` |
 | `analyze.py` | Voynich çıkarımı, SHAP katkıları (`pred_contribs`), Mahalanobis tabanlı OOD |
 | `abc.py` | Rejection ABC: her sınıf Voynich'e en fazla ne kadar yaklaşıyor, neyi tutturamıyor, hangi ayarlarla. Mesafe birimi Voynich'in kendi pencereleri arası değişkenlik |
+| `checks.py` | Hattın kendi sonuçlarını sınayan deneyler. Şimdilik: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor) |
 | `cli.py`, `fetch.py` | Komut satırı ve indirme |
 
 Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bir glif. Çok harfli glifler Unicode özel kullanım alanındaki tek karaktere eşlenir.
@@ -130,6 +132,7 @@ Eklenenler: `abc.py` ve `cli abc`; Zandbergen-Landini transliterasyonu (`zl_basi
 - **Sıralama beş görünümde de aynı yönde:** `grille` en yakın (kabul edilenlerin medyanı 2.07 ila 2.80), beşte dördünde ikinci `verbose` (2.89 ila 3.98), sonra `selfcite`, `plain`, `abjad`.
 - **v0.2'deki bir sonuç geri alındı.** v0.2'de `verbose` üreteci kelime sınırlarını neredeyse hep koruyordu ve dil tabanlı sınıflar 0.02'nin altında olasılık alıyordu. `verbose` hece hece yazabilir olunca sınıflandırıcı düz EVA görünümlerinde `verbose` dedi (`eva_basic` 0.61, `zl_basic` 0.75), birleşik glif ve v101 görünümlerinde `grille` (0.46 ila 0.82). ABC'de kabul edilen `verbose` örneklerinin tamamına yakını hece modunda. Ders: bir hipotezin elenmesi, o hipotezin üretecinin dar yazılmış olmasından kaynaklanabilir. Dil tarafı hâlâ eksik, o yüzden hiçbir yönde hüküm yok.
 - **Sınıflandırıcının kararı harf tanımına bağlı, okuyana değil.** Takahashi ile Zandbergen-Landini aynı modda aynı sonucu veriyor (`eva_basic` ve `zl_basic` ikisi de `verbose`; `eva_glyph` ve `zl_glyph` ikisi de `grille`). Ayrışma "hangi çizgiler tek harf" kararından geliyor: düz EVA tek glifi birkaç harfle yazdığı için (ch, sh, cth, iin) metin kendiliğinden verbose şifreye benziyor.
+- **Düz EVA görünümlerindeki `verbose` kararı yazım biçiminin ürünü (sınandı, `results/checks.md`).** 300 `grille` örneği özgün hâliyle 300/300 `grille` sınıflanıyor. Aynı örneklerde altı glif EVA'daki kalıpla çok harfli yazılınca (iki sık glif C+H ve S+H, dört seyrek glif C+T+H) 291/300 `verbose` sınıflanıyor. `selfcite` etkilenmiyor (293/300 yine `selfcite`). Sonuç: sınıflandırıcının `verbose` sınıfı "altında dil var" demek değil, "semboller sabit gruplar hâlinde geliyor" demek. Düz EVA görünümleri (`eva_basic`, `zl_basic`) "dilin şifresi mi, anlamsız mı" ayrımında kullanılamaz. Bu ayrım için ya birleşik glif görünümleri ya da gruplar çözüldükten sonra altta kalan dizinin dile benzeyip benzemediğini ölçen ayrı bir sınama gerekir.
 - **Sınıflandırıcı ile ABC farklı soruya cevap veriyor.** Sınıflandırıcı "beş sınıftan hangisi", ABC "bu sınıf ne kadar yaklaşabiliyor" der. Düz EVA'da sınıflandırıcı `verbose`, ABC `grille` diyor. İkisi tutmadığı sürece sınıf adı bulgu değildir.
 - **`grille` neyi tutturamıyor (beş görünümde tekrar edenler):** `wlen_autocorr1` (komşu kelime uzunluk benzerliği üretemiyor, -2.5 ila -3.5 birim), `vocab_ed1_density` (fazla yoğun, +2.2 ila +4.6), `wlen_std` ve `type_len_mean` (kelimeler kısa ve dar), `hapax_ratio` (az).
 - **`verbose` neyi tutturamıyor:** `hapax_ratio` (az), `jsd_last` (kelime sonu kısıtı zayıf), `wlen_std` ve `wlen_skew` (kelime uzunluğu fazla yayvan ve çarpık), `wlen_autocorr1`.

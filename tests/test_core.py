@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from voynich_lab.abc import analyze_view
+from voynich_lab.checks import evaize
 
 from voynich_lab.corpus import normalize
 from voynich_lab.dataset import _truncate
@@ -300,3 +301,14 @@ def test_abc_finds_matching_class_and_its_parameters():
     knob = c["tuned"]["param_shifts"][0]
     assert knob["param"] == "p_knob" and knob["quantile_in_prior"] > 0.9
     assert abs(c["matches"]["param_shifts"][0]["quantile_in_prior"] - 0.5) < 0.25
+
+
+def test_evaize_splits_six_glyphs_into_shared_strokes():
+    lines = GIBBERISH_PROCESSES["grille"](600, np.random.default_rng(2), Layout())
+    split = evaize(lines)
+    a, b = extract_features(lines), extract_features(split)
+    assert [len(ln) for ln in split] == [len(ln) for ln in lines]  # kelime sayısı aynı
+    assert b["wlen_mean"] > a["wlen_mean"]
+    # Altı glif gider, iki ortak çizgi gelir.
+    assert b["n_symbols"] == a["n_symbols"] - 6 + 2
+    assert evaize([["ab", "ba"] * 30]) is None  # alfabe çok küçük
