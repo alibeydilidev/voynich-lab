@@ -4,23 +4,23 @@ Pencere boyutu: 2000 kelime.
 
 ## 1. Model sentetik veride ne kadar iyi (dil bazlı gruplu CV)
 
-Doğruluk: **0.997**
+Doğruluk: **0.981**
 
 | gerçek \ tahmin | abjad | grille | plain | selfcite | verbose |
 |---|---|---|---|---|---|
-| abjad | 455 | 0 | 0 | 0 | 1 |
-| grille | 1 | 527 | 0 | 0 | 0 |
-| plain | 0 | 1 | 526 | 0 | 1 |
-| selfcite | 0 | 0 | 0 | 528 | 0 |
-| verbose | 2 | 0 | 1 | 0 | 525 |
+| abjad | 452 | 0 | 3 | 1 | 0 |
+| grille | 1 | 524 | 2 | 1 | 0 |
+| plain | 4 | 7 | 500 | 0 | 17 |
+| selfcite | 0 | 4 | 0 | 524 | 0 |
+| verbose | 2 | 0 | 6 | 0 | 520 |
 
 ## 2. Voynich hangi sürece benziyor
 
 | görünüm | pencere | abjad | grille | plain | selfcite | verbose |
 |---|---|---|---|---|---|---|
-| eva_basic | 16 | 0.04 | 0.54 | 0.05 | 0.29 | 0.08 |
-| eva_glyph | 16 | 0.05 | 0.54 | 0.10 | 0.21 | 0.10 |
-| v101 | 17 | 0.05 | 0.27 | 0.26 | 0.36 | 0.06 |
+| eva_basic | 16 | 0.00 | 0.49 | 0.01 | 0.50 | 0.01 |
+| eva_glyph | 16 | 0.00 | 0.74 | 0.00 | 0.25 | 0.00 |
+| v101 | 17 | 0.00 | 0.83 | 0.01 | 0.16 | 0.00 |
 
 ## 3. Dağılım dışı kontrolü (asıl okunacak bölüm)
 
@@ -28,45 +28,39 @@ Yüzdelik 100'e yakınsa Voynich, en yakın sınıfın kendi örneklerinin tamam
 
 | görünüm | en yakın sınıf (mesafe) | medyan yüzdelik | mesafe / sınıf medyanı |
 |---|---|---|---|
-| eva_basic | grille: 16 | 100 | 2.3x |
-| eva_glyph | grille: 16 | 100 | 2.1x |
-| v101 | plain: 9, grille: 8 | 100 | 5.0x |
+| eva_basic | grille: 14, verbose: 2 | 99 | 1.8x |
+| eva_glyph | grille: 16 | 95 | 1.4x |
+| v101 | grille: 17 | 96 | 1.5x |
 
-### eva_basic: tahmin `grille`, en etkili feature'lar
+### eva_basic: tahmin `selfcite`, en etkili feature'lar
 
 | feature | katkı | Voynich ort. | sentetik evrene göre z |
 |---|---|---|---|
-| hapax_ratio | -2.62 | 0.717 | +0.7 |
-| wlen_skew | +1.19 | 0.074 | -1.2 |
-| wlen_std | -0.38 | 1.693 | -0.5 |
-| ttr | -0.14 | 0.443 | +0.4 |
-| h2 | +0.12 | 2.016 | -2.3 |
-| first_entropy_ratio | +0.11 | 0.806 | -1.4 |
-
-Sentetik aralığın dışına taşan feature'lar (pencere oranı): jsd_last (%100), h2_over_h1 (%31), h2 (%25)
+| wlen_autocorr1 | +2.27 | 0.127 | +0.8 |
+| rep_adjacent_exact | -1.63 | 0.009 | -0.2 |
+| h2 | -0.33 | 2.016 | -2.0 |
+| char_double_rate | -0.22 | 0.067 | -0.2 |
+| rep_within3 | -0.18 | 0.026 | -0.3 |
+| top1_freq | -0.15 | 0.034 | -0.5 |
 
 ### eva_glyph: tahmin `grille`, en etkili feature'lar
 
 | feature | katkı | Voynich ort. | sentetik evrene göre z |
 |---|---|---|---|
-| hapax_ratio | -2.73 | 0.717 | +0.7 |
-| wlen_skew | +0.99 | 0.183 | -1.0 |
-| wlen_std | -0.19 | 1.552 | -0.6 |
-| ttr | -0.14 | 0.443 | +0.4 |
-| h2 | +0.11 | 2.131 | -2.0 |
-| eff_symbols | -0.04 | 14.404 | -0.1 |
+| wlen_skew | +1.51 | 0.183 | -0.8 |
+| h2 | +0.93 | 2.131 | -1.7 |
+| wlen_autocorr1 | -0.64 | 0.103 | +0.6 |
+| rep_adjacent_exact | +0.48 | 0.009 | -0.2 |
+| wlen_std | -0.30 | 1.552 | -0.6 |
+| vocab_ed1_density | -0.23 | 0.850 | +0.7 |
 
-Sentetik aralığın dışına taşan feature'lar (pencere oranı): jsd_last (%100), h2 (%12), h2_over_h1 (%12)
-
-### v101: tahmin `selfcite`, en etkili feature'lar
+### v101: tahmin `grille`, en etkili feature'lar
 
 | feature | katkı | Voynich ort. | sentetik evrene göre z |
 |---|---|---|---|
-| rep_adjacent_exact | -1.50 | 0.006 | -0.3 |
-| wlen_autocorr1 | +0.79 | 0.179 | +0.8 |
-| top10_coverage | -0.44 | 0.166 | -0.3 |
-| char_double_rate | -0.24 | 0.015 | -1.0 |
-| wlen_frac1 | -0.13 | 0.046 | -0.3 |
-| rep_within3 | -0.09 | 0.021 | -0.5 |
-
-Sentetik aralığın dışına taşan feature'lar (pencere oranı): jsd_last (%100), n_symbols (%94)
+| wlen_skew | +1.21 | 0.225 | -0.7 |
+| h2 | +0.79 | 2.383 | -1.1 |
+| wlen_autocorr1 | -0.69 | 0.179 | +1.1 |
+| rep_adjacent_exact | +0.64 | 0.006 | -0.3 |
+| wlen_std | +0.52 | 1.469 | -0.7 |
+| vocab_ed1_density | -0.23 | 0.854 | +0.7 |

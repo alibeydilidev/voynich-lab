@@ -57,7 +57,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`.
 |---|---|
 | `transliteration.py` | Takahashi EVA ve Claston v101 ayrıştırıcıları, üç görünüm (`eva_basic`, `eva_glyph`, `v101`), pencereleme |
 | `corpus.py` | 22 dilde paralel İncil, yazıya göre normalizasyon |
-| `generators.py` | Üretim süreçleri. `LANGUAGE_PROCESSES` gerçek metni dönüştürür, `GIBBERISH_PROCESSES` sıfırdan üretir. Hepsinin üstünde ortak yazıcı katmanı (`Layout`, `lay_out`): satırı genişliğe göre doldurma, paragraf, satır başı, satır sonu ve paragraf başı alışkanlıkları |
+| `generators.py` | Üretim süreçleri. `LANGUAGE_PROCESSES` gerçek metni dönüştürür, `GIBBERISH_PROCESSES` sıfırdan üretir. Hepsinin üstünde ortak yazıcı katmanı (`Layout`, `lay_out`, `finish`): nadir harf çeşitlemeleri, kelime başı ve sonu için özel harf biçimleri, satırı genişliğe göre doldurma, paragraf, satır başı, satır sonu ve paragraf başı alışkanlıkları |
 | `features.py` | 32 feature: entropi, kelime uzunluğu, dağarcık, tekrar, kelime içi konum, satır konumu |
 | `dataset.py` | Sentetik korpus fabrikası: (dil penceresi x süreç) -> satır |
 | `model.py` | XGBoost, `GroupKFold` |
@@ -66,7 +66,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`.
 
 Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bir glif. Çok harfli glifler Unicode özel kullanım alanındaki tek karaktere eşlenir.
 
-Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu), `selfcite` (Timm ve Schinner kendinden kopyalama).
+Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu: önek, gövde, sonek heceleri; sütunların glif kümeleri ayrık ya da örtüşük), `selfcite` (Timm ve Schinner kendinden kopyalama; yeni kelimeler yuva yapısından).
 
 Yeni süreç eklemek: fonksiyonu `generators.py` içine yaz, sonunda `lay_out(kelimeler, rng, layout)` çağır, ilgili sözlüğe ekle. Başka hiçbir yere dokunmak gerekmez.
 
@@ -90,7 +90,7 @@ Yani v0'ın gerçek çıktısı şu: **beş basit hipotezin hiçbiri Voynich'i �
 
 ## v0.1 bulguları: satır farkındalığı (2026-11-23, seed 7, pencere 2000)
 
-Tam rapor: `results/report.md`. İki değişiklik: Takahashi ayrıştırıcısında hata düzeltmesi ve üreteçlere ortak yazıcı katmanı.
+Tarihçe; rapor git geçmişinde (`d0d51d5`). İki değişiklik: Takahashi ayrıştırıcısında hata düzeltmesi ve üreteçlere ortak yazıcı katmanı.
 
 - **Ayrıştırıcı hatası.** Takahashi dosyasında satır ortasındaki `-` (çizimin metni böldüğü yer) glif sayılıyordu: 752 tire, 671 yapışık kelime. Artık kelime sınırı. En çok kelime uzunluğu dağılımını etkiledi: `wlen_skew` 0.79 -> 0.07, `wlen_std` 1.92 -> 1.69 (`eva_basic`). v0'da `eva_basic` tahminini en çok etkileyen feature `wlen_std` idi, yani o tahmin kısmen bu hatanın ürünüydü.
 - **Satır etkisi gerçek, ölçüm yanılgısı değil.** Kelimeler pencere içinde karıştırılınca `jsd_line_initial` 0.22 -> 0.013, `jsd_line_final` 0.11 -> 0.012 (`eva_basic`). Paragraf ilk satırları çıkarılınca etki sürüyor (0.21): yalnız paragraf başı süs harfi değil.
@@ -103,11 +103,26 @@ Tam rapor: `results/report.md`. İki değişiklik: Takahashi ayrıştırıcısı
 - **Kalan açık (EVA, en yakın sınıfa göre).** `jsd_last` 0.72 (sentetik tavan 0.59, pencerelerin %100'ü aralık dışı), `h2` ve `h2_over_h1`, `hapax_ratio`. Üçü de kelime içi yapıyla ilgili. v101'de ek olarak `n_symbols`.
 - **CV doğruluğu 0.997.** Sınıflar hâlâ fazla kolay ayrışıyor; v0'daki uyarı geçerli.
 
+## v0.2 bulguları: kelime içi yapı (2026-11-23, seed 7, pencere 2000)
+
+Tam rapor: `results/report.md`. Eklenenler: yazıcı katmanına konuma özgü harf biçimleri (`Forms`) ve nadir harf çeşitlemeleri (`Allographs`); `grille` için ayrık sütun alfabeleri, büyük tablo ve büyük hece envanteri; `selfcite` için yuva yapılı yeni kelimeler ve geniş kopyalama ayarları.
+
+- **Voynich'te glifin kelimedeki yeri aşırı sabit (EVA).** `n` %99 ve `m` %96 kelime sonunda, `q` %99 kelime başında, `y` %88 sonda; `e`, `h`, `i` neredeyse hiç uçta değil. `jsd_last` 0.72 bunun ölçüsü.
+- **Artık hiçbir feature sentetik aralığın dışında değil** (üç görünümde de). v0'da altı feature dışarıdaydı.
+- **OOD oranı:** `eva_basic` 1.8x (yüzdelik 99), `eva_glyph` 1.4x (95), v101 1.5x (96). v0'da 8 ila 9x idi. Hâlâ sınırda dağılım dışı: en yakın sınıfın örneklerinin %95 ila %99'u Voynich'ten daha merkezde.
+- **En yakın sınıf üç görünümde de `grille`.** Sınıf olasılığı: `eva_basic` `grille` 0.49 / `selfcite` 0.50, `eva_glyph` `grille` 0.74, v101 `grille` 0.83. Doğal dil tabanlı üç sınıfın (`plain`, `abjad`, `verbose`) toplamı her görünümde 0.02'nin altında.
+- **Bu henüz "Voynich anlamsız" demek değil.** İki neden: (1) OOD sınırı geçilmedi; (2) doğal dil tarafında yalnız üç kodlama ve modern İncil var, anlamsız metin tarafı ise bu oturumda çok daha fazla işlendi. Hece yazısı, homofonik şifre, kısaltmalı Latince ve dönem metinleri eklenmeden dil hipotezi adil sınanmış sayılmaz.
+- **Doğal dil sınıflarını Voynich'ten ayıran feature'lar:** `h2` (Voynich 2.0 ila 2.4, `plain` en az 2.6), `wlen_skew` (0.1 ila 0.2, `plain` en az 0.29), `wlen_autocorr1` (+0.10 ila +0.18, `plain` en çok +0.06), `vocab_ed1_density` (0.82 ila 0.85, `plain` en çok 0.75).
+- **Komşu kelimeler uzunlukça benziyor ve bu gerçek bir komşuluk etkisi.** `eva_basic`: tüm komşular +0.14; sayfa içinde karıştırınca +0.035, satır içinde karıştırınca +0.07, gerçek satır içi sıra +0.16. Yani sayfa ve satır bileşimi etkinin yarısını açıklıyor, kalanı sıradan geliyor. Doğal dilde bu değer negatif. `grille` bunu üretemiyor (en çok +0.14), `selfcite` üretiyor.
+- **`grille` için kalan açık:** kelime uzunluğu (`type_len_mean` 5.7, `wlen_std` 1.7; üç yuvalı tablo bu kadar uzun ve yayvan kelime üretmiyor) ve `wlen_autocorr1`.
+- **CV doğruluğu 0.981.** Sınıflar eskisi kadar karikatür değil ama hâlâ kolay ayrışıyor.
+- **Kestirme yol denetimi:** satır feature'ları olmadan CV 0.982, yani yazıcı katmanı sınıf bilgisi taşımıyor.
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
    - ~~Satır farkındalığı~~: yapıldı (v0.1, ortak yazıcı katmanı). Paragraf düzeyi feature yok; paragraf başı `p`/`t` etkisi yalnız `jsd_line_initial` içinden dolaylı görünüyor.
-   - **Sıradaki:** Kelime içi konum grameri: önek, gövde, sonek yuvalarına bağlı glif kümeleri (Voynich "kelime grameri" literatürü).
+   - ~~Kelime içi konum grameri~~: yapıldı (v0.2). Üç yuvayla sınırlı; literatürdeki çok yuvalı kelime gramerleri denenmedi.
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
@@ -121,7 +136,7 @@ Tam rapor: `results/report.md`. İki değişiklik: Takahashi ayrıştırıcısı
 
 - Takahashi'de satır ortasındaki `-` çizim boşluğudur ve melez davranır: boşluktan sonraki kelime satır başı gibi (`y`, `d`, `s` fazla, `q` az), ama boşluktan önceki kelime satır sonu gibi değil (`m` %2.5, gerçek satır sonunda %17). Şu an yalnız kelime sınırı sayılıyor, satır sınırı değil. Satır etkilerini biraz seyreltir. `m` gerçek satır sonuna (kenar boşluğuna) özgü görünüyor.
 - v101'de virgül "belirsiz boşluk". Varsayılan boşluk sayılıyor (`comma_is_space=True`). Tersini de koş, sonuç değişiyorsa raporla.
-- `n_symbols` v101'de 70 civarı, sentetik evrende en çok 57. v101 görünümü yalnızca bu yüzden bile OOD çıkar. Ya üreteç alfabelerini genişlet ya da v101 için nadir glifleri birleştir.
+- `n_symbols` v101'de 70 civarı. v0.2'de nadir harf çeşitlemeleri katmanı (`Allographs`) eklendi, sentetik evren artık bunu kapsıyor.
 - `eva_glyph` yalnızca ch, sh ve sehpalı gallows'ları birleştiriyor. `iin`, `ain` gibi diziler de tek glif olabilir, tartışmalı.
 - Mahalanobis mesafeleri sınıf içi örneklerle (in-sample) kalibre ediliyor, biraz iyimser. Örnek sayısı feature sayısının çok üstünde olduğu için etkisi küçük.
 - Veri küçük (paragraf metni: Takahashi 32.8 bin, v101 36 bin kelime; pencere başına 2000). Pencere boyutunu küçültmek pencere sayısını artırır ama entropi tahminlerini bozar.

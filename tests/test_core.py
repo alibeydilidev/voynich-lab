@@ -7,10 +7,13 @@ from voynich_lab.corpus import normalize
 from voynich_lab.dataset import _truncate
 from voynich_lab.features import FEATURE_NAMES, _is_ed1, extract_features
 from voynich_lab.generators import (
+    Allographs,
     GIBBERISH_PROCESSES,
     LANGUAGE_PROCESSES,
+    Forms,
     Layout,
     Mark,
+    _slot_alphabets,
     lay_out,
     sample_layout,
 )
@@ -119,10 +122,57 @@ def test_line_marks_land_on_line_edges():
     assert b["jsd_line_final"] > a["jsd_line_final"] + 0.3
 
 
+def test_final_forms_separate_last_glyph_completely():
+    """Her glifin ayrı son biçimi varsa kelime sonu glifleri başka yerde hiç görünmez."""
+    plain_lines = _lines()
+    formed = lay_out(list(TEXT), np.random.default_rng(0), Layout(final_forms=Forms(1.0)))
+    assert [[len(w) for w in ln] for ln in formed] == [[len(w) for w in ln] for ln in plain_lines]
+    a, b = extract_features(plain_lines), extract_features(formed)
+    assert b["jsd_last"] == pytest.approx(1.0)
+    assert b["n_symbols"] > a["n_symbols"]
+    assert b["wlen_mean"] == a["wlen_mean"] and b["ttr"] == a["ttr"]  # bilgi kaybı yok
+
+
+def test_shared_final_forms_lose_information():
+    """Glifler tek ortak son biçime düşerse (kısaltma işareti) kelime türleri birleşir."""
+    a = extract_features(_lines())
+    merged = lay_out(list(TEXT), np.random.default_rng(0), Layout(final_forms=Forms(1.0, k=1)))
+    b = extract_features(merged)
+    assert len({w[-1] for ln in merged for w in ln}) == 1
+    assert b["ttr"] <= a["ttr"] and b["last_entropy_ratio"] == 0.0
+
+
+def test_allographs_add_rare_symbols_only():
+    a = extract_features(_lines())
+    lines = lay_out(list(TEXT), np.random.default_rng(0), Layout(allographs=Allographs(2.0, 0.05)))
+    b = extract_features(lines)
+    assert [w for ln in lines for w in ln] != TEXT
+    assert b["n_symbols"] > a["n_symbols"] + 10
+    # Eklenenler nadir: sembol sayısı çok artar, etkin sembol sayısı az artar.
+    assert b["eff_symbols"] - a["eff_symbols"] < 0.25 * (b["n_symbols"] - a["n_symbols"])
+    assert b["wlen_mean"] == a["wlen_mean"]
+
+
+def test_slot_alphabets_overlap_extremes():
+    alphabet = list("abcdefghijklmnop")
+    apart = _slot_alphabets(alphabet, 3, 0.0, np.random.default_rng(0))
+    assert sorted(g for slot in apart for g in slot) == alphabet  # ayrık ve eksiksiz
+    assert all(apart)
+    shared = _slot_alphabets(alphabet, 3, 1.0, np.random.default_rng(0))
+    assert all(sorted(slot) == alphabet for slot in shared)
+
+
 def test_layout_prior_is_deterministic_and_includes_no_effect_case():
     layouts = [sample_layout(np.random.default_rng(i)) for i in range(200)]
     assert layouts[3] == sample_layout(np.random.default_rng(3))
-    bare = [lo for lo in layouts if not (lo.line_initial or lo.line_final or lo.para_initial)]
+    bare = [
+        lo
+        for lo in layouts
+        if not (
+            lo.line_initial or lo.line_final or lo.para_initial
+            or lo.final_forms or lo.initial_forms or lo.allographs
+        )
+    ]
     assert bare  # "hiç satır etkisi yok" durumu evrenin içinde
     assert any(lo.line_initial for lo in layouts) and any(lo.line_final for lo in layouts)
 

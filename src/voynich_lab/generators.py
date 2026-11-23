@@ -13,10 +13,11 @@ Anlamsız metin üreteçleri gerçek metne ihtiyaç duymaz:
 Bunlar bilinçli olarak basit v0 sürümleri. Hattın bilimsel değeri bu
 üreteçlerin aslına sadakatine bağlı, asıl geliştirme alanı burası.
 
-Her sürecin üstünde ortak bir "yazıcı" katmanı durur (Layout): metni sayfa
-genişliğine göre satırlara böler, paragraf açar ve satır başı, satır sonu,
-paragraf başı alışkanlıklarını uygular. Bu katmanın parametreleri bütün
-sınıflar için AYNI önselden çekilir. Böylece satır konumu etkileri tek başına
+Her sürecin üstünde ortak bir "yazıcı" katmanı durur (Layout): harflere kelime
+başı ve kelime sonu için özel biçimler verebilir, metni sayfa genişliğine göre
+satırlara böler, paragraf açar ve satır başı, satır sonu, paragraf başı
+alışkanlıklarını uygular. Bu katmanın parametreleri bütün sınıflar için AYNI
+önselden çekilir. Böylece satır konumu etkileri tek başına
 hiçbir sınıfı işaret edemez; sınıflandırıcı onları kestirme yol yapamaz.
 
 Yeni süreç eklemek: fonksiyonu yaz, sonunda lay_out(...) çağır, LANGUAGE_PROCESSES
@@ -44,6 +45,9 @@ def _symbols(n: int) -> list[str]:
 
 # Yazıcı katmanının eklediği yeni semboller (üreteç alfabeleriyle karışmasın).
 _MARK_BASE = 0xE200
+_FINAL_FORM_BASE = 0xE300
+_INITIAL_FORM_BASE = 0xE400
+_ALLOGRAPH_BASE = 0xE500
 
 
 # -------------------------------------------------------------- yazıcı katmanı
@@ -67,8 +71,41 @@ class Mark:
 
 
 @dataclass(frozen=True)
+class Forms:
+    """Konuma özgü harf biçimleri (kelime başı ya da kelime sonu).
+
+    Gerçek yazılarda yaygın: Arapça ve İbranice son biçimleri, Yunanca son
+    sigma, ortaçağ Latincesinde kelime sonu kısaltma işaretleri.
+
+    share: o konumda özel biçimle yazılan glif türlerinin oranı.
+    k    : kaç farklı özel biçim olduğu. 0 ise her glifin kendi özel biçimi
+           vardır (bilgi kaybı yok). k > 0 ise seçilen glifler k ortak biçime
+           düşer (kısaltma işareti gibi, bilgi kaybeder).
+    """
+
+    share: float
+    k: int = 0
+
+
+@dataclass(frozen=True)
+class Allographs:
+    """Nadir harf çeşitlemeleri: aynı glifin arada bir farklı çizilmesi.
+
+    Transliterasyonların ayrıştığı yer tam burası: v101 her çeşitlemeyi ayrı
+    sembol sayar (pencerede ~70 sembol), EVA birleştirir (~20). Bu katman
+    sayesinde sentetik evren iki tercihi de kapsar.
+
+    per_glyph: glif başına ortalama çeşitleme sayısı (Poisson).
+    rate     : bir glifin çeşitlemeyle yazılma olasılığı.
+    """
+
+    per_glyph: float
+    rate: float
+
+
+@dataclass(frozen=True)
 class Layout:
-    """Sayfa düzeni ve satır konumu alışkanlıkları.
+    """Yazı ve sayfa düzeni alışkanlıkları.
 
     words_per_line: satır genişliği, ortalama kelime cinsinden. Satırlar kelime
                     sayısına göre değil genişliğe göre dolar; uzun kelime
@@ -80,6 +117,9 @@ class Layout:
     words_per_line: float = 9.0
     width_jitter: float = 0.0
     para_lines: float = 0.0
+    allographs: Allographs | None = None
+    final_forms: Forms | None = None
+    initial_forms: Forms | None = None
     line_initial: Mark | None = None
     line_final: Mark | None = None
     para_initial: Mark | None = None
@@ -117,10 +157,22 @@ def sample_layout(rng: np.random.Generator) -> Layout:
     bölgenin Voynich'e yakın olduğunu bulmak ABC adımının işi (yol haritası 2).
     """
     has_para = rng.random() < 0.7
+
+    def forms(p_active: float) -> Forms | None:
+        if rng.random() >= p_active:
+            return None
+        k = 0 if rng.random() < 0.5 else int(rng.integers(1, 5))
+        return Forms(float(rng.uniform(0.1, 1.0)), k)
+
     return Layout(
         words_per_line=float(rng.uniform(5, 13)),
         width_jitter=float(rng.uniform(0, 0.35)),
         para_lines=float(rng.uniform(3, 15)) if has_para else 0.0,
+        allographs=Allographs(float(rng.uniform(0.2, 3.0)), float(rng.uniform(0.01, 0.15)))
+        if rng.random() < 0.5
+        else None,
+        final_forms=forms(0.5),
+        initial_forms=forms(0.4),
         line_initial=_sample_mark(rng, (0.1, 0.9), ["add", "replace"])
         if rng.random() < 0.6
         else None,
@@ -145,14 +197,84 @@ def _apply_mark(word: str, mark: Mark, at_end: bool, ranked: list[str], rng: np.
     return word + g
 
 
-def decorate(
+def _ranked_alphabet(lines: Lines) -> list[str]:
+    counts = Counter(ch for ln in lines for w in ln for ch in w)
+    return [g for g, _ in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))]
+
+
+def _form_table(
+    ranked: list[str], forms: Forms | None, base: int, rng: np.random.Generator
+) -> dict[str, str]:
+    """Hangi glif o konumda hangi özel biçimle yazılır."""
+    if forms is None:
+        return {}
+    chosen = [g for g in ranked if rng.random() < forms.share]
+    if forms.k == 0:
+        return {g: chr(base + i) for i, g in enumerate(chosen)}
+    return {g: chr(base + int(rng.integers(0, forms.k))) for g in chosen}
+
+
+def apply_allographs(lines: Lines, layout: Layout, rng: np.random.Generator) -> Lines:
+    """Glifleri küçük bir olasılıkla nadir çeşitlemeleriyle değiştirir."""
+    spec = layout.allographs
+    if spec is None:
+        return lines
+    ranked = _ranked_alphabet(lines)
+    variants: dict[str, list[str]] = {}
+    nxt = _ALLOGRAPH_BASE
+    for g in ranked:
+        n = int(rng.poisson(spec.per_glyph))
+        variants[g] = [chr(nxt + i) for i in range(n)]
+        nxt += n
+    out: Lines = []
+    for ln in lines:
+        new_ln = []
+        for w in ln:
+            hits = np.flatnonzero(rng.random(len(w)) < spec.rate)
+            if len(hits):
+                chars = list(w)
+                for i in hits:
+                    v = variants[chars[i]]
+                    if v:
+                        chars[i] = v[int(rng.integers(0, len(v)))]
+                w = "".join(chars)
+            new_ln.append(w)
+        out.append(new_ln)
+    return out
+
+
+def apply_forms(lines: Lines, layout: Layout, rng: np.random.Generator) -> Lines:
+    """Kelime başı ve kelime sonu gliflerini özel biçimleriyle değiştirir.
+
+    Kelime sayısı ve uzunlukları değişmez. Tek glifli kelimede son biçim önceliklidir.
+    """
+    if not (layout.final_forms or layout.initial_forms):
+        return lines
+    ranked = _ranked_alphabet(lines)
+    fin = _form_table(ranked, layout.final_forms, _FINAL_FORM_BASE, rng)
+    ini = _form_table(ranked, layout.initial_forms, _INITIAL_FORM_BASE, rng)
+
+    def conv(w: str) -> str:
+        if w[-1] in fin:
+            w = w[:-1] + fin[w[-1]]
+            if len(w) == 1:
+                return w
+        if w[0] in ini:
+            w = ini[w[0]] + w[1:]
+        return w
+
+    return [[conv(w) for w in ln] for ln in lines]
+
+
+def finish(
     lines: Lines, para_starts: list[bool], layout: Layout, rng: np.random.Generator
 ) -> Lines:
-    """Satır başı, satır sonu ve paragraf başı alışkanlıklarını uygular."""
+    """Yazıcı katmanının son adımı: nadir harf çeşitlemeleri, konuma özgü harf
+    biçimleri, sonra satır başı, satır sonu ve paragraf başı alışkanlıkları."""
+    lines = apply_forms(apply_allographs(lines, layout, rng), layout, rng)
     if not (layout.line_initial or layout.line_final or layout.para_initial):
         return lines
-    counts = Counter(ch for ln in lines for w in ln for ch in w)
-    ranked = [g for g, _ in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))]
+    ranked = _ranked_alphabet(lines)
     out: Lines = []
     for ln, starts in zip(lines, para_starts):
         ln = list(ln)
@@ -193,7 +315,7 @@ def lay_out(words: list[str], rng: np.random.Generator, layout: Layout | None = 
             i += 1
         lines.append(line)
         para_starts.append(starts)
-    return decorate(lines, para_starts, layout, rng)
+    return finish(lines, para_starts, layout, rng)
 
 
 # ---------------------------------------------------------------- dil tabanlı
@@ -252,9 +374,32 @@ def verbose(words: list[str], rng: np.random.Generator, layout: Layout | None = 
 # ------------------------------------------------------------------- anlamsız
 
 
+def _log_int(lo: int, hi: int, rng: np.random.Generator) -> int:
+    """[lo, hi] aralığında logaritmik ölçekte düzgün tam sayı."""
+    return int(round(np.exp(rng.uniform(np.log(lo), np.log(hi)))))
+
+
 def _zipf_weights(n: int, rng: np.random.Generator) -> np.ndarray:
     w = 1.0 / np.arange(1, n + 1) ** rng.uniform(0.6, 1.2)
     return w / w.sum()
+
+
+def _slot_alphabets(
+    alphabet: list[str], n_slots: int, overlap: float, rng: np.random.Generator
+) -> list[list[str]]:
+    """Alfabeyi kelime içi yuvalara (önek, gövde, sonek ...) paylaştırır.
+
+    overlap 0 ise her yuvanın glif kümesi ayrıdır (glifin kelimedeki yeri
+    sabittir); 1 ise bütün yuvalar bütün alfabeyi kullanır (konum yapısı yok).
+    """
+    owner = rng.integers(0, n_slots, size=len(alphabet))
+    owner[rng.permutation(len(alphabet))[:n_slots]] = np.arange(n_slots)  # boş yuva kalmasın
+    slots = []
+    for j in range(n_slots):
+        own = [g for g, o in zip(alphabet, owner) if o == j]
+        extra = [g for g, o in zip(alphabet, owner) if o != j and rng.random() < overlap]
+        slots.append([str(g) for g in rng.permutation(own + extra)])
+    return slots
 
 
 def _syllables(
@@ -276,12 +421,18 @@ def grille(n_words: int, rng: np.random.Generator, layout: Layout | None = None)
 
     Her ızgara üç sütun için birer satır kayması tanımlar. Izgara tabloyu
     baştan sona tarar, sonra sıradaki ızgaraya geçilir.
+
+    Örnek başına rastgele: tablo boyutu (küçük tablo kendini tekrar eder, büyük
+    tablo her kelimeyi neredeyse bağımsız çeker) ve üç sütunun glif kümelerinin
+    ne kadar örtüştüğü (Rugg'ın tablosunda önek, gövde ve sonek heceleri ayrıdır).
     """
     alphabet = _symbols(int(rng.integers(15, 26)))
-    rows = int(rng.integers(60, 201))
-    inv_p = _syllables(alphabet, int(rng.integers(8, 21)), 2, 0.3, rng)
-    inv_m = _syllables(alphabet, int(rng.integers(15, 41)), 3, 0.0, rng)
-    inv_s = _syllables(alphabet, int(rng.integers(8, 21)), 2, 0.3, rng)
+    rows = _log_int(60, 3000, rng)
+    alpha_p, alpha_m, alpha_s = _slot_alphabets(alphabet, 3, float(rng.uniform(0, 1)), rng)
+    n_edge, n_mid = _log_int(5, 40, rng), _log_int(10, 120, rng)
+    inv_p = _syllables(alpha_p, n_edge, 2, 0.3, rng)
+    inv_m = _syllables(alpha_m, n_mid, 3, 0.0, rng)
+    inv_s = _syllables(alpha_s, n_edge, 2, 0.3, rng)
     col_p = rng.choice(inv_p, size=rows, p=_zipf_weights(len(inv_p), rng))
     col_m = rng.choice(inv_m, size=rows, p=_zipf_weights(len(inv_m), rng))
     col_s = rng.choice(inv_s, size=rows, p=_zipf_weights(len(inv_s), rng))
@@ -304,9 +455,14 @@ def selfcite(n_words: int, rng: np.random.Generator, layout: Layout | None = Non
     küçük değişikliklerle yeniden yazar. Benzer kelimelerin yakın durması ve
     yoğun "bir harf farklı" kelime ağı bu sürecin doğal sonucudur.
 
+    Örnek başına rastgele: kopyanın değişmeden kalma olasılığı, yazıcının kaç
+    satır geriye baktığı, yeni kelimelerin yuva (önek, gövde, sonek) yapısının
+    sıkılığı. Değerler Timm ve Schinner'ın makalesinden alınmadı, geniş bir
+    aralıktan çekilir (bkz. CLAUDE.md yol haritası).
+
     Kopyalama satır konumuna bağlı olduğu için bu süreç satırlarını kendisi
     kurar, ama genişlik ve paragraf kararını ortak yazıcı katmanından alır.
-    Satır konumu işaretleri en sonda uygulanır, kopyalanan kaynak işaretsizdir.
+    Yazıcı katmanı en sonda uygulanır, kopyalanan kaynak işaretsizdir.
     """
     if layout is None:
         layout = sample_layout(rng)
@@ -317,30 +473,46 @@ def selfcite(n_words: int, rng: np.random.Generator, layout: Layout | None = Non
     class_of = {alphabet[i]: [alphabet[k] for k in cls] for cls in classes for i in cls}
     prefixes = [str(s) for s in rng.choice(alphabet, size=3, p=sym_w)]
     p_copy = rng.uniform(0.85, 0.97)
+    p_exact = rng.uniform(0.2, 0.8)  # kopyanın hiç değişmeme olasılığı
+    reach = _log_int(1, 30, rng)  # kaç satır geriye bakılır
+    p_same_line = rng.uniform(0.0, 0.3)  # kaynağın aynı satırdan seçilme olasılığı
+    # Değişiklik türlerinin payı: değiştir, önek, sil, ikile (ortalama 0.43, 0.21, 0.17, 0.19).
+    cut = np.cumsum(rng.dirichlet(4 * np.array([0.43, 0.21, 0.17, 0.19])))
+    # Yeni kelimeler önek + gövde + sonek yuvalarından kurulur.
+    slot_p, slot_m, slot_s = (
+        (a, _zipf_weights(len(a), rng))
+        for a in _slot_alphabets(alphabet, 3, float(rng.uniform(0, 1)), rng)
+    )
+    p_affix = rng.uniform(0.3, 0.9)
 
     def fresh() -> str:
-        return "".join(rng.choice(alphabet, size=int(rng.integers(2, 7)), p=sym_w))
+        w = "".join(rng.choice(slot_m[0], size=int(rng.integers(1, 5)), p=slot_m[1]))
+        if rng.random() < p_affix:
+            w = str(rng.choice(slot_p[0], p=slot_p[1])) + w
+        if rng.random() < p_affix:
+            w = w + str(rng.choice(slot_s[0], p=slot_s[1]))
+        return w
 
     def mutate(w: str) -> str:
-        r = rng.random()
-        if r < 0.30 or not w:
+        if rng.random() < p_exact or not w:
             return w
+        r = rng.random()
         i = int(rng.integers(0, len(w)))
-        if r < 0.60:  # benzer glifle değiştir
+        if r < cut[0]:  # benzer glifle değiştir
             return w[:i] + str(rng.choice(class_of[w[i]])) + w[i + 1 :]
-        if r < 0.75:  # önek ekle ya da at
-            if w[0] in prefixes and len(w) > 2:
+        if r < cut[1]:  # önek ekle ya da at
+            if w[0] in prefixes and len(w) > 1:
                 return w[1:]
             return str(rng.choice(prefixes)) + w
-        if r < 0.87 and len(w) > 2:  # glif sil
+        if r < cut[2] and len(w) > 1:  # glif sil
             return w[:i] + w[i + 1 :]
         return w[:i] + w[i] + w[i:]  # glifi ikile
 
     def next_word(lines: Lines, line: list[str]) -> str:
         if lines and rng.random() < p_copy:
-            # Kaynak: son üç satırda benzer konum ya da aynı satırın başı.
-            src_line = lines[-int(rng.integers(1, min(3, len(lines)) + 1))]
-            if line and rng.random() < 0.25:
+            # Kaynak: son `reach` satırda benzer konum ya da aynı satırın başı.
+            src_line = lines[-int(rng.integers(1, min(reach, len(lines)) + 1))]
+            if line and rng.random() < p_same_line:
                 src = line[int(rng.integers(0, len(line)))]
             else:
                 k = min(len(src_line) - 1, max(0, len(line) + int(rng.integers(-1, 2))))
@@ -348,7 +520,7 @@ def selfcite(n_words: int, rng: np.random.Generator, layout: Layout | None = Non
             return mutate(src)[:10] or fresh()
         return fresh()
 
-    budgets = layout.budgets(4.0 + 1.0, rng)  # fresh() ortalama 4 glif üretir
+    budgets = layout.budgets(4.0 + 1.0, rng)  # kelimeler ortalama 4 glif civarı
     lines: Lines = []
     para_starts: list[bool] = []
     total = 0
@@ -368,7 +540,7 @@ def selfcite(n_words: int, rng: np.random.Generator, layout: Layout | None = Non
         lines.append(line)
         para_starts.append(starts)
         total += len(line)
-    return decorate(lines, para_starts, layout, rng)
+    return finish(lines, para_starts, layout, rng)
 
 
 LANGUAGE_PROCESSES: dict[str, Callable[..., Lines]] = {
