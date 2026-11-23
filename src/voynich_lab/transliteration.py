@@ -1,0 +1,118 @@
+"""Voynich transliterasyon dosyalarını ortak `Lines` biçimine çevirir.
+
+Üç görünüm üretilir, çünkü "hangi çizgi tek harf" kararı istatistikleri değiştirir:
+  eva_basic : Takahashi EVA, her EVA harfi bir sembol
+  eva_glyph : Takahashi EVA, ch/sh ve sehpalı gallows'lar tek sembol
+  v101      : Glen Claston v101, bambaşka (daha ince taneli) bir alfabe
+"""
+
+from __future__ import annotations
+
+import re
+from dataclasses import dataclass
+from pathlib import Path
+
+# EVA'da birden fazla harfle yazılan ama el yazmasında tek glif olan birimler.
+# Sıra önemli: uzun olanlar önce eşleşmeli.
+_EVA_LIGATURES = ["cth", "ckh", "cph", "cfh", "sh", "ch"]
+_PRIVATE_BASE = 0xE000  # Unicode özel kullanım alanı, gerçek harflerle çakışmaz
+
+_TAKAHASHI_TAG = re.compile(r"^<f(\w+?)\.([A-Za-z])\w*\.\d+;\w>\s*(.*)$")
+_V101_TAG = re.compile(r"^<(\d+[rv]\d*(?:-[rv]?\d*)?)\.(\d+)>(.*)$")
+
+
+@dataclass(frozen=True)
+class FolioLine:
+    folio: str
+    words: list[str]
+
+
+def _merge_eva_ligatures(word: str) -> str:
+    for i, lig in enumerate(_EVA_LIGATURES):
+        word = word.replace(lig, chr(_PRIVATE_BASE + i))
+    return word
+
+
+def load_takahashi(
+    path: str | Path,
+    glyph_mode: str = "basic",
+    locus_types: tuple[str, ...] = ("P",),
+) -> list[FolioLine]:
+    """Takahashi EVA dosyasını okur.
+
+    locus_types: varsayılan yalnızca paragraf metni (P). Etiketler, halka
+    yazıları vb. akan metin istatistiklerini bozduğu için dışarıda bırakılır.
+    Okunamayan glif (*) içeren kelimeler atılır.
+    """
+    if glyph_mode not in ("basic", "glyph"):
+        raise ValueError(f"glyph_mode 'basic' ya da 'glyph' olmalı: {glyph_mode}")
+    out: list[FolioLine] = []
+    for raw in Path(path).read_text(encoding="utf-8").splitlines():
+        m = _TAKAHASHI_TAG.match(raw)
+        if not m:
+            continue
+        folio, locus, body = m.groups()
+        if locus not in locus_types:
+            continue
+        body = body.replace("!", "").replace("%", "").rstrip("-=").lower()
+        words = [w for w in body.split(".") if w and "*" not in w]
+        if glyph_mode == "glyph":
+            words = [_merge_eva_ligatures(w) for w in words]
+        if words:
+            out.append(FolioLine(folio, words))
+    return out
+
+
+def load_v101(path: str | Path, comma_is_space: bool = True) -> list[FolioLine]:
+    """Claston v101 dosyasını okur. Yalnızca düz numaralı (paragraf) satırlar alınır.
+
+    comma_is_space: v101'de virgül "belirsiz boşluk" demek. True ise boşluk
+    sayılır, False ise kelime birleştirilir. Sonuçların buna duyarlılığı
+    ayrıca test edilmeli.
+    """
+    out: list[FolioLine] = []
+    for raw in Path(path).read_text(encoding="utf-8").splitlines():
+        m = _V101_TAG.match(raw)
+        if not m:
+            continue
+        folio, _, body = m.groups()
+        body = body.rstrip("-=")
+        body = body.replace(",", "." if comma_is_space else "")
+        words = [w for w in body.split(".") if w and "?" not in w]
+        if words:
+            out.append(FolioLine(folio, words))
+    return out
+
+
+def load_views(raw_dir: str | Path) -> dict[str, list[FolioLine]]:
+    """Mevcut bütün transliterasyon görünümlerini yükler."""
+    raw_dir = Path(raw_dir)
+    eva, v101 = raw_dir / "takahashi_eva.txt", raw_dir / "claston_v101.txt"
+    views: dict[str, list[FolioLine]] = {}
+    if eva.exists():
+        views["eva_basic"] = load_takahashi(eva, "basic")
+        views["eva_glyph"] = load_takahashi(eva, "glyph")
+    if v101.exists():
+        views["v101"] = load_v101(v101)
+    if not views:
+        raise FileNotFoundError(f"{raw_dir} içinde transliterasyon yok, önce 'fetch' çalıştır")
+    return views
+
+
+def to_windows(
+    lines: list[FolioLine], window_words: int
+) -> list[tuple[str, list[list[str]]]]:
+    """Ardışık satırları ~window_words kelimelik pencerelere böler.
+
+    Dönen her öğe: ("f1r..f8v" gibi folio aralığı, satırlar). Sondaki eksik
+    pencere atılır, çünkü feature'lar pencere boyutuna duyarlı.
+    """
+    windows, cur, count = [], [], 0
+    for ln in lines:
+        cur.append(ln)
+        count += len(ln.words)
+        if count >= window_words:
+            label = f"{cur[0].folio}..{cur[-1].folio}"
+            windows.append((label, [c.words for c in cur]))
+            cur, count = [], 0
+    return windows
