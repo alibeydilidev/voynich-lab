@@ -75,7 +75,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 
 Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bir glif. Çok harfli glifler Unicode özel kullanım alanındaki tek karaktere eşlenir.
 
-Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu: önek, gövde, sonek heceleri; sütunların glif kümeleri ayrık ya da örtüşük), `selfcite` (Timm ve Schinner kendinden kopyalama; yeni kelimeler yuva yapısından), `slotcite` (melez: kelimeler grille gibi hece üçlüsü, metin selfcite gibi kopyalayıp bir heceyi değiştirerek ilerler).
+Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu: önek, gövde, sonek heceleri; sütunların glif kümeleri ayrık ya da örtüşük), `selfcite` (Timm ve Schinner kendinden kopyalama; yeni kelimeler yuva yapısından), `slotcite` (melez: kelimeler grille gibi hece üçlüsü, metin selfcite gibi kopyalayıp bir heceyi değiştirerek ilerler), `slotgram` (çok yuvalı kelime grameri: 3 ila 8 sıralı seçmeli yuva, isteğe bağlı yerel kopyalama).
 
 Yeni süreç eklemek: fonksiyonu `generators.py` içine yaz, ayarları `Knobs.get` ile çek (böylece hem kaydedilir hem dışarıdan sabitlenebilir), sınırlarını `PROCESS_PRIOR` tablosuna yaz, sonunda `lay_out(kelimeler, rng, layout, rec)` çağır, ilgili sözlüğe ekle. `test_priors_cover_what_is_drawn` tablo ile çekimin tutarlılığını denetler.
 
@@ -176,7 +176,7 @@ Tarihçe (`143fd50`); beş hipotezli tablo. Sonundaki melez hipotezi v0.6'da sı
 
 ## v0.6 bulguları: melez üreteç sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
 
-Güncel durum budur. Raporlar: `results/manuscripts.md` (asıl hüküm; altı sınıf, sınıf başına 2000 el yazması), `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`.
+Tarihçe (`a4a6dd7`). Sonundaki çok yuvalı gramer hipotezi v0.7'de sınandı ve tutmadı. Raporlar: `results/manuscripts.md` (asıl hüküm; altı sınıf, sınıf başına 2000 el yazması), `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`.
 
 Eklenen: `slotcite` sınıfı. Hipotez sınanmadan önce v0.5 bölümüne yazılmıştı; ölçüt, el yazması düzeyinde doğrulama T'sinin `grille`'den belirgin düşük çıkmasıydı.
 
@@ -188,6 +188,19 @@ Eklenen: `slotcite` sınıfı. Hipotez sınanmadan önce v0.5 bölümüne yazıl
 - **Sınıflandırıcı raporu (yardımcı):** CV 0.952; düz EVA görünümlerinde `slotcite` (0.59, 0.60), diğerlerinde `grille` (0.56 ila 0.74); OOD yüzdeliği 52 ila 86. İlke 7 gereği başlık değil.
 - **Yeni hipotez (sınanmadı, ölçüt aynı):** açık, yuva sayısından geliyor. Üç yerine dört ila altı seçmeli yuvadan kurulan kelime (literatürdeki çok yuvalı Voynich kelime gramerleri) hem daha çok tek geçen kelime üretir hem dağarcığı "bir harf farklı" komşularla dolu tutar. Öngörü: çok yuvalı `grille`, doğrulama T'sinde 5.1'in belirgin altına iner ve `hapax_ratio` ile `vocab_ed1_density` açıkları birlikte küçülür. İnmezse açık yuva sayısından değil, başka yerden geliyor demektir.
 
+## v0.7 bulguları: çok yuvalı gramer sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
+
+Güncel durum budur. Raporlar: `results/manuscripts.md` (asıl hüküm; yedi sınıf, sınıf başına 2000 el yazması) ve yardımcı raporlar.
+
+Eklenen: `slotgram` sınıfı; kopyalama döngüsü `_cite_text` yardımcısına taşındı (`slotcite` çıktısı bayt bayt aynı kaldı). Tohumlar artık sınıf ve görünüm adına bağlı (`_stable_id`), bu yüzden v0.6'ya göre bütün sayılar birkaç ondalık oynadı; bundan sonra yeni sınıf eklemek eskilerin sayılarını değiştirmez.
+
+- **Öngörü tutmadı.** Doğrulama T medyanı: `slotgram` 5.5 ila 7.4, `grille` 5.2 ila 6.7. Hiçbir görünümde `slotgram` daha iyi değil. Seçilen adaylarda yuva sayısı önselden kaymadı (medyan 5, önsel 3 ila 8).
+- **Açık küçülmedi, büyüdü.** `vocab_ed1_density` sapması +6 ila +10 (grille'de +5 ila +8); `hapax_ratio` hâlâ az; `zipf_slope` fazla dik. Yuva sayısını artırmak dağarcığı daha da sıkı yaptı. Demek ki açık yuva sayısından gelmiyor.
+- **Yerel kopyalama yine istenmedi.** Seçilen `slotgram` adaylarında kopyalama olasılığının medyanı 0 (kapalı).
+- **Arka arkaya iki öngörü tutmadı (melez, çok yuva).** İkisi de "hangi mekanizma eksik" sorusuna feature tablosuna bakarak verilmiş cevaplardı. Ders: açığın kaynağı üreteç yazmadan önce doğrudan Voynich verisinde ölçülmeli (dağarcık büyüme eğrisi, komşuluk yapısı), ve aday mekanizma tam zincir koşulmadan önce yalnız el yazması adımıyla ucuza sınanmalı.
+- **Sıralama (doğrulama T):** `grille` 5.2 ila 6.7; `slotcite` 5.6 ila 7.1; `slotgram` 5.5 ila 7.4; `verbose` 6.6 ila 8.9; `selfcite` 7.0 ila 10.5; `plain` 7.3 ila 12.8; `abjad` 7.4 ila 14.8. Beş görünümde aynı yönde. Referans 1.5.
+- **Sınıflandırıcı raporu (yardımcı):** CV 0.920; kararı üç anlamsız metin sınıfı arasında bölünüyor; OOD yüzdeliği 36 ila 81.
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
@@ -196,7 +209,7 @@ Eklenen: `slotcite` sınıfı. Hipotez sınanmadan önce v0.5 bölümüne yazıl
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) sınandı, tutmadı. **Sıradaki:** (a) çok yuvalı kelime grameri (v0.6'daki yeni hipotez); (b) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. **Sıradaki:** (a) açığın kaynağını Voynich verisinde doğrudan ölç (dağarcık büyüme eğrisi, hapax ve komşuluk yapısının örneklem boyutuna göre değişimi), aday mekanizmayı önce yalnız `cli manuscripts` ile ucuza sına; (b) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
 3. **Dönem metinleri.** İncil çevirileri modern. 15. yüzyıl Latince, İtalyanca, Almanca, İbranice, Osmanlıca öncesi Türkçe tıbbi ve botanik metinler ekle. `corpus.py` düz kelime listesi bekliyor, yeni yükleyici yazmak yeterli.
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.

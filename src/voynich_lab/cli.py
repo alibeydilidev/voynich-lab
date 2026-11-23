@@ -17,9 +17,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import zlib
 from pathlib import Path
 
 import pandas as pd
+
+
+def _stable_id(name: str) -> int:
+    """İsimden sabit tohum bileşeni. Yeni sınıf ya da görünüm eklenince
+    diğerlerinin rastgele sayı akışı değişmesin diye sıra numarası kullanılmaz."""
+    return zlib.crc32(name.encode("utf-8"))
 
 
 def cmd_fetch(args: argparse.Namespace) -> None:
@@ -128,14 +135,14 @@ def cmd_search(args: argparse.Namespace) -> None:
     universe_sd = df[FEATURE_NAMES].to_numpy(dtype=float).std(0)
     labels = sorted(df["label"].unique())
     jobs, meta = [], {}
-    for vi, (view, lines) in enumerate(load_views(args.raw).items()):
+    for view, lines in load_views(args.raw).items():
         V = voynich_features(lines, args.window).to_numpy(dtype=float)
         center = V.mean(0)
         scale = np.maximum(V.std(0, ddof=1), SCALE_FLOOR * universe_sd) + 1e-12
         n = len(V)
         self_d = np.sqrt(((((V - (center * n - V) / (n - 1)) / scale) ** 2).mean(1)))
         meta[view] = {"median": float(np.median(self_d)), "max": float(self_d.max())}
-        for li, label in enumerate(labels):
+        for label in labels:
             languages = (
                 sorted(df.loc[df["label"] == label, "group"].unique())
                 if label in LANGUAGE_PROCESSES
@@ -156,7 +163,7 @@ def cmd_search(args: argparse.Namespace) -> None:
                     "children": args.children,
                     "rounds": args.rounds,
                     "fresh": args.fresh,
-                    "seed": [args.seed, vi, li],
+                    "seed": [args.seed, _stable_id(view), _stable_id(label)],
                 }
             )
     with ProcessPoolExecutor(max_workers=args.jobs) as pool:
@@ -205,11 +212,11 @@ def cmd_manuscripts(args: argparse.Namespace) -> None:
             step = max(1, args.ms_per_class // (2 * args.jobs))
             jobs = [
                 {
-                    "label": label, "label_index": li, "start": a,
+                    "label": label, "label_index": _stable_id(label), "start": a,
                     "stop": min(a + step, args.ms_per_class), "raw": args.raw,
                     "window": args.window, "n_windows": args.ms_windows, "seed": args.seed,
                 }
-                for li, label in enumerate(labels)
+                for label in labels
                 for a in range(0, args.ms_per_class, step)
             ]  # fmt: skip
             df = pd.concat(list(pool.map(build_chunk, jobs)), ignore_index=True)
@@ -221,7 +228,7 @@ def cmd_manuscripts(args: argparse.Namespace) -> None:
             V = voynich_features(lines, args.window).to_numpy(dtype=float)
             views[view] = analyze_view(df, V, universe_sd, half, args.ms_top)
             scale = scale_for(V, universe_sd)
-            for li, label in enumerate(labels):
+            for label in labels:
                 g = df[df["label"] == label].set_index("index")
                 keys = list(prior_for(label)) + [LANGUAGE_KEY]
                 for index in views[view]["classes"][label]["selected_index"][: args.ms_reseed_top]:
@@ -230,7 +237,8 @@ def cmd_manuscripts(args: argparse.Namespace) -> None:
                     theta = {k: (v if k == LANGUAGE_KEY else float(v)) for k, v in theta.items()}
                     reseed_jobs.append(
                         {
-                            "label": label, "label_index": li, "view": view, "index": int(index),
+                            "label": label, "label_index": _stable_id(label), "view": view,
+                            "index": int(index),
                             "theta": theta, "raw": args.raw, "window": args.window, "half": half,
                             "n_reseeds": args.ms_reseeds, "seed": args.seed,
                             "center": V.mean(0).tolist(), "scale": scale.tolist(), "v_n": len(V),

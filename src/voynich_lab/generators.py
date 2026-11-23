@@ -12,6 +12,8 @@ Anlamsız metin üreteçleri gerçek metne ihtiyaç duymaz:
   slotcite : melez. Kelimeler grille gibi önek + gövde + sonek hecelerinden
              kurulur, metin selfcite gibi önceki kelimeleri kopyalayıp bir
              hecesini değiştirerek ilerler
+  slotgram : çok yuvalı kelime grameri. Kelime 3 ila 8 sıralı, seçmeli yuvadan
+             kurulur; isteğe bağlı olarak yerel kopyalama da yapar
 
 Bunlar bilinçli olarak basit v0 sürümleri. Hattın bilimsel değeri bu
 üreteçlerin aslına sadakatine bağlı, asıl geliştirme alanı burası.
@@ -234,6 +236,18 @@ PROCESS_PRIOR: dict[str, dict[str, tuple[float, float, str]]] = {
         "p_mut_prefix": (0, 1, "f"),
         "p_mut_mid": (0, 1, "f"),
         "p_mut_suffix": (0, 1, "f"),
+    },
+    "slotgram": {
+        "p_alphabet": (15, 25, "i"),
+        "p_n_slots": (3, 8, "i"),
+        "p_slot_overlap": (0, 1, "f"),
+        "p_n_inv": (2, 30, "log"),
+        "p_len_max": (1, 2, "i"),
+        "p_empty": (0.1, 0.8, "f"),
+        "p_copy": (0.3, 0.95, "m"),
+        "p_exact": (0, 0.5, "f"),
+        "p_reach": (1, 30, "log"),
+        "p_same_line": (0, 0.5, "f"),
     },
 }
 
@@ -815,9 +829,34 @@ def slotcite(
     mix = np.array([float(k.get(n, lambda v=v: float(v))) for n, v in zip(names, drawn)])
     cut = np.cumsum(mix / max(mix.sum(), 1e-9))
 
+    mean_len = sum(float(np.dot(weights[j], [len(x) for x in inv[j]])) for j in range(3))
+    return _cite_text(inv, weights, p_copy, p_exact, reach, p_same_line, cut, mean_len, n_words, layout, rng)
+
+
+def _cite_text(
+    inv: list[list[str]],
+    weights: list[np.ndarray],
+    p_copy: float,
+    p_exact: float,
+    reach: int,
+    p_same_line: float,
+    cut: np.ndarray,
+    mean_len: float,
+    n_words: int,
+    layout: Layout,
+    rng: np.random.Generator,
+) -> Lines:
+    """Yuva yapılı kelimelerle metin kurar; isteğe bağlı yerel kopyalama yapar.
+
+    Her kelime, yuva başına bir hece indeksinden oluşan bir demettir. Yeni
+    kelime her yuvadan bağımsız çekilir. Kopyalanan kelime ya aynen alınır ya da
+    tek bir yuvası yeniden çekilir; hangi yuvanın değişeceğini `cut` (birikimli
+    olasılık) belirler. Boş çıkan kelime yeniden çekilir.
+    """
+    n_slots = len(inv)
     # Tek tek çekmek yavaş: hece ve olasılık çekimleri bloklar hâlinde hazırlanır.
     block = 4096
-    pools = [iter(()) for _ in range(3)]
+    pools = [iter(()) for _ in range(n_slots)]
     uniforms = iter(())
 
     def syllable(j: int) -> int:
@@ -836,13 +875,16 @@ def slotcite(
             v = next(uniforms)
         return v
 
-    Word = tuple[int, int, int]
-
-    def fresh() -> Word:
-        return (syllable(0), syllable(1), syllable(2))
+    Word = tuple[int, ...]
 
     def spell(w: Word) -> str:
-        return inv[0][w[0]] + inv[1][w[1]] + inv[2][w[2]]
+        return "".join(inv[j][i] for j, i in enumerate(w))
+
+    def fresh() -> Word:
+        while True:
+            w = tuple(syllable(j) for j in range(n_slots))
+            if spell(w):
+                return w
 
     def next_word(lines: list[list[Word]], line: list[Word]) -> Word:
         if not lines or u() >= p_copy:
@@ -855,12 +897,13 @@ def slotcite(
             src = src_line[pos]
         if u() < p_exact:
             return src
-        j = int(np.searchsorted(cut, u(), side="right").clip(0, 2))
+        j = int(np.searchsorted(cut, u(), side="right").clip(0, n_slots - 1))
         w = list(src)
         w[j] = syllable(j)
-        return (w[0], w[1], w[2])
+        if not spell(tuple(w)):
+            return src
+        return tuple(w)
 
-    mean_len = sum(float(np.dot(weights[j], [len(x) for x in inv[j]])) for j in range(3))
     budgets = layout.budgets(mean_len + 1.0, rng)
     lines: list[list[Word]] = []
     para_starts: list[bool] = []
@@ -885,6 +928,54 @@ def slotcite(
     return finish([[spell(w) for w in ln] for ln in lines], para_starts, layout, rng)
 
 
+def slotgram(
+    n_words: int,
+    rng: np.random.Generator,
+    layout: Layout | None = None,
+    rec: dict | None = None,
+    fixed: dict | None = None,
+) -> Lines:
+    """Çok yuvalı kelime grameri: kelime 3 ila 8 sıralı, seçmeli yuvadan kurulur.
+
+    v0.6 bulgusundan doğan hipotez: üç yuvalı üreteçlerin dağarcığı kapalı
+    kalıyor (tek geçen kelime az, "bir harf farklı" komşu fazla). Voynich
+    kelime grameri literatürü kelimeyi çok sayıda kısa, seçmeli yuvaya böler.
+    Burada her yuvanın küçük bir hece envanteri vardır ve yuva boş geçilebilir;
+    kelime, yuvaların sırayla yan yana gelmesidir. Yuva sayısı arttıkça olası
+    kelime sayısı çarpımsal büyür.
+
+    Yerel kopyalama isteğe bağlıdır (p_copy 0 olabilir): kopyalanan kelimenin
+    tek bir yuvası yeniden çekilir, yani bir hece eklenir, silinir ya da değişir.
+    """
+    if layout is None:
+        layout = sample_layout(rng)
+    _note(rec, **layout_params(layout))
+    k = Knobs(fixed, rec)
+    alphabet = _symbols(int(k.get("p_alphabet", lambda: int(rng.integers(15, 26)))))
+    n_slots = int(k.get("p_n_slots", lambda: int(rng.integers(3, 9))))
+    overlap = float(k.get("p_slot_overlap", lambda: float(rng.uniform(0, 1))))
+    slot_alphabets = _slot_alphabets(alphabet, n_slots, overlap, rng)
+    n_inv = int(k.get("p_n_inv", lambda: _log_int(2, 30, rng)))
+    len_max = int(k.get("p_len_max", lambda: int(rng.integers(1, 3))))
+    p_empty = float(k.get("p_empty", lambda: float(rng.uniform(0.1, 0.8))))
+    inv: list[list[str]] = []
+    weights: list[np.ndarray] = []
+    for j in range(n_slots):
+        # Yuvalar birbirinin aynısı değildir: boyut ve boş geçme payı yuvadan yuvaya oynar.
+        size = max(1, int(round(n_inv * float(np.exp(rng.normal(0, 0.5))))))
+        empty = float(np.clip(p_empty + rng.normal(0, 0.15), 0.0, 0.95))
+        syl = [x for x in dict.fromkeys(_syllables(slot_alphabets[j], size, len_max, 0.0, rng))]
+        inv.append([""] + syl)
+        weights.append(np.concatenate([[empty], (1 - empty) * _zipf_weights(len(syl), rng)]))
+    p_copy = float(k.get("p_copy", lambda: 0.0 if rng.random() < 0.5 else float(rng.uniform(0.3, 0.95))))
+    p_exact = float(k.get("p_exact", lambda: float(rng.uniform(0.0, 0.5))))
+    reach = int(k.get("p_reach", lambda: _log_int(1, 30, rng)))
+    p_same_line = float(k.get("p_same_line", lambda: float(rng.uniform(0.0, 0.5))))
+    cut = np.arange(1, n_slots + 1) / n_slots  # değişecek yuva eşit olasılıkla seçilir
+    mean_len = sum(float(np.dot(weights[j], [len(x) for x in inv[j]])) for j in range(n_slots))
+    return _cite_text(inv, weights, p_copy, p_exact, reach, p_same_line, cut, mean_len, n_words, layout, rng)
+
+
 LANGUAGE_PROCESSES: dict[str, Callable[..., Lines]] = {
     "plain": plain,
     "abjad": abjad,
@@ -894,4 +985,5 @@ GIBBERISH_PROCESSES: dict[str, Callable[..., Lines]] = {
     "grille": grille,
     "selfcite": selfcite,
     "slotcite": slotcite,
+    "slotgram": slotgram,
 }
