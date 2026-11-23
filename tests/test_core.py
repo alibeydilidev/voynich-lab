@@ -6,7 +6,14 @@ import pytest
 from voynich_lab.corpus import normalize
 from voynich_lab.dataset import _truncate
 from voynich_lab.features import FEATURE_NAMES, _is_ed1, extract_features
-from voynich_lab.generators import GIBBERISH_PROCESSES, LANGUAGE_PROCESSES, wrap
+from voynich_lab.generators import (
+    GIBBERISH_PROCESSES,
+    LANGUAGE_PROCESSES,
+    Layout,
+    Mark,
+    lay_out,
+    sample_layout,
+)
 from voynich_lab.transliteration import _merge_eva_ligatures, load_takahashi, load_v101, to_windows
 
 TEXT = (
@@ -16,7 +23,7 @@ TEXT = (
 
 
 def _lines(seed=0):
-    return wrap(list(TEXT), np.random.default_rng(seed))
+    return lay_out(list(TEXT), np.random.default_rng(seed), Layout())
 
 
 def test_features_are_finite_and_complete():
@@ -40,7 +47,7 @@ def test_monoalphabetic_substitution_is_invisible():
 def test_entropy_of_uniform_symbols():
     rng = np.random.default_rng(0)
     words = ["".join(rng.choice(list("abcdefgh"), size=4)) for _ in range(4000)]
-    f = extract_features(wrap(words, rng))
+    f = extract_features(lay_out(words, rng, Layout()))
     assert f["n_symbols"] == 8
     assert f["eff_symbols"] == pytest.approx(8, rel=0.01)
 
@@ -69,6 +76,57 @@ def test_gibberish_processes_are_deterministic(name):
     assert all(w for ln in a for w in ln)
 
 
+def test_layout_without_marks_only_breaks_lines():
+    """İşaretsiz düzen kelimeleri değiştirmez, yalnız satıra böler."""
+    lines = lay_out(list(TEXT), np.random.default_rng(0), Layout(para_lines=5, width_jitter=0.3))
+    assert [w for ln in lines for w in ln] == TEXT
+    assert all(lines)
+
+
+def test_width_wrapping_lengthens_line_initial_words():
+    """Genişliğe göre doldurma tek başına satır başı kelimelerini uzun yapar.
+
+    Sığmayan kelime alt satıra iner ve sığmayan çoğunlukla uzun kelimedir. Bu
+    yüzden len_ratio_line_initial > 1 kendi başına bulgu değildir. Satır sonunda
+    aynı kayma yoktur: orada 1'den sapma doldurmayla açıklanamaz.
+    """
+    first, last = [], []
+    for seed in range(10):
+        rng = np.random.default_rng(seed)
+        words = [TEXT[i] for i in rng.permutation(len(TEXT))]
+        f = extract_features(lay_out(words, rng, Layout(width_jitter=0.2)))
+        first.append(f["len_ratio_line_initial"])
+        last.append(f["len_ratio_line_final"])
+    assert min(first) > 1.05
+    assert abs(np.mean(last) - 1) < 0.03
+
+
+def test_line_marks_land_on_line_edges():
+    new_glyph = Mark(p=1.0, mode="add", glyphs=(1.0,), weights=(1.0,))
+    plain_lines = _lines()
+    marked = lay_out(
+        list(TEXT),
+        np.random.default_rng(0),
+        Layout(line_initial=new_glyph, line_final=Mark(1.0, "abbreviate", (2.0,), (1.0,))),
+    )
+    assert len({ln[0][0] for ln in marked}) == 1  # her satır aynı yeni glifle başlar
+    assert len({ln[-1][-1] for ln in marked}) == 1
+    assert {ln[0][0] for ln in marked} != {ln[-1][-1] for ln in marked}
+    inner = {ch for ln in marked for w in ln[1:-1] for ch in w}
+    assert marked[0][0][0] not in inner and marked[0][-1][-1] not in inner
+    a, b = extract_features(plain_lines), extract_features(marked)
+    assert b["jsd_line_initial"] > a["jsd_line_initial"] + 0.3
+    assert b["jsd_line_final"] > a["jsd_line_final"] + 0.3
+
+
+def test_layout_prior_is_deterministic_and_includes_no_effect_case():
+    layouts = [sample_layout(np.random.default_rng(i)) for i in range(200)]
+    assert layouts[3] == sample_layout(np.random.default_rng(3))
+    bare = [lo for lo in layouts if not (lo.line_initial or lo.line_final or lo.para_initial)]
+    assert bare  # "hiç satır etkisi yok" durumu evrenin içinde
+    assert any(lo.line_initial for lo in layouts) and any(lo.line_final for lo in layouts)
+
+
 def test_truncate_gives_exact_window():
     assert sum(len(ln) for ln in _truncate(_lines(), 500)) == 500
 
@@ -85,13 +143,15 @@ def test_takahashi_parser(tmp_path):
     p.write_text(
         "<f1r.P1.1;H>       fachys.ykal.ar.cTh!res.Shol-\n"
         "<f1r.L1.2;H>       otol=\n"
-        "<f1r.P1.3;H>       *.odar.cTh*ar.daiin=\n",
+        "<f1r.P1.3;H>       *.odar.cTh*ar.daiin=\n"
+        "<f1v.P.1;H>        kchsy.ol-oltchey.am-\n",
         encoding="utf-8",
     )
     lines = load_takahashi(p, "basic")
     assert [ln.words for ln in lines] == [
         ["fachys", "ykal", "ar", "cthres", "shol"],
         ["odar", "daiin"],
+        ["kchsy", "ol", "oltchey", "am"],  # satır içi "-" çizim boşluğu: kelime sınırı
     ]
     glyph = load_takahashi(p, "glyph")
     assert len(glyph[0].words[3]) == len("cthres") - 2  # cth tek sembol

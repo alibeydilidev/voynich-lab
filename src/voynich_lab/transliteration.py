@@ -43,6 +43,9 @@ def load_takahashi(
     locus_types: varsayılan yalnızca paragraf metni (P). Etiketler, halka
     yazıları vb. akan metin istatistiklerini bozduğu için dışarıda bırakılır.
     Okunamayan glif (*) içeren kelimeler atılır.
+
+    Satır ortasındaki "-" bir çizimin metni böldüğü yerdir; glif değil, kelime
+    sınırı sayılır (satır sonu sayılmaz, bkz. CLAUDE.md "Bilinen tuzaklar").
     """
     if glyph_mode not in ("basic", "glyph"):
         raise ValueError(f"glyph_mode 'basic' ya da 'glyph' olmalı: {glyph_mode}")
@@ -55,6 +58,7 @@ def load_takahashi(
         if locus not in locus_types:
             continue
         body = body.replace("!", "").replace("%", "").rstrip("-=").lower()
+        body = body.replace("-", ".")  # çizim boşluğu: kelime sınırı
         words = [w for w in body.split(".") if w and "*" not in w]
         if glyph_mode == "glyph":
             words = [_merge_eva_ligatures(w) for w in words]

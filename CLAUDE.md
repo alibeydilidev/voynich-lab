@@ -57,7 +57,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`.
 |---|---|
 | `transliteration.py` | Takahashi EVA ve Claston v101 ayrıştırıcıları, üç görünüm (`eva_basic`, `eva_glyph`, `v101`), pencereleme |
 | `corpus.py` | 22 dilde paralel İncil, yazıya göre normalizasyon |
-| `generators.py` | Üretim süreçleri. `LANGUAGE_PROCESSES` gerçek metni dönüştürür, `GIBBERISH_PROCESSES` sıfırdan üretir |
+| `generators.py` | Üretim süreçleri. `LANGUAGE_PROCESSES` gerçek metni dönüştürür, `GIBBERISH_PROCESSES` sıfırdan üretir. Hepsinin üstünde ortak yazıcı katmanı (`Layout`, `lay_out`): satırı genişliğe göre doldurma, paragraf, satır başı, satır sonu ve paragraf başı alışkanlıkları |
 | `features.py` | 32 feature: entropi, kelime uzunluğu, dağarcık, tekrar, kelime içi konum, satır konumu |
 | `dataset.py` | Sentetik korpus fabrikası: (dil penceresi x süreç) -> satır |
 | `model.py` | XGBoost, `GroupKFold` |
@@ -68,11 +68,13 @@ Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bi
 
 Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu), `selfcite` (Timm ve Schinner kendinden kopyalama).
 
-Yeni süreç eklemek: fonksiyonu `generators.py` içine yaz, ilgili sözlüğe ekle. Başka hiçbir yere dokunmak gerekmez.
+Yeni süreç eklemek: fonksiyonu `generators.py` içine yaz, sonunda `lay_out(kelimeler, rng, layout)` çağır, ilgili sözlüğe ekle. Başka hiçbir yere dokunmak gerekmez.
+
+Yazıcı katmanının kuralı: parametreleri (`sample_layout`) bütün sınıflar için aynı önselden çekilir ve "hiç satır etkisi yok" durumunu da içerir. Sınıfa özel satır kuralı yazılmaz; yazılırsa sınıflandırıcı onu kestirme yol yapar. Önsel aralıkları Voynich'e göre ayarlanmaz, o iş ABC adımınındır.
 
 ## v0 bulguları (2026-11-23, seed 7, pencere 2000)
 
-Tam rapor: `results/report.md`.
+Tarihçe. Güncel durum bir alttaki v0.1 bölümünde; `results/report.md` artık v0.1 raporudur. v0 raporu git geçmişinde (`dcb7aba`).
 
 - **Sentetik veride CV doğruluğu 0.995.** Bu iyi haber değil: sınıflar fazla kolay ayrışıyor, yani üreteçler birbirinden karikatür düzeyinde farklı.
 - **Voynich üç görünümde de dağılım dışı.** En yakın sınıfa mesafesi, o sınıfın kendi medyanının 8 ila 9 katı, yüzdelik 100. Dolayısıyla sınıf olasılıkları (`eva_basic`'te `verbose` 0.50, `eva_glyph`'te `plain` 0.35, v101'de `plain` 0.40 önde) şu an bulgu değil, "en az kötü eşleşme".
@@ -86,11 +88,26 @@ Tam rapor: `results/report.md`.
 
 Yani v0'ın gerçek çıktısı şu: **beş basit hipotezin hiçbiri Voynich'i üretemiyor, ve hangi dört özellikte çuvalladıkları belli.** Sonraki iş bu dört özelliği üretebilen süreçler yazmak.
 
+## v0.1 bulguları: satır farkındalığı (2026-11-23, seed 7, pencere 2000)
+
+Tam rapor: `results/report.md`. İki değişiklik: Takahashi ayrıştırıcısında hata düzeltmesi ve üreteçlere ortak yazıcı katmanı.
+
+- **Ayrıştırıcı hatası.** Takahashi dosyasında satır ortasındaki `-` (çizimin metni böldüğü yer) glif sayılıyordu: 752 tire, 671 yapışık kelime. Artık kelime sınırı. En çok kelime uzunluğu dağılımını etkiledi: `wlen_skew` 0.79 -> 0.07, `wlen_std` 1.92 -> 1.69 (`eva_basic`). v0'da `eva_basic` tahminini en çok etkileyen feature `wlen_std` idi, yani o tahmin kısmen bu hatanın ürünüydü.
+- **Satır etkisi gerçek, ölçüm yanılgısı değil.** Kelimeler pencere içinde karıştırılınca `jsd_line_initial` 0.22 -> 0.013, `jsd_line_final` 0.11 -> 0.012 (`eva_basic`). Paragraf ilk satırları çıkarılınca etki sürüyor (0.21): yalnız paragraf başı süs harfi değil.
+- **Hangi glifler (EVA).** Paragraf ilk satırı `p` (%46) ya da `t` (%24) ile başlıyor; satır içinde bunlar %0.5 ve %1.8. Diğer satır başlarında `y`, `d`, `s` fazla, `ch` grubu az. Satır sonunda `m` %18, satır içinde %0.9.
+- **Satır başı kelimelerinin uzun olması bulgu değil.** Voynich'in kendi kelimeleri karıştırılıp yalnız genişliğe göre yeniden dizilince satır başı uzunluk oranı 1.09 çıkıyor; gerçek değer 1.09 (üç görünümde de beklenen aralığın içinde). Satırı genişliğe göre dolduran her yazıcı bunu üretir.
+- **Satır sonu kelimelerinin kısa olması yalnız EVA'da.** `eva_basic` 0.93, doldurma beklentisi 1.00 [0.97, 1.04]; v101'de 1.00. Görünümler arasında tutarsız, ilke 5 gereği bulgu değil.
+- **Yazıcı katmanıyla OOD oranı düştü ama Voynich hâlâ dağılım dışı.** Mesafe / sınıf medyanı: `eva_basic` 8.0x -> 2.3x, `eva_glyph` 8.2x -> 2.1x, v101 9.0x -> 5.0x. Yüzdelik hâlâ 100. Düşüşün neredeyse tamamı yazıcı katmanından (ayrıştırıcı düzeltmesi tek başına 8.0x -> 7.8x).
+- **Sınıf tahmini hâlâ bulgu değil.** EVA görünümleri `grille` (0.54), v101 `selfcite` (0.36). Görünümler tutarsız ve OOD.
+- **Kestirme yol denetimi.** Yalnız iki satır JSD feature'ı ile CV doğruluğu 0.27 (şans 0.20): yazıcı katmanı sınıf sızdırmıyor. Satır uzunluk oranlarıyla 0.50 çıkıyor, çünkü doldurma etkisinin büyüklüğü kelime uzunluğu yayılımına bağlı (korelasyon 0.86); bu sınıfın meşru sonucu, sızıntı değil.
+- **Kalan açık (EVA, en yakın sınıfa göre).** `jsd_last` 0.72 (sentetik tavan 0.59, pencerelerin %100'ü aralık dışı), `h2` ve `h2_over_h1`, `hapax_ratio`. Üçü de kelime içi yapıyla ilgili. v101'de ek olarak `n_symbols`.
+- **CV doğruluğu 0.997.** Sınıflar hâlâ fazla kolay ayrışıyor; v0'daki uyarı geçerli.
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
-   - Satır farkındalığı: satır başı ve sonu için ayrı kurallar (her sınıfa parametre olarak).
-   - Kelime içi konum grameri: önek, gövde, sonek yuvalarına bağlı glif kümeleri (Voynich "kelime grameri" literatürü).
+   - ~~Satır farkındalığı~~: yapıldı (v0.1, ortak yazıcı katmanı). Paragraf düzeyi feature yok; paragraf başı `p`/`t` etkisi yalnız `jsd_line_initial` içinden dolaylı görünüyor.
+   - **Sıradaki:** Kelime içi konum grameri: önek, gövde, sonek yuvalarına bağlı glif kümeleri (Voynich "kelime grameri" literatürü).
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
@@ -102,11 +119,12 @@ Yani v0'ın gerçek çıktısı şu: **beş basit hipotezin hiçbiri Voynich'i �
 
 ## Bilinen tuzaklar
 
+- Takahashi'de satır ortasındaki `-` çizim boşluğudur ve melez davranır: boşluktan sonraki kelime satır başı gibi (`y`, `d`, `s` fazla, `q` az), ama boşluktan önceki kelime satır sonu gibi değil (`m` %2.5, gerçek satır sonunda %17). Şu an yalnız kelime sınırı sayılıyor, satır sınırı değil. Satır etkilerini biraz seyreltir. `m` gerçek satır sonuna (kenar boşluğuna) özgü görünüyor.
 - v101'de virgül "belirsiz boşluk". Varsayılan boşluk sayılıyor (`comma_is_space=True`). Tersini de koş, sonuç değişiyorsa raporla.
-- `n_symbols` v101'de 70 civarı, sentetik evrende en çok 55. v101 görünümü yalnızca bu yüzden bile OOD çıkar. Ya üreteç alfabelerini genişlet ya da v101 için nadir glifleri birleştir.
+- `n_symbols` v101'de 70 civarı, sentetik evrende en çok 57. v101 görünümü yalnızca bu yüzden bile OOD çıkar. Ya üreteç alfabelerini genişlet ya da v101 için nadir glifleri birleştir.
 - `eva_glyph` yalnızca ch, sh ve sehpalı gallows'ları birleştiriyor. `iin`, `ain` gibi diziler de tek glif olabilir, tartışmalı.
 - Mahalanobis mesafeleri sınıf içi örneklerle (in-sample) kalibre ediliyor, biraz iyimser. Örnek sayısı feature sayısının çok üstünde olduğu için etkisi küçük.
-- Veri küçük (yaklaşık 38 bin kelime, pencere başına 2000). Pencere boyutunu küçültmek pencere sayısını artırır ama entropi tahminlerini bozar.
+- Veri küçük (paragraf metni: Takahashi 32.8 bin, v101 36 bin kelime; pencere başına 2000). Pencere boyutunu küçültmek pencere sayısını artırır ama entropi tahminlerini bozar.
 
 ## Veri kaynakları
 
