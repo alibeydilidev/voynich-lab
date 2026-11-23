@@ -4,9 +4,33 @@ Voynich el yazmasına (Beinecke MS 408) "ne yazıyor" diye değil, "bunu nasıl 
 
 Bu dosya projenin devir notudur. Kararların gerekçesi burada, kodu değiştirmeden önce oku.
 
+## Amaç ve hedef merdiveni (Ali kararı, 2026-11-23)
+
+Birincil amaç: Voynich el yazmasını toplulukça kabul edilebilir ve kanıtlanabilir biçimde tercüme etmek. Tercüme sözü verilmez; metnin anlam taşıdığı bile belli değil. Bu yüzden amaç basamaklıdır ve her basamak kendi başına başarı sayılır:
+
+1. **Süreç:** metni hangi süreç üretti. Mevcut hat bu basamaktır. Sonuç "anlamsız üretim" çıkarsa tercüme yoktur ve bu, kanıtıyla birlikte yayınlanabilir bir sonuçtur.
+2. **Daraltma:** metin anlam taşıyorsa hangi dil ailesi ve hangi şifre ya da yazım türü.
+3. **Çözme denemesi:** yalnız 1. ve 2. basamak geçildiyse, aşağıdaki çözme kapısıyla birlikte.
+
+Sonuç hangi basamakta kalırsa iddia o basamağın adıyla yapılır. Kapıdan geçmemiş bir çıktı için "çözüldü" denmez.
+
+### Çözme kapısı
+
+Metne anlam atayan kod ancak şu koşulların hepsi sağlanınca yazılır:
+
+- 1. basamak sonucu anlam taşıyan bir süreci gösteriyor ve Voynich o sınıf için dağılım içi (ilke 2).
+- 2. basamak aday dil ve şifre türünü daraltmış.
+- Aşağıdaki beş sınav, çözme kodundan ÖNCE koda yazılmış ve sentetik bilinen-cevaplı metinde çalıştığı gösterilmiş:
+  1. **Tek sabit kural:** bütün metne aynı kural uygulanır, kelime bazında serbest seçim yok.
+  2. **Görülmemiş sayfa sınavı:** kural bir sayfa kümesinden çıkarılır, hiç bakılmamış sayfalarda sınanır.
+  3. **Boş sınav:** aynı yöntem karıştırılmış ve sahte (üreteç çıktısı) metinde "anlam" çıkarmamalı.
+  4. **Çizimle kör eşleşme:** çıktı çizimlere bakılmadan üretilir, eşleşme sonradan ölçülür.
+  5. **Tekrarlanabilirlik:** kilitli ortamda tek komutla aynı sonuç.
+- Kapının açıldığına Ali karar verir.
+
 ## Değişmez ilkeler
 
-1. **Çeviri iddiası yok.** Ground truth yok, loss tanımlanamıyor. LLM'e "çevir" demek akıcı uydurma üretir. Bu depoda metne anlam atayan hiçbir kod yazılmaz.
+1. **Kapı geçilmeden çeviri iddiası ve anlam atayan kod yok.** Ground truth yok, loss tanımlanamıyor. LLM'e "çevir" demek akıcı uydurma üretir. Metne anlam atayan kod yalnız yukarıdaki çözme kapısı açılınca yazılır. (2026-11-23 öncesi bu ilke mutlak yasaktı; Ali kararıyla kapıya çevrildi.)
 2. **Her iddia yanlışlanabilir olmalı.** Çıktı "X sürecine benziyor" ise yanında dağılım dışı (OOD) skoru durur. OOD kötüyse sınıf olasılığı bulgu sayılmaz.
 3. **Feature'lar sembol adına bakmaz.** Yalnızca dağılım şekli. Bu sayede Latince, İbranice, EVA ve v101 aynı uzayda durur. Testi: `test_monoalphabetic_substitution_is_invisible`.
 4. **Pencere boyutu her yerde aynı.** Entropi ve TTR örneklem boyutuna duyarlı. Sentetik ve Voynich pencereleri aynı `--window` ile kesilir.

@@ -1,6 +1,6 @@
 # voynich-lab
 
-Voynich el yazmasını çözmeye çalışmaz. Onu üreten sürecin türünü, simüle edilmiş hipotezlerle karşılaştırarak sınıflandırır.
+Uzun vadeli amaç Voynich el yazmasının kanıtlanabilir tercümesi. Bugünkü kod bunun ilk basamağı: metne anlam atamaz, onu üreten sürecin türünü simüle edilmiş hipotezlerle karşılaştırarak sınıflandırır. Anlam atayan kod, `CLAUDE.md` içindeki çözme kapısı açılmadan yazılmaz.
 
 ```bash
 uv sync --extra dev --locked   # sürümler uv.lock ile sabit
