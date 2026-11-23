@@ -1,20 +1,20 @@
 {
-  "n_samples": 42800,
+  "n_samples": 51600,
   "accept": 0.01,
   "views": {
     "eva_basic": {
       "n_windows": 16,
       "self_distance": {
-        "median": 0.9050865862309525,
-        "max": 1.644793463642489
+        "median": 0.9052238729019979,
+        "max": 1.6462284611746567
       },
       "classes": {
         "abjad": {
           "n_samples": 7600,
           "n_accepted": 76,
-          "best_distance": 4.975970843336979,
-          "accepted_median_distance": 6.185058248960427,
-          "accepted_max_distance": 6.45075522162419,
+          "best_distance": 4.979291897999372,
+          "accepted_median_distance": 6.187225400706817,
+          "accepted_max_distance": 6.453000469440862,
           "share_within_self_max": 0.0,
           "share_within_self_median": 0.0,
           "misfit": [
@@ -194,9 +194,9 @@
         "grille": {
           "n_samples": 8800,
           "n_accepted": 88,
-          "best_distance": 1.7402856388002994,
-          "accepted_median_distance": 2.7633763266658073,
-          "accepted_max_distance": 2.9771852838163455,
+          "best_distance": 1.7404093042500834,
+          "accepted_median_distance": 2.7666879603978907,
+          "accepted_max_distance": 2.9802659922352555,
           "share_within_self_max": 0.0,
           "share_within_self_median": 0.0,
           "misfit": [
@@ -214,15 +214,21 @@
             },
             {
               "feature": "h2_over_h1",
-              "z": 2.9700104864416814,
+              "z": 2.9667182607723572,
               "voynich": 0.5242628059372111,
-              "accepted_median": 0.6163845483287443
+              "accepted_median": 0.616282432337441
             },
             {
               "feature": "hapax_ratio",
-              "z": -2.8007035181615296,
+              "z": -2.8810464987369038,
               "voynich": 0.7173692523555081,
-              "accepted_median": 0.6551103358300514
+              "accepted_median": 0.6533243321032692
+            },
+            {
+              "feature": "jsd_line_final",
+              "z": -2.6797374037259716,
+              "voynich": 0.10904069184298237,
+              "accepted_median": 0.022992199089209686
             },
             {
               "feature": "rep_adjacent_ed1",
@@ -231,22 +237,16 @@
               "accepted_median": 0.014757378689344673
             },
             {
-              "feature": "jsd_line_final",
-              "z": -2.5800238997987335,
-              "voynich": 0.10904069184298237,
-              "accepted_median": 0.02619407876152613
-            },
-            {
               "feature": "vocab_ed1_density",
-              "z": 2.567008714801502,
+              "z": 2.4032989483344,
               "voynich": 0.8234055606464028,
-              "accepted_median": 0.8871741589711086
+              "accepted_median": 0.8831073467785838
             },
             {
               "feature": "jsd_last",
-              "z": -2.259205601529308,
+              "z": -2.362501447932794,
               "voynich": 0.7190554411527923,
-              "accepted_median": 0.6119352870044165
+              "accepted_median": 0.6070375180797386
             }
           ],
           "n_features_off_by_2": 9,
@@ -282,11 +282,21 @@
               "quantile_in_prior": 0.24852272727272728
             },
             {
+              "param": "l_initial_forms_k",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                2.0
+              ],
+              "quantile_in_prior": 0.25424949582252954
+            },
+            {
               "param": "p_rows",
               "prior_median": 435.0,
               "accepted_median": 1121.0,
               "accepted_iqr": [
-                665.0,
+                690.0,
                 1843.75
               ],
               "quantile_in_prior": 0.7399431818181817
@@ -317,7 +327,7 @@
               "accepted_median": 47.0,
               "accepted_iqr": [
                 28.0,
-                85.25
+                86.0
               ],
               "quantile_in_prior": 0.6297159090909091
             },
@@ -334,12 +344,12 @@
             {
               "param": "l_final_forms_share",
               "prior_median": 0.11122982506814713,
-              "accepted_median": 0.32267288064362804,
+              "accepted_median": 0.3086695617396372,
               "accepted_iqr": [
                 0.0,
-                0.53245189224513
+                0.5131496288321789
               ],
-              "quantile_in_prior": 0.6180681818181818
+              "quantile_in_prior": 0.6102272727272727
             },
             {
               "param": "l_width_jitter",
@@ -347,19 +357,29 @@
               "accepted_median": 0.14101077864986844,
               "accepted_iqr": [
                 0.062304690065012124,
-                0.2310145160695445
+                0.22893531175080425
               ],
               "quantile_in_prior": 0.40295454545454545
             },
             {
               "param": "l_line_initial_p",
               "prior_median": 0.2252543952608584,
-              "accepted_median": 0.3630837662324016,
+              "accepted_median": 0.35891730833601,
               "accepted_iqr": [
                 0.0,
                 0.5591649961205771
               ],
-              "quantile_in_prior": 0.5954545454545455
+              "quantile_in_prior": 0.5930681818181818
+            },
+            {
+              "param": "l_line_final_p",
+              "prior_median": 0.2270155656887543,
+              "accepted_median": 0.053831874875529234,
+              "accepted_iqr": [
+                0.0,
+                0.3130598854519456
+              ],
+              "quantile_in_prior": 0.40704545454545454
             },
             {
               "param": "p_n_grilles",
@@ -377,19 +397,9 @@
               "accepted_median": 17.0,
               "accepted_iqr": [
                 11.75,
-                22.0
+                21.25
               ],
               "quantile_in_prior": 0.5856818181818182
-            },
-            {
-              "param": "l_line_final_p",
-              "prior_median": 0.2270155656887543,
-              "accepted_median": 0.11453604150362603,
-              "accepted_iqr": [
-                0.0,
-                0.32405049623520693
-              ],
-              "quantile_in_prior": 0.41704545454545455
             },
             {
               "param": "l_final_forms_k",
@@ -412,34 +422,34 @@
               "quantile_in_prior": 0.4434090909090909
             },
             {
+              "param": "l_words_per_line",
+              "prior_median": 9.035612267939747,
+              "accepted_median": 9.193709618425054,
+              "accepted_iqr": [
+                6.738698435895639,
+                11.104821643120605
+              ],
+              "quantile_in_prior": 0.5189772727272727
+            },
+            {
               "param": "p_slot_overlap",
               "prior_median": 0.5071923729485123,
-              "accepted_median": 0.4778681032924723,
+              "accepted_median": 0.4878386721860144,
               "accepted_iqr": [
                 0.24033592905125423,
                 0.7266001796184123
               ],
-              "quantile_in_prior": 0.4731818181818182
+              "quantile_in_prior": 0.4827272727272727
             },
             {
               "param": "l_para_lines",
               "prior_median": 6.395327514252429,
-              "accepted_median": 6.085227485153515,
+              "accepted_median": 6.160569784746458,
               "accepted_iqr": [
                 0.0,
                 10.512344906734132
               ],
-              "quantile_in_prior": 0.4796590909090909
-            },
-            {
-              "param": "l_initial_forms_k",
-              "prior_median": 0.0,
-              "accepted_median": 0.5,
-              "accepted_iqr": [
-                0.0,
-                2.0
-              ],
-              "quantile_in_prior": 0.5084989916450591
+              "quantile_in_prior": 0.48465909090909093
             },
             {
               "param": "p_alphabet",
@@ -450,78 +460,68 @@
                 22.0
               ],
               "quantile_in_prior": 0.5045454545454545
-            },
-            {
-              "param": "l_words_per_line",
-              "prior_median": 9.035612267939747,
-              "accepted_median": 9.007189909084811,
-              "accepted_iqr": [
-                6.700856840569161,
-                11.104821643120605
-              ],
-              "quantile_in_prior": 0.4965909090909091
             }
           ]
         },
         "plain": {
           "n_samples": 8800,
           "n_accepted": 88,
-          "best_distance": 3.9345537039749994,
-          "accepted_median_distance": 5.31830120446134,
-          "accepted_max_distance": 5.530130076518451,
+          "best_distance": 3.936923363170526,
+          "accepted_median_distance": 5.342968853717554,
+          "accepted_max_distance": 5.55330029892961,
           "share_within_self_max": 0.0,
           "share_within_self_median": 0.0,
           "misfit": [
             {
               "feature": "eff_symbols",
-              "z": 10.597477287860332,
+              "z": 10.803236555864576,
               "voynich": 14.240445560490338,
-              "accepted_median": 17.79040442317735
+              "accepted_median": 17.784762328879943
             },
             {
               "feature": "h1",
-              "z": 9.292381066056816,
+              "z": 9.166840691092238,
               "voynich": 3.845466363540733,
-              "accepted_median": 4.063210616661586
+              "accepted_median": 4.0602688846137
             },
             {
               "feature": "h2",
-              "z": 8.234233505223532,
+              "z": 8.208835866234525,
               "voynich": 2.0160955283330226,
-              "accepted_median": 3.0094909975484367
+              "accepted_median": 3.006426972283129
             },
             {
               "feature": "h2_over_h1",
-              "z": 7.0488256156383855,
+              "z": 6.990641433503018,
               "voynich": 0.5242628059372111,
-              "accepted_median": 0.742898430454704
-            },
-            {
-              "feature": "jsd_last",
-              "z": -6.8577620049543855,
-              "voynich": 0.7190554411527923,
-              "accepted_median": 0.39389489685070744
+              "accepted_median": 0.7410937135143413
             },
             {
               "feature": "n_symbols",
-              "z": 6.55027739586838,
+              "z": 6.738754972734512,
               "voynich": 19.5625,
               "accepted_median": 28.0
+            },
+            {
+              "feature": "jsd_last",
+              "z": -6.267498711409765,
+              "voynich": 0.7190554411527923,
+              "accepted_median": 0.42188221015668836
+            },
+            {
+              "feature": "vocab_ed1_density",
+              "z": -5.922893407871534,
+              "voynich": 0.8234055606464028,
+              "accepted_median": 0.6762714241439431
             },
             {
               "feature": "wlen_frac_le2",
               "z": 5.859041091835911,
               "voynich": 0.0766473494518903,
               "accepted_median": 0.1445
-            },
-            {
-              "feature": "vocab_ed1_density",
-              "z": -5.837277994482285,
-              "voynich": 0.8234055606464028,
-              "accepted_median": 0.6783982478182621
             }
           ],
-          "n_features_off_by_2": 20,
+          "n_features_off_by_2": 18,
           "param_shifts": [
             {
               "param": "l_allo_per_glyph",
@@ -584,24 +584,14 @@
               "quantile_in_prior": 0.5611288848263254
             },
             {
-              "param": "l_line_initial_p",
-              "prior_median": 0.23843390127996883,
-              "accepted_median": 0.2889862299737585,
-              "accepted_iqr": [
-                0.0,
-                0.6193652451186811
-              ],
-              "quantile_in_prior": 0.5381818181818182
-            },
-            {
               "param": "l_final_forms_share",
               "prior_median": 0.0,
-              "accepted_median": 0.15297040329337608,
+              "accepted_median": 0.18839768169512902,
               "accepted_iqr": [
                 0.0,
-                0.7014785303291315
+                0.7053779569254002
               ],
-              "quantile_in_prior": 0.5335227272727273
+              "quantile_in_prior": 0.5526136363636364
             },
             {
               "param": "l_words_per_line",
@@ -624,37 +614,47 @@
               "quantile_in_prior": 0.47295454545454546
             },
             {
+              "param": "l_line_initial_p",
+              "prior_median": 0.23843390127996883,
+              "accepted_median": 0.26818439869044686,
+              "accepted_iqr": [
+                0.0,
+                0.6186093132088023
+              ],
+              "quantile_in_prior": 0.5219318181818182
+            },
+            {
               "param": "l_width_jitter",
               "prior_median": 0.17354886243170092,
-              "accepted_median": 0.1765468474156999,
+              "accepted_median": 0.17766122732579598,
               "accepted_iqr": [
                 0.09909054170056171,
-                0.27339852373932666
+                0.28304899268639905
               ],
-              "quantile_in_prior": 0.5088636363636364
+              "quantile_in_prior": 0.512159090909091
             }
           ]
         },
         "selfcite": {
           "n_samples": 8800,
           "n_accepted": 88,
-          "best_distance": 3.479921930245958,
-          "accepted_median_distance": 4.433573011339439,
-          "accepted_max_distance": 4.67283017062997,
+          "best_distance": 3.481909036584149,
+          "accepted_median_distance": 4.453670813219229,
+          "accepted_max_distance": 4.6800247107343695,
           "share_within_self_max": 0.0,
           "share_within_self_median": 0.0,
           "misfit": [
             {
               "feature": "h2",
-              "z": 6.998849879274781,
+              "z": 7.0972656944629815,
               "voynich": 2.0160955283330226,
-              "accepted_median": 2.8604516855126674
+              "accepted_median": 2.872324779085382
             },
             {
               "feature": "h2_over_h1",
-              "z": 6.8050961929049105,
+              "z": 6.943850198166645,
               "voynich": 0.5242628059372111,
-              "accepted_median": 0.7353385988659642
+              "accepted_median": 0.7396423751613231
             },
             {
               "feature": "char_double_rate",
@@ -664,15 +664,15 @@
             },
             {
               "feature": "rep_adjacent_exact",
-              "z": 5.2798760540498195,
+              "z": 5.197303177803017,
               "voynich": 0.008768880803987564,
-              "accepted_median": 0.024762381190595296
+              "accepted_median": 0.02451225612806403
             },
             {
               "feature": "hapax_ratio",
-              "z": -5.123396269762349,
+              "z": -5.0899891342643215,
               "voynich": 0.7173692523555081,
-              "accepted_median": 0.6034774753010926
+              "accepted_median": 0.6042201073029589
             },
             {
               "feature": "first_entropy_ratio",
@@ -701,7 +701,7 @@
               "accepted_median": 18.0,
               "accepted_iqr": [
                 12.0,
-                23.0
+                23.25
               ],
               "quantile_in_prior": 0.8475568181818183
             },
@@ -748,12 +748,12 @@
             {
               "param": "p_affix",
               "prior_median": 0.5976413714997124,
-              "accepted_median": 0.7409127556599249,
+              "accepted_median": 0.7369444377301544,
               "accepted_iqr": [
                 0.6073902171731679,
                 0.8132255464678021
               ],
-              "quantile_in_prior": 0.7365909090909091
+              "quantile_in_prior": 0.7297727272727272
             },
             {
               "param": "l_para_initial_p",
@@ -761,7 +761,7 @@
               "accepted_median": 0.0,
               "accepted_iqr": [
                 0.0,
-                0.7611625858312391
+                0.7560716508510624
               ],
               "quantile_in_prior": 0.28602272727272726
             },
@@ -798,12 +798,12 @@
             {
               "param": "p_mut_prefix",
               "prior_median": 0.16087875423389847,
-              "accepted_median": 0.2540238276199651,
+              "accepted_median": 0.24877053190446552,
               "accepted_iqr": [
                 0.13610244271371763,
                 0.395093712876213
               ],
-              "quantile_in_prior": 0.6690909090909091
+              "quantile_in_prior": 0.6604545454545454
             },
             {
               "param": "p_slot_overlap",
@@ -831,7 +831,7 @@
               "accepted_median": 0.07184403511566413,
               "accepted_iqr": [
                 0.02765166441907744,
-                0.13194996131559383
+                0.13568442114152304
               ],
               "quantile_in_prior": 0.3675
             },
@@ -841,19 +841,19 @@
               "accepted_median": 10.007120728191005,
               "accepted_iqr": [
                 8.488465763224248,
-                11.56612173528985
+                11.482877873446501
               ],
               "quantile_in_prior": 0.6268181818181818
             },
             {
               "param": "p_copy",
               "prior_median": 0.909428294118201,
-              "accepted_median": 0.8949170932532674,
+              "accepted_median": 0.8947523519323767,
               "accepted_iqr": [
                 0.8737816054123217,
-                0.9326800571880474
+                0.9302508359686638
               ],
-              "quantile_in_prior": 0.3744318181818182
+              "quantile_in_prior": 0.3734090909090909
             },
             {
               "param": "p_glyph_classes",
@@ -864,16 +864,6 @@
                 6.0
               ],
               "quantile_in_prior": 0.6202272727272727
-            },
-            {
-              "param": "l_para_lines",
-              "prior_median": 6.446897657484412,
-              "accepted_median": 8.477256210269992,
-              "accepted_iqr": [
-                3.499921177534892,
-                10.69425938955246
-              ],
-              "quantile_in_prior": 0.61625
             },
             {
               "param": "p_mut_substitute",
@@ -891,29 +881,29 @@
               "accepted_median": 0.062178446975982474,
               "accepted_iqr": [
                 0.0,
-                0.4394754723354464
+                0.4338703170315768
               ],
               "quantile_in_prior": 0.40511363636363634
             },
             {
-              "param": "p_exact",
-              "prior_median": 0.5060272444520943,
-              "accepted_median": 0.4579539274627805,
+              "param": "l_para_lines",
+              "prior_median": 6.446897657484412,
+              "accepted_median": 8.092508308633287,
               "accepted_iqr": [
-                0.3407413105407404,
-                0.5476591350997126
+                3.499921177534892,
+                10.69425938955246
               ],
-              "quantile_in_prior": 0.41954545454545455
+              "quantile_in_prior": 0.5942045454545455
             },
             {
-              "param": "l_width_jitter",
-              "prior_median": 0.1769611306871157,
-              "accepted_median": 0.19488111509666334,
+              "param": "p_exact",
+              "prior_median": 0.5060272444520943,
+              "accepted_median": 0.45570721214020454,
               "accepted_iqr": [
-                0.09864316405133809,
-                0.29167265825758076
+                0.33137790468010536,
+                0.5385581851449777
               ],
-              "quantile_in_prior": 0.5527272727272727
+              "quantile_in_prior": 0.41602272727272727
             },
             {
               "param": "l_line_initial_p",
@@ -924,6 +914,16 @@
                 0.6212434594139021
               ],
               "quantile_in_prior": 0.5353409090909091
+            },
+            {
+              "param": "l_width_jitter",
+              "prior_median": 0.1769611306871157,
+              "accepted_median": 0.18816989858647232,
+              "accepted_iqr": [
+                0.09434451174388514,
+                0.29167265825758076
+              ],
+              "quantile_in_prior": 0.5346590909090909
             },
             {
               "param": "p_mut_double",
@@ -937,44 +937,366 @@
             }
           ]
         },
-        "verbose": {
+        "slotcite": {
           "n_samples": 8800,
           "n_accepted": 88,
-          "best_distance": 3.123397696657284,
-          "accepted_median_distance": 3.9814607113885483,
-          "accepted_max_distance": 4.172827452979863,
+          "best_distance": 2.4192538719873307,
+          "accepted_median_distance": 3.089452423422581,
+          "accepted_max_distance": 3.325334578456158,
           "share_within_self_max": 0.0,
           "share_within_self_median": 0.0,
           "misfit": [
             {
               "feature": "hapax_ratio",
-              "z": -8.850687712785302,
+              "z": -4.689699170202545,
               "voynich": 0.7173692523555081,
-              "accepted_median": 0.5206207482993197
+              "accepted_median": 0.6131184499146966
             },
             {
-              "feature": "wlen_frac_le2",
-              "z": 5.64316739182173,
-              "voynich": 0.0766473494518903,
-              "accepted_median": 0.14200000000000002
+              "feature": "h2",
+              "z": 3.664151381724654,
+              "voynich": 2.0160955283330226,
+              "accepted_median": 2.458146555768133
+            },
+            {
+              "feature": "h2_over_h1",
+              "z": 3.660817523652012,
+              "voynich": 0.5242628059372111,
+              "accepted_median": 0.6378115258477337
+            },
+            {
+              "feature": "zipf_slope",
+              "z": 3.3338955922057165,
+              "voynich": -0.7777733032983845,
+              "accepted_median": -0.5684062126992644
             },
             {
               "feature": "jsd_last",
-              "z": -5.0368161212326275,
+              "z": -3.2145122526716845,
               "voynich": 0.7190554411527923,
-              "accepted_median": 0.48023498189125646
+              "accepted_median": 0.5666394557352
+            },
+            {
+              "feature": "rep_adjacent_exact",
+              "z": 2.6375440141521502,
+              "voynich": 0.008768880803987564,
+              "accepted_median": 0.0167583791895948
+            },
+            {
+              "feature": "vocab_ed1_density",
+              "z": 2.372915703889537,
+              "voynich": 0.8234055606464028,
+              "accepted_median": 0.8823525784368816
+            },
+            {
+              "feature": "wlen_frac_le2",
+              "z": -2.3441595087030183,
+              "voynich": 0.0766473494518903,
+              "accepted_median": 0.0495
+            }
+          ],
+          "n_features_off_by_2": 8,
+          "param_shifts": [
+            {
+              "param": "p_len_edge",
+              "prior_median": 2.0,
+              "accepted_median": 3.0,
+              "accepted_iqr": [
+                2.0,
+                3.0
+              ],
+              "quantile_in_prior": 0.830625
+            },
+            {
+              "param": "p_exact",
+              "prior_median": 0.4002155031540924,
+              "accepted_median": 0.22021560306914864,
+              "accepted_iqr": [
+                0.15425520227938072,
+                0.348115357079019
+              ],
+              "quantile_in_prior": 0.20477272727272727
+            },
+            {
+              "param": "l_initial_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                3.0
+              ],
+              "quantile_in_prior": 0.24448265978790484
+            },
+            {
+              "param": "l_allo_per_glyph",
+              "prior_median": 0.22209892286541205,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.0
+              ],
+              "quantile_in_prior": 0.24823863636363636
+            },
+            {
+              "param": "l_allo_rate",
+              "prior_median": 0.010902363601687028,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.0
+              ],
+              "quantile_in_prior": 0.24823863636363636
+            },
+            {
+              "param": "l_final_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                2.0
+              ],
+              "quantile_in_prior": 0.24832987790831607
+            },
+            {
+              "param": "l_para_initial_p",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.6021670982251934
+              ],
+              "quantile_in_prior": 0.28642045454545456
+            },
+            {
+              "param": "p_same_line",
+              "prior_median": 0.2516838890203104,
+              "accepted_median": 0.14772964319376747,
+              "accepted_iqr": [
+                0.0625651312564535,
+                0.2554147975683302
+              ],
+              "quantile_in_prior": 0.28954545454545455
+            },
+            {
+              "param": "l_initial_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.0
+              ],
+              "quantile_in_prior": 0.30176136363636363
+            },
+            {
+              "param": "p_copy",
+              "prior_median": 0.7352532434084291,
+              "accepted_median": 0.6457391179782592,
+              "accepted_iqr": [
+                0.5632221814116988,
+                0.762725015232055
+              ],
+              "quantile_in_prior": 0.3109090909090909
+            },
+            {
+              "param": "p_n_mid",
+              "prior_median": 35.0,
+              "accepted_median": 49.5,
+              "accepted_iqr": [
+                26.5,
+                81.25
+              ],
+              "quantile_in_prior": 0.6378409090909091
+            },
+            {
+              "param": "p_n_edge",
+              "prior_median": 14.0,
+              "accepted_median": 19.0,
+              "accepted_iqr": [
+                11.0,
+                26.25
+              ],
+              "quantile_in_prior": 0.6374431818181818
+            },
+            {
+              "param": "l_line_initial_p",
+              "prior_median": 0.2287745304190151,
+              "accepted_median": 0.3972584681079827,
+              "accepted_iqr": [
+                0.0,
+                0.6611768586371045
+              ],
+              "quantile_in_prior": 0.6256818181818182
+            },
+            {
+              "param": "l_width_jitter",
+              "prior_median": 0.1768646889326901,
+              "accepted_median": 0.13337328022931713,
+              "accepted_iqr": [
+                0.0905036541810936,
+                0.24587329634697763
+              ],
+              "quantile_in_prior": 0.37738636363636363
+            },
+            {
+              "param": "p_len_mid",
+              "prior_median": 4.0,
+              "accepted_median": 4.0,
+              "accepted_iqr": [
+                3.0,
+                5.0
+              ],
+              "quantile_in_prior": 0.6155681818181818
+            },
+            {
+              "param": "l_words_per_line",
+              "prior_median": 8.95211704104426,
+              "accepted_median": 9.655146605959846,
+              "accepted_iqr": [
+                8.008583258446027,
+                11.406311362040377
+              ],
+              "quantile_in_prior": 0.5911363636363637
+            },
+            {
+              "param": "p_alphabet",
+              "prior_median": 20.0,
+              "accepted_median": 19.0,
+              "accepted_iqr": [
+                16.0,
+                22.0
+              ],
+              "quantile_in_prior": 0.41125
+            },
+            {
+              "param": "p_empty",
+              "prior_median": 0.2990551357166237,
+              "accepted_median": 0.24284186205726305,
+              "accepted_iqr": [
+                0.16256935926312815,
+                0.3981219558587238
+              ],
+              "quantile_in_prior": 0.41204545454545455
+            },
+            {
+              "param": "p_mut_suffix",
+              "prior_median": 0.3140991680332482,
+              "accepted_median": 0.27149491731245134,
+              "accepted_iqr": [
+                0.16706121446661928,
+                0.4321468650376187
+              ],
+              "quantile_in_prior": 0.4169318181818182
+            },
+            {
+              "param": "l_final_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.21989599383214403,
+              "accepted_iqr": [
+                0.0,
+                0.5050911020281483
+              ],
+              "quantile_in_prior": 0.57625
+            },
+            {
+              "param": "p_mut_mid",
+              "prior_median": 0.31151586831405764,
+              "accepted_median": 0.34952342152183363,
+              "accepted_iqr": [
+                0.18926456574964315,
+                0.4747534516005602
+              ],
+              "quantile_in_prior": 0.5752272727272727
+            },
+            {
+              "param": "l_para_lines",
+              "prior_median": 6.573434347974999,
+              "accepted_median": 5.672089581672175,
+              "accepted_iqr": [
+                0.0,
+                9.72534065459308
+              ],
+              "quantile_in_prior": 0.44727272727272727
+            },
+            {
+              "param": "p_slot_overlap",
+              "prior_median": 0.5005144233865672,
+              "accepted_median": 0.554314844580853,
+              "accepted_iqr": [
+                0.28211773798442696,
+                0.690750073498575
+              ],
+              "quantile_in_prior": 0.5523863636363636
+            },
+            {
+              "param": "p_reach",
+              "prior_median": 6.0,
+              "accepted_median": 6.5,
+              "accepted_iqr": [
+                3.0,
+                15.25
+              ],
+              "quantile_in_prior": 0.5509090909090909
+            },
+            {
+              "param": "l_line_final_p",
+              "prior_median": 0.23211372675227257,
+              "accepted_median": 0.18663038853225344,
+              "accepted_iqr": [
+                0.0,
+                0.41469386888134374
+              ],
+              "quantile_in_prior": 0.4627272727272727
+            },
+            {
+              "param": "p_mut_prefix",
+              "prior_median": 0.3151455495082167,
+              "accepted_median": 0.3267259542508545,
+              "accepted_iqr": [
+                0.23094752794058618,
+                0.4578116233239257
+              ],
+              "quantile_in_prior": 0.5236363636363637
+            }
+          ]
+        },
+        "verbose": {
+          "n_samples": 8800,
+          "n_accepted": 88,
+          "best_distance": 3.1248334987801774,
+          "accepted_median_distance": 3.9848136456436034,
+          "accepted_max_distance": 4.186148435695213,
+          "share_within_self_max": 0.0,
+          "share_within_self_median": 0.0,
+          "misfit": [
+            {
+              "feature": "hapax_ratio",
+              "z": -8.873394786684944,
+              "voynich": 0.7173692523555081,
+              "accepted_median": 0.5201159759057808
+            },
+            {
+              "feature": "wlen_frac_le2",
+              "z": 5.5136431718132215,
+              "voynich": 0.0766473494518903,
+              "accepted_median": 0.1405
+            },
+            {
+              "feature": "jsd_last",
+              "z": -5.209606230922727,
+              "voynich": 0.7190554411527923,
+              "accepted_median": 0.47204214491670715
             },
             {
               "feature": "wlen_autocorr1",
-              "z": -4.363972035101828,
+              "z": -4.460353869042698,
               "voynich": 0.12658996076517115,
-              "accepted_median": -0.0400973420322631
+              "accepted_median": -0.04377876524236828
             },
             {
               "feature": "wlen_std",
-              "z": 4.150334038191883,
+              "z": 4.09977557031827,
               "voynich": 1.6930838164996374,
-              "accepted_median": 1.9963311648797617
+              "accepted_median": 1.9926370715417918
             },
             {
               "feature": "wlen_skew",
@@ -990,9 +1312,9 @@
             },
             {
               "feature": "word_entropy_norm",
-              "z": -3.6759818950341407,
+              "z": -3.6919707831585233,
               "voynich": 0.8035137771122743,
-              "accepted_median": 0.6843026161580701
+              "accepted_median": 0.683784100569555
             }
           ],
           "n_features_off_by_2": 20,
@@ -1013,7 +1335,7 @@
               "accepted_median": 0.0,
               "accepted_iqr": [
                 0.0,
-                0.4639969143142001
+                0.42503947098379846
               ],
               "quantile_in_prior": 0.253125
             },
@@ -1028,16 +1350,6 @@
               "quantile_in_prior": 0.253125
             },
             {
-              "param": "l_initial_forms_k",
-              "prior_median": 0.0,
-              "accepted_median": 0.0,
-              "accepted_iqr": [
-                0.0,
-                2.0
-              ],
-              "quantile_in_prior": 0.25330148918235457
-            },
-            {
               "param": "p_split",
               "prior_median": 0.0,
               "accepted_median": 0.0,
@@ -1048,12 +1360,22 @@
               "quantile_in_prior": 0.2752840909090909
             },
             {
+              "param": "l_para_initial_p",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.5768494933138909
+              ],
+              "quantile_in_prior": 0.29005681818181817
+            },
+            {
               "param": "l_initial_forms_share",
               "prior_median": 0.0,
               "accepted_median": 0.0,
               "accepted_iqr": [
                 0.0,
-                0.18677197687597696
+                0.21240824541159933
               ],
               "quantile_in_prior": 0.2977840909090909
             },
@@ -1062,8 +1384,8 @@
               "prior_median": 2.2222222222222223,
               "accepted_median": 2.2857142857142856,
               "accepted_iqr": [
-                2.216614906832298,
-                2.376077586206897
+                2.217391304347826,
+                2.3715277777777777
               ],
               "quantile_in_prior": 0.7015909090909092
             },
@@ -1078,16 +1400,6 @@
               "quantile_in_prior": 0.6949057450628366
             },
             {
-              "param": "l_final_forms_share",
-              "prior_median": 0.10959882128473766,
-              "accepted_median": 0.28315699219855683,
-              "accepted_iqr": [
-                0.0,
-                0.567098295427458
-              ],
-              "quantile_in_prior": 0.5946590909090909
-            },
-            {
               "param": "p_alphabet",
               "prior_median": 17.0,
               "accepted_median": 16.0,
@@ -1098,14 +1410,14 @@
               "quantile_in_prior": 0.41198863636363636
             },
             {
-              "param": "l_para_initial_p",
-              "prior_median": 0.0,
-              "accepted_median": 0.1516815779181023,
+              "param": "l_final_forms_share",
+              "prior_median": 0.10959882128473766,
+              "accepted_median": 0.25759820880559003,
               "accepted_iqr": [
                 0.0,
-                0.5768494933138909
+                0.5421257643557238
               ],
-              "quantile_in_prior": 0.5801136363636363
+              "quantile_in_prior": 0.5803409090909091
             },
             {
               "param": "l_line_initial_p",
@@ -1113,19 +1425,19 @@
               "accepted_median": 0.3324918114358093,
               "accepted_iqr": [
                 0.0,
-                0.5367887110892422
+                0.5440472345714058
               ],
               "quantile_in_prior": 0.5742045454545455
             },
             {
               "param": "l_para_lines",
               "prior_median": 6.559691163409226,
-              "accepted_median": 5.793617034286315,
+              "accepted_median": 5.556511716358456,
               "accepted_iqr": [
-                3.2165605852546446,
-                10.14213343550557
+                3.1024602057496735,
+                9.611833878672376
               ],
-              "quantile_in_prior": 0.4571590909090909
+              "quantile_in_prior": 0.44329545454545455
             },
             {
               "param": "l_line_final_p",
@@ -1140,12 +1452,12 @@
             {
               "param": "l_words_per_line",
               "prior_median": 9.023120804820996,
-              "accepted_median": 9.142679624118877,
+              "accepted_median": 9.159186959923545,
               "accepted_iqr": [
                 6.102144840725507,
                 10.851138580999198
               ],
-              "quantile_in_prior": 0.5152272727272728
+              "quantile_in_prior": 0.5175
             },
             {
               "param": "l_width_jitter",
@@ -1153,9 +1465,19 @@
               "accepted_median": 0.17723501069504488,
               "accepted_iqr": [
                 0.07035457865643467,
-                0.257959145644812
+                0.26329746843786367
               ],
               "quantile_in_prior": 0.5144318181818182
+            },
+            {
+              "param": "l_initial_forms_k",
+              "prior_median": 0.0,
+              "accepted_median": 0.5,
+              "accepted_iqr": [
+                0.0,
+                2.75
+              ],
+              "quantile_in_prior": 0.5066029783647091
             }
           ]
         }
@@ -1164,16 +1486,16 @@
     "eva_glyph": {
       "n_windows": 16,
       "self_distance": {
-        "median": 0.9551953593248941,
-        "max": 1.6327600846481523
+        "median": 0.9562440965955659,
+        "max": 1.6348821728074148
       },
       "classes": {
         "abjad": {
           "n_samples": 7600,
           "n_accepted": 76,
-          "best_distance": 3.1656324278663206,
-          "accepted_median_distance": 3.960742806561927,
-          "accepted_max_distance": 4.211884627950117,
+          "best_distance": 3.1657481810089267,
+          "accepted_median_distance": 3.9629657243974536,
+          "accepted_max_distance": 4.211958263507937,
           "share_within_self_max": 0.0,
           "share_within_self_median": 0.0,
           "misfit": [
@@ -1353,17 +1675,17 @@
         "grille": {
           "n_samples": 8800,
           "n_accepted": 88,
-          "best_distance": 1.497807962717647,
-          "accepted_median_distance": 2.482437653565258,
-          "accepted_max_distance": 2.68788741189729,
+          "best_distance": 1.4978797988385724,
+          "accepted_median_distance": 2.4883997227899437,
+          "accepted_max_distance": 2.6926995900386035,
           "share_within_self_max": 0.00011363636363636364,
           "share_within_self_median": 0.0,
           "misfit": [
             {
               "feature": "wlen_autocorr1",
-              "z": -3.0679084624845316,
+              "z": -3.0687332644267187,
               "voynich": 0.10341635812030298,
-              "accepted_median": 0.0008933888376954926
+              "accepted_median": 0.0008658257127792545
             },
             {
               "feature": "hapax_ratio",
@@ -1378,10 +1700,16 @@
               "accepted_median": 0.9052459580323358
             },
             {
+              "feature": "first_entropy_ratio",
+              "z": -2.1510424876675254,
+              "voynich": 0.8670811572492821,
+              "accepted_median": 0.8192705767837044
+            },
+            {
               "feature": "h2_over_h1",
-              "z": 2.081122053359656,
+              "z": 2.1237274314973824,
               "voynich": 0.5560179174618776,
-              "accepted_median": 0.6343769532575256
+              "accepted_median": 0.6359811438167443
             },
             {
               "feature": "rep_within3",
@@ -1390,22 +1718,16 @@
               "accepted_median": 0.011005502751375688
             },
             {
-              "feature": "first_entropy_ratio",
-              "z": -2.0413570700185706,
-              "voynich": 0.8670811572492821,
-              "accepted_median": 0.8217085218807779
-            },
-            {
               "feature": "h2",
-              "z": 1.963306314534686,
+              "z": 1.9917396372043183,
               "voynich": 2.1314603387475417,
-              "accepted_median": 2.4370540770774367
+              "accepted_median": 2.441479797762704
             },
             {
-              "feature": "rep_adjacent_ed1",
-              "z": -1.7643347481303588,
-              "voynich": 0.03940805064225168,
-              "accepted_median": 0.021510755377688845
+              "feature": "n_symbols",
+              "z": -1.7970013260625366,
+              "voynich": 25.25,
+              "accepted_median": 23.0
             }
           ],
           "n_features_off_by_2": 6,
@@ -1473,12 +1795,12 @@
             {
               "param": "l_final_forms_share",
               "prior_median": 0.11122982506814713,
-              "accepted_median": 0.42736688024477965,
+              "accepted_median": 0.42064958583287426,
               "accepted_iqr": [
-                0.18995004963638398,
-                0.6078019269553626
+                0.10910807055304822,
+                0.5957579265804073
               ],
-              "quantile_in_prior": 0.675
+              "quantile_in_prior": 0.6720454545454545
             },
             {
               "param": "p_n_mid",
@@ -1491,6 +1813,16 @@
               "quantile_in_prior": 0.6297159090909091
             },
             {
+              "param": "p_n_edge",
+              "prior_median": 14.0,
+              "accepted_median": 18.5,
+              "accepted_iqr": [
+                14.0,
+                27.25
+              ],
+              "quantile_in_prior": 0.6273863636363637
+            },
+            {
               "param": "p_len_mid",
               "prior_median": 3.5,
               "accepted_median": 3.0,
@@ -1501,24 +1833,14 @@
               "quantile_in_prior": 0.37488636363636363
             },
             {
-              "param": "p_n_edge",
-              "prior_median": 14.0,
-              "accepted_median": 18.0,
-              "accepted_iqr": [
-                13.75,
-                27.25
-              ],
-              "quantile_in_prior": 0.6145454545454545
-            },
-            {
               "param": "l_para_initial_p",
               "prior_median": 0.0,
-              "accepted_median": 0.35151273666430405,
+              "accepted_median": 0.3448478844614464,
               "accepted_iqr": [
                 0.0,
-                0.7903319363693364
+                0.7711710731290249
               ],
-              "quantile_in_prior": 0.610909090909091
+              "quantile_in_prior": 0.6053409090909091
             },
             {
               "param": "p_n_grilles",
@@ -1546,19 +1868,19 @@
               "accepted_median": 0.5523039071880824,
               "accepted_iqr": [
                 0.2472097625398919,
-                0.7476921351981191
+                0.7526777533702251
               ],
               "quantile_in_prior": 0.5475
             },
             {
-              "param": "l_words_per_line",
-              "prior_median": 9.035612267939747,
-              "accepted_median": 9.396570189471042,
+              "param": "l_line_final_p",
+              "prior_median": 0.2270155656887543,
+              "accepted_median": 0.16326137250957207,
               "accepted_iqr": [
-                7.017226814171799,
-                11.044425225508146
+                0.0,
+                0.29620944554159623
               ],
-              "quantile_in_prior": 0.5460227272727273
+              "quantile_in_prior": 0.45386363636363636
             },
             {
               "param": "p_alphabet",
@@ -1571,14 +1893,14 @@
               "quantile_in_prior": 0.4547727272727273
             },
             {
-              "param": "l_line_final_p",
-              "prior_median": 0.2270155656887543,
-              "accepted_median": 0.1672695166279538,
+              "param": "l_words_per_line",
+              "prior_median": 9.035612267939747,
+              "accepted_median": 9.302201980131397,
               "accepted_iqr": [
-                0.0,
-                0.2986218762102476
+                6.947340299469228,
+                11.044425225508146
               ],
-              "quantile_in_prior": 0.45625
+              "quantile_in_prior": 0.5339772727272727
             },
             {
               "param": "l_para_lines",
@@ -1596,19 +1918,19 @@
               "accepted_median": 0.31046524620293625,
               "accepted_iqr": [
                 0.1879327956598708,
-                0.41542120845047364
+                0.4142840604307372
               ],
               "quantile_in_prior": 0.5186363636363637
             },
             {
               "param": "l_width_jitter",
               "prior_median": 0.1722586354974383,
-              "accepted_median": 0.17599204983306282,
+              "accepted_median": 0.1718613429770666,
               "accepted_iqr": [
-                0.0806125681368155,
+                0.07878414274846221,
                 0.2573611854455675
               ],
-              "quantile_in_prior": 0.51
+              "quantile_in_prior": 0.4990909090909091
             },
             {
               "param": "p_len_edge",
@@ -1625,9 +1947,9 @@
         "plain": {
           "n_samples": 8800,
           "n_accepted": 88,
-          "best_distance": 2.9785377819632526,
-          "accepted_median_distance": 4.196923053408534,
-          "accepted_max_distance": 4.623055587447588,
+          "best_distance": 2.981320272288569,
+          "accepted_median_distance": 4.199972755821879,
+          "accepted_max_distance": 4.644090569183867,
           "share_within_self_max": 0.0,
           "share_within_self_median": 0.0,
           "misfit": [
@@ -1645,53 +1967,43 @@
             },
             {
               "feature": "h2",
-              "z": 7.451121528774417,
+              "z": 7.470578413760688,
               "voynich": 2.1314603387475417,
-              "accepted_median": 3.291246799918375
+              "accepted_median": 3.2942753147126234
             },
             {
               "feature": "vocab_ed1_density",
-              "z": -6.570704800664937,
+              "z": -6.6071598285232485,
               "voynich": 0.8503931659689971,
-              "accepted_median": 0.7046827879446307
+              "accepted_median": 0.703874369966458
             },
             {
               "feature": "h2_over_h1",
-              "z": 6.4202624448705325,
+              "z": 6.483368493001571,
               "voynich": 0.5560179174618776,
-              "accepted_median": 0.7977555771646856
+              "accepted_median": 0.8001316651391699
             },
             {
               "feature": "jsd_last",
-              "z": -5.777341388199564,
+              "z": -6.081937665680055,
               "voynich": 0.7176788751234573,
-              "accepted_median": 0.4418594345225746
+              "accepted_median": 0.4273175251530883
             },
             {
               "feature": "char_double_rate",
-              "z": -4.558703338111766,
+              "z": -4.562668937027604,
               "voynich": 0.07596345833654898,
-              "accepted_median": 0.009364000661199363
+              "accepted_median": 0.009306066043049337
             },
             {
               "feature": "jsd_first",
-              "z": -4.333687710119513,
+              "z": -4.44433521094076,
               "voynich": 0.3500953604272117,
-              "accepted_median": 0.17257049254527246
+              "accepted_median": 0.16803793637633313
             }
           ],
-          "n_features_off_by_2": 18,
+          "n_features_off_by_2": 17,
           "param_shifts": [
-            {
-              "param": "l_line_initial_p",
-              "prior_median": 0.23843390127996883,
-              "accepted_median": 0.0,
-              "accepted_iqr": [
-                0.0,
-                0.4428559909777403
-              ],
-              "quantile_in_prior": 0.2
-            },
             {
               "param": "l_allo_per_glyph",
               "prior_median": 0.0,
@@ -1738,9 +2050,19 @@
               "accepted_median": 0.3067704554507417,
               "accepted_iqr": [
                 0.0,
-                0.711193688386349
+                0.7053779569254002
               ],
               "quantile_in_prior": 0.6215909090909091
+            },
+            {
+              "param": "l_line_initial_p",
+              "prior_median": 0.23843390127996883,
+              "accepted_median": 0.05505937269039079,
+              "accepted_iqr": [
+                0.0,
+                0.4428559909777403
+              ],
+              "quantile_in_prior": 0.4
             },
             {
               "param": "l_line_final_p",
@@ -1748,7 +2070,7 @@
               "accepted_median": 0.11321612814990695,
               "accepted_iqr": [
                 0.0,
-                0.31362472532738705
+                0.33076065968301843
               ],
               "quantile_in_prior": 0.41238636363636366
             },
@@ -1765,29 +2087,29 @@
             {
               "param": "l_para_lines",
               "prior_median": 6.445832443477691,
-              "accepted_median": 5.88094040876697,
+              "accepted_median": 5.8201145329841735,
               "accepted_iqr": [
                 0.0,
                 9.720825586956087
               ],
-              "quantile_in_prior": 0.4655681818181818
+              "quantile_in_prior": 0.4617045454545455
             },
             {
               "param": "l_words_per_line",
               "prior_median": 9.050748178099262,
-              "accepted_median": 9.31951230260404,
+              "accepted_median": 9.35694916609124,
               "accepted_iqr": [
-                7.560648090519927,
-                11.262991029612362
+                7.627564603047811,
+                11.313289995744789
               ],
-              "quantile_in_prior": 0.5318181818181819
+              "quantile_in_prior": 0.5372727272727272
             },
             {
               "param": "l_width_jitter",
               "prior_median": 0.17354886243170092,
               "accepted_median": 0.18277328098339807,
               "accepted_iqr": [
-                0.11743050386341475,
+                0.11136384484084061,
                 0.2608312760597715
               ],
               "quantile_in_prior": 0.5263636363636364
@@ -1797,9 +2119,9 @@
         "selfcite": {
           "n_samples": 8800,
           "n_accepted": 88,
-          "best_distance": 2.823264910041101,
-          "accepted_median_distance": 3.561298882298905,
-          "accepted_max_distance": 3.797499882680268,
+          "best_distance": 2.8247386497944067,
+          "accepted_median_distance": 3.565020982999653,
+          "accepted_max_distance": 3.806418225974658,
           "share_within_self_max": 0.0,
           "share_within_self_median": 0.0,
           "misfit": [
@@ -1811,33 +2133,33 @@
             },
             {
               "feature": "h2_over_h1",
-              "z": 5.020037098653421,
+              "z": 5.069757216330386,
               "voynich": 0.5560179174618776,
-              "accepted_median": 0.7450338697333152
+              "accepted_median": 0.7469059466134403
             },
             {
               "feature": "h2",
-              "z": 4.930494040871004,
+              "z": 5.0098015507055695,
               "voynich": 2.1314603387475417,
-              "accepted_median": 2.898904570250531
+              "accepted_median": 2.9112489905931733
             },
             {
               "feature": "rep_adjacent_exact",
-              "z": 4.619293044075402,
+              "z": 4.454147291581798,
               "voynich": 0.008768880803987564,
-              "accepted_median": 0.022761380690345175
-            },
-            {
-              "feature": "char_double_rate",
-              "z": 3.770217011675852,
-              "voynich": 0.07596345833654898,
-              "accepted_median": 0.13104368393420618
+              "accepted_median": 0.02226113056528264
             },
             {
               "feature": "vocab_ed1_density",
-              "z": 3.6434014108839436,
+              "z": 3.6767070544027134,
               "voynich": 0.8503931659689971,
-              "accepted_median": 0.9311883641980645
+              "accepted_median": 0.9319269421824192
+            },
+            {
+              "feature": "char_double_rate",
+              "z": 3.632685121957732,
+              "voynich": 0.07596345833654898,
+              "accepted_median": 0.12903443950899496
             },
             {
               "feature": "rep_within3",
@@ -1847,9 +2169,9 @@
             },
             {
               "feature": "jsd_last",
-              "z": -2.941360277199487,
+              "z": -3.102705614372374,
               "voynich": 0.7176788751234573,
-              "accepted_median": 0.5772536705613903
+              "accepted_median": 0.5695507882748279
             }
           ],
           "n_features_off_by_2": 16,
@@ -1860,19 +2182,19 @@
               "accepted_median": 19.0,
               "accepted_iqr": [
                 13.0,
-                24.0
+                24.25
               ],
               "quantile_in_prior": 0.863125
             },
             {
               "param": "p_same_line",
               "prior_median": 0.1488536998073188,
-              "accepted_median": 0.06791472368621201,
+              "accepted_median": 0.06585702419360152,
               "accepted_iqr": [
                 0.024994666221935864,
                 0.1198411240436176
               ],
-              "quantile_in_prior": 0.2293181818181818
+              "quantile_in_prior": 0.22193181818181817
             },
             {
               "param": "l_allo_per_glyph",
@@ -1897,12 +2219,12 @@
             {
               "param": "p_slot_overlap",
               "prior_median": 0.49853786743386613,
-              "accepted_median": 0.2947703878812409,
+              "accepted_median": 0.2770758032889468,
               "accepted_iqr": [
                 0.11141274590827538,
                 0.5991439989228373
               ],
-              "quantile_in_prior": 0.29772727272727273
+              "quantile_in_prior": 0.2797727272727273
             },
             {
               "param": "l_initial_forms_share",
@@ -1917,12 +2239,12 @@
             {
               "param": "l_final_forms_share",
               "prior_median": 0.0,
-              "accepted_median": 0.4492827044237524,
+              "accepted_median": 0.4405554958296585,
               "accepted_iqr": [
                 0.16762975365684732,
                 0.7076016310979429
               ],
-              "quantile_in_prior": 0.7009090909090909
+              "quantile_in_prior": 0.69625
             },
             {
               "param": "l_initial_forms_k",
@@ -1945,16 +2267,6 @@
               "quantile_in_prior": 0.6880870561282932
             },
             {
-              "param": "p_affix",
-              "prior_median": 0.5976413714997124,
-              "accepted_median": 0.7066003167646895,
-              "accepted_iqr": [
-                0.6013210907062391,
-                0.7902284945414384
-              ],
-              "quantile_in_prior": 0.6834090909090909
-            },
-            {
               "param": "p_alphabet",
               "prior_median": 20.0,
               "accepted_median": 18.0,
@@ -1965,24 +2277,34 @@
               "quantile_in_prior": 0.31892045454545453
             },
             {
+              "param": "p_affix",
+              "prior_median": 0.5976413714997124,
+              "accepted_median": 0.7029688244324015,
+              "accepted_iqr": [
+                0.6002536095677902,
+                0.7825479581977164
+              ],
+              "quantile_in_prior": 0.6757954545454545
+            },
+            {
               "param": "p_mut_prefix",
               "prior_median": 0.16087875423389847,
               "accepted_median": 0.25381292548215434,
               "accepted_iqr": [
                 0.14870176057998147,
-                0.46138234616881485
+                0.4542031506481125
               ],
               "quantile_in_prior": 0.6690909090909091
             },
             {
               "param": "p_copy",
               "prior_median": 0.909428294118201,
-              "accepted_median": 0.8947523519323767,
+              "accepted_median": 0.8944193533417772,
               "accepted_iqr": [
                 0.8673565261823765,
                 0.9239483804383463
               ],
-              "quantile_in_prior": 0.3734090909090909
+              "quantile_in_prior": 0.3710227272727273
             },
             {
               "param": "p_glyph_classes",
@@ -1995,64 +2317,64 @@
               "quantile_in_prior": 0.6202272727272727
             },
             {
-              "param": "l_para_initial_p",
-              "prior_median": 0.0,
-              "accepted_median": 0.3485645630373191,
-              "accepted_iqr": [
-                0.0,
-                0.7116925756603929
-              ],
-              "quantile_in_prior": 0.6025
-            },
-            {
               "param": "p_mut_double",
               "prior_median": 0.1359792771387236,
-              "accepted_median": 0.09400157567717574,
+              "accepted_median": 0.09251391420054203,
               "accepted_iqr": [
-                0.03645125104988268,
+                0.03391316230108707,
                 0.186224826285414
               ],
-              "quantile_in_prior": 0.3993181818181818
+              "quantile_in_prior": 0.39454545454545453
             },
             {
               "param": "l_words_per_line",
               "prior_median": 9.01396956953328,
               "accepted_median": 9.720002391229592,
               "accepted_iqr": [
-                8.421364560639834,
+                8.379084128468204,
                 11.384959417727767
               ],
               "quantile_in_prior": 0.5895454545454546
             },
             {
-              "param": "l_para_lines",
-              "prior_median": 6.446897657484412,
-              "accepted_median": 7.8901894203022565,
-              "accepted_iqr": [
-                3.8309495617651192,
-                10.73832214105256
-              ],
-              "quantile_in_prior": 0.5817045454545454
-            },
-            {
               "param": "p_mut_substitute",
               "prior_median": 0.4111597927982802,
-              "accepted_median": 0.4648336005140128,
+              "accepted_median": 0.4689800904016534,
               "accepted_iqr": [
-                0.2756895344468758,
+                0.281194147827098,
                 0.6316912457303783
               ],
-              "quantile_in_prior": 0.5813636363636364
+              "quantile_in_prior": 0.5879545454545455
+            },
+            {
+              "param": "l_para_initial_p",
+              "prior_median": 0.0,
+              "accepted_median": 0.316993509698575,
+              "accepted_iqr": [
+                0.0,
+                0.7116925756603929
+              ],
+              "quantile_in_prior": 0.5819318181818182
             },
             {
               "param": "p_mut_delete",
               "prior_median": 0.12089391047254627,
-              "accepted_median": 0.0931054556565086,
+              "accepted_median": 0.0902312049245128,
               "accepted_iqr": [
                 0.028562661117629805,
                 0.17835901294660042
               ],
-              "quantile_in_prior": 0.42977272727272725
+              "quantile_in_prior": 0.42125
+            },
+            {
+              "param": "l_para_lines",
+              "prior_median": 6.446897657484412,
+              "accepted_median": 7.7585707679126354,
+              "accepted_iqr": [
+                3.67020882728229,
+                10.73832214105256
+              ],
+              "quantile_in_prior": 0.5742045454545455
             },
             {
               "param": "l_line_final_p",
@@ -2077,51 +2399,373 @@
             {
               "param": "p_exact",
               "prior_median": 0.5060272444520943,
-              "accepted_median": 0.4805254830912239,
+              "accepted_median": 0.47503583378152014,
               "accepted_iqr": [
                 0.34979793571864226,
                 0.5637785018474453
               ],
-              "quantile_in_prior": 0.45340909090909093
+              "quantile_in_prior": 0.44579545454545455
             },
             {
               "param": "l_width_jitter",
               "prior_median": 0.1769611306871157,
-              "accepted_median": 0.184622042316259,
+              "accepted_median": 0.18361209502292536,
               "accepted_iqr": [
                 0.1020551866703485,
-                0.27530084693385937
+                0.26963283034271995
               ],
-              "quantile_in_prior": 0.5253409090909091
+              "quantile_in_prior": 0.5211363636363636
+            }
+          ]
+        },
+        "slotcite": {
+          "n_samples": 8800,
+          "n_accepted": 88,
+          "best_distance": 1.8579769700179256,
+          "accepted_median_distance": 2.818436143463163,
+          "accepted_max_distance": 3.022423294654468,
+          "share_within_self_max": 0.0,
+          "share_within_self_median": 0.0,
+          "misfit": [
+            {
+              "feature": "hapax_ratio",
+              "z": -3.8771297355343326,
+              "voynich": 0.7173692523555081,
+              "accepted_median": 0.6311816587749313
+            },
+            {
+              "feature": "jsd_last",
+              "z": -3.2549575912298643,
+              "voynich": 0.7176788751234573,
+              "accepted_median": 0.5622820374315791
+            },
+            {
+              "feature": "rep_adjacent_exact",
+              "z": 2.8852626428925565,
+              "voynich": 0.008768880803987564,
+              "accepted_median": 0.017508754377188594
+            },
+            {
+              "feature": "h2_over_h1",
+              "z": 2.5227590982180663,
+              "voynich": 0.5560179174618776,
+              "accepted_median": 0.6510056045905304
+            },
+            {
+              "feature": "zipf_slope",
+              "z": 2.4977235396544537,
+              "voynich": -0.7777733032983845,
+              "accepted_median": -0.6209174281951064
+            },
+            {
+              "feature": "first_entropy_ratio",
+              "z": -2.4668886013620446,
+              "voynich": 0.8670811572492821,
+              "accepted_median": 0.8122503593216559
+            },
+            {
+              "feature": "h2",
+              "z": 2.289578787515029,
+              "voynich": 2.1314603387475417,
+              "accepted_median": 2.4878392367817863
+            },
+            {
+              "feature": "vocab_ed1_density",
+              "z": 2.1741675117576547,
+              "voynich": 0.8503931659689971,
+              "accepted_median": 0.8986069846744797
+            }
+          ],
+          "n_features_off_by_2": 8,
+          "param_shifts": [
+            {
+              "param": "p_exact",
+              "prior_median": 0.4002155031540924,
+              "accepted_median": 0.22880083115335983,
+              "accepted_iqr": [
+                0.17451787973357244,
+                0.3529742257395227
+              ],
+              "quantile_in_prior": 0.22090909090909092
+            },
+            {
+              "param": "l_initial_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                3.0
+              ],
+              "quantile_in_prior": 0.24448265978790484
+            },
+            {
+              "param": "l_allo_per_glyph",
+              "prior_median": 0.22209892286541205,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.570385774554586
+              ],
+              "quantile_in_prior": 0.24823863636363636
+            },
+            {
+              "param": "l_allo_rate",
+              "prior_median": 0.010902363601687028,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.06392382125718162
+              ],
+              "quantile_in_prior": 0.24823863636363636
+            },
+            {
+              "param": "l_final_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                2.0
+              ],
+              "quantile_in_prior": 0.24832987790831607
+            },
+            {
+              "param": "l_initial_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.0
+              ],
+              "quantile_in_prior": 0.30176136363636363
+            },
+            {
+              "param": "p_same_line",
+              "prior_median": 0.2516838890203104,
+              "accepted_median": 0.15534455375066047,
+              "accepted_iqr": [
+                0.06368276057465642,
+                0.26173977242294433
+              ],
+              "quantile_in_prior": 0.30420454545454545
+            },
+            {
+              "param": "p_copy",
+              "prior_median": 0.7352532434084291,
+              "accepted_median": 0.6453152187153207,
+              "accepted_iqr": [
+                0.5404477371953201,
+                0.756396468632931
+              ],
+              "quantile_in_prior": 0.31022727272727274
+            },
+            {
+              "param": "l_line_initial_p",
+              "prior_median": 0.2287745304190151,
+              "accepted_median": 0.46589476197965496,
+              "accepted_iqr": [
+                0.12997041117357427,
+                0.7028115298404061
+              ],
+              "quantile_in_prior": 0.6789772727272727
+            },
+            {
+              "param": "p_n_edge",
+              "prior_median": 14.0,
+              "accepted_median": 20.0,
+              "accepted_iqr": [
+                10.75,
+                26.0
+              ],
+              "quantile_in_prior": 0.66375
+            },
+            {
+              "param": "p_n_mid",
+              "prior_median": 35.0,
+              "accepted_median": 51.0,
+              "accepted_iqr": [
+                24.5,
+                79.75
+              ],
+              "quantile_in_prior": 0.6514204545454545
+            },
+            {
+              "param": "l_para_initial_p",
+              "prior_median": 0.0,
+              "accepted_median": 0.3936794228343145,
+              "accepted_iqr": [
+                0.0,
+                0.7180888442367319
+              ],
+              "quantile_in_prior": 0.6304545454545455
+            },
+            {
+              "param": "p_reach",
+              "prior_median": 6.0,
+              "accepted_median": 8.5,
+              "accepted_iqr": [
+                3.75,
+                18.25
+              ],
+              "quantile_in_prior": 0.6297727272727273
+            },
+            {
+              "param": "p_len_mid",
+              "prior_median": 4.0,
+              "accepted_median": 4.0,
+              "accepted_iqr": [
+                3.0,
+                5.0
+              ],
+              "quantile_in_prior": 0.6155681818181818
+            },
+            {
+              "param": "p_mut_mid",
+              "prior_median": 0.31151586831405764,
+              "accepted_median": 0.35850384786618894,
+              "accepted_iqr": [
+                0.22048631017374618,
+                0.4611645892515591
+              ],
+              "quantile_in_prior": 0.5926136363636364
+            },
+            {
+              "param": "p_alphabet",
+              "prior_median": 20.0,
+              "accepted_median": 19.0,
+              "accepted_iqr": [
+                17.0,
+                23.0
+              ],
+              "quantile_in_prior": 0.41125
+            },
+            {
+              "param": "l_words_per_line",
+              "prior_median": 8.95211704104426,
+              "accepted_median": 9.539905813458162,
+              "accepted_iqr": [
+                8.112046579919287,
+                10.9703978433422
+              ],
+              "quantile_in_prior": 0.5764772727272728
+            },
+            {
+              "param": "l_final_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.2088244195419815,
+              "accepted_iqr": [
+                0.0,
+                0.5179599044569989
+              ],
+              "quantile_in_prior": 0.5695454545454546
+            },
+            {
+              "param": "l_line_final_p",
+              "prior_median": 0.23211372675227257,
+              "accepted_median": 0.1424310635505143,
+              "accepted_iqr": [
+                0.0,
+                0.39659487963731704
+              ],
+              "quantile_in_prior": 0.4321590909090909
+            },
+            {
+              "param": "p_slot_overlap",
+              "prior_median": 0.5005144233865672,
+              "accepted_median": 0.46438344659929315,
+              "accepted_iqr": [
+                0.2856487966961486,
+                0.8002100779330452
+              ],
+              "quantile_in_prior": 0.4621590909090909
+            },
+            {
+              "param": "p_mut_suffix",
+              "prior_median": 0.3140991680332482,
+              "accepted_median": 0.30039151727277213,
+              "accepted_iqr": [
+                0.1703498320063732,
+                0.45894499128791993
+              ],
+              "quantile_in_prior": 0.4725
+            },
+            {
+              "param": "l_width_jitter",
+              "prior_median": 0.1768646889326901,
+              "accepted_median": 0.18000618517230269,
+              "accepted_iqr": [
+                0.09420294041593716,
+                0.2628020105843102
+              ],
+              "quantile_in_prior": 0.5097727272727273
+            },
+            {
+              "param": "p_mut_prefix",
+              "prior_median": 0.3151455495082167,
+              "accepted_median": 0.3109905286557898,
+              "accepted_iqr": [
+                0.21808105938710431,
+                0.4582663826886409
+              ],
+              "quantile_in_prior": 0.4904545454545455
+            },
+            {
+              "param": "p_empty",
+              "prior_median": 0.2990551357166237,
+              "accepted_median": 0.29327179953137883,
+              "accepted_iqr": [
+                0.17040917271931433,
+                0.4053244298042399
+              ],
+              "quantile_in_prior": 0.4929545454545455
+            },
+            {
+              "param": "p_len_edge",
+              "prior_median": 2.0,
+              "accepted_median": 2.0,
+              "accepted_iqr": [
+                2.0,
+                3.0
+              ],
+              "quantile_in_prior": 0.4936931818181818
+            },
+            {
+              "param": "l_para_lines",
+              "prior_median": 6.573434347974999,
+              "accepted_median": 6.453575251326499,
+              "accepted_iqr": [
+                0.0,
+                10.324249003401643
+              ],
+              "quantile_in_prior": 0.49386363636363634
             }
           ]
         },
         "verbose": {
           "n_samples": 8800,
           "n_accepted": 88,
-          "best_distance": 2.585513522530294,
-          "accepted_median_distance": 3.5597656087548692,
-          "accepted_max_distance": 3.795080812276757,
+          "best_distance": 2.5858861410101226,
+          "accepted_median_distance": 3.570407941575402,
+          "accepted_max_distance": 3.8080410163758263,
           "share_within_self_max": 0.0,
           "share_within_self_median": 0.0,
           "misfit": [
             {
               "feature": "hapax_ratio",
-              "z": -6.590983028319136,
+              "z": -6.6435015218629125,
               "voynich": 0.7173692523555081,
-              "accepted_median": 0.5708534003490853
+              "accepted_median": 0.5696859277892867
             },
             {
               "feature": "wlen_std",
-              "z": 5.795674910211421,
+              "z": 5.841303720475441,
               "voynich": 1.5524085687218796,
-              "accepted_median": 1.8599848305214306
+              "accepted_median": 1.857664455596749
             },
             {
               "feature": "jsd_last",
-              "z": -5.109710767384377,
+              "z": -5.216118878763375,
               "voynich": 0.7176788751234573,
-              "accepted_median": 0.4737331792068318
+              "accepted_median": 0.46865308720882404
             },
             {
               "feature": "wlen_autocorr1",
@@ -2131,30 +2775,30 @@
             },
             {
               "feature": "wlen_skew",
-              "z": 3.802034413339399,
+              "z": 3.8596845056303044,
               "voynich": 0.18285310269978527,
-              "accepted_median": 0.5861891260201564
+              "accepted_median": 0.5923048936436912
             },
             {
               "feature": "ttr",
-              "z": -3.502084647255541,
+              "z": -3.5249917513471845,
               "voynich": 0.44285254144548714,
-              "accepted_median": 0.25175000000000003
+              "accepted_median": 0.2505
             },
             {
               "feature": "wlen_frac1",
-              "z": 3.4364073439812137,
+              "z": 3.4578484907190887,
               "voynich": 0.017432094747631088,
-              "accepted_median": 0.0575
+              "accepted_median": 0.05775
             },
             {
               "feature": "word_entropy_norm",
-              "z": -3.3552481831407635,
+              "z": -3.4075547095914516,
               "voynich": 0.8035137771122743,
-              "accepted_median": 0.6947039291252564
+              "accepted_median": 0.6930076417327391
             }
           ],
-          "n_features_off_by_2": 14,
+          "n_features_off_by_2": 15,
           "param_shifts": [
             {
               "param": "p_by_syllable",
@@ -2165,6 +2809,16 @@
                 1.0
               ],
               "quantile_in_prior": 0.8765909090909091
+            },
+            {
+              "param": "l_final_forms_share",
+              "prior_median": 0.10959882128473766,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.5846380000996777
+              ],
+              "quantile_in_prior": 0.24681818181818183
             },
             {
               "param": "p_split",
@@ -2201,20 +2855,10 @@
               "prior_median": 0.0,
               "accepted_median": 2.0,
               "accepted_iqr": [
-                0.75,
+                1.0,
                 3.0
               ],
               "quantile_in_prior": 0.6949057450628366
-            },
-            {
-              "param": "p_alphabet",
-              "prior_median": 17.0,
-              "accepted_median": 15.5,
-              "accepted_iqr": [
-                14.0,
-                17.0
-              ],
-              "quantile_in_prior": 0.3653409090909091
             },
             {
               "param": "l_allo_rate",
@@ -2241,40 +2885,50 @@
               "prior_median": 9.023120804820996,
               "accepted_median": 8.194863964032637,
               "accepted_iqr": [
-                6.4441384996032385,
+                6.394413694341688,
                 10.316284913730764
               ],
               "quantile_in_prior": 0.4002272727272727
+            },
+            {
+              "param": "p_alphabet",
+              "prior_median": 17.0,
+              "accepted_median": 16.0,
+              "accepted_iqr": [
+                14.0,
+                17.25
+              ],
+              "quantile_in_prior": 0.41198863636363636
             },
             {
               "param": "p_code_len_mean",
               "prior_median": 2.2222222222222223,
               "accepted_median": 2.2,
               "accepted_iqr": [
-                2.139751552795031,
-                2.27
+                2.129076086956522,
+                2.2666666666666666
               ],
               "quantile_in_prior": 0.43215909090909094
             },
             {
               "param": "l_allo_per_glyph",
               "prior_median": 0.0,
-              "accepted_median": 0.40115067401726023,
+              "accepted_median": 0.37700886680406476,
               "accepted_iqr": [
                 0.0,
                 0.919595338107928
               ],
-              "quantile_in_prior": 0.5417045454545455
+              "quantile_in_prior": 0.5372727272727272
             },
             {
               "param": "l_para_lines",
               "prior_median": 6.559691163409226,
-              "accepted_median": 6.085291096513678,
+              "accepted_median": 5.9271356461012505,
               "accepted_iqr": [
                 2.3141251847898996,
-                10.826389054613525
+                10.784782550303218
               ],
-              "quantile_in_prior": 0.4747727272727273
+              "quantile_in_prior": 0.46579545454545457
             },
             {
               "param": "l_line_final_p",
@@ -2292,7 +2946,7 @@
               "accepted_median": 0.17618842845212884,
               "accepted_iqr": [
                 0.09884336610311578,
-                0.26329746843786367
+                0.257959145644812
               ],
               "quantile_in_prior": 0.51125
             },
@@ -2305,16 +2959,6 @@
                 2.0
               ],
               "quantile_in_prior": 0.5066029783647091
-            },
-            {
-              "param": "l_final_forms_share",
-              "prior_median": 0.10959882128473766,
-              "accepted_median": 0.06017240531846863,
-              "accepted_iqr": [
-                0.0,
-                0.6001749339028538
-              ],
-              "quantile_in_prior": 0.49363636363636365
             }
           ]
         }
@@ -3252,6 +3896,328 @@
                 0.18905681745024014
               ],
               "quantile_in_prior": 0.4864772727272727
+            }
+          ]
+        },
+        "slotcite": {
+          "n_samples": 8800,
+          "n_accepted": 88,
+          "best_distance": 2.051705898302652,
+          "accepted_median_distance": 2.9491594675700563,
+          "accepted_max_distance": 3.1664226118486165,
+          "share_within_self_max": 0.0,
+          "share_within_self_median": 0.0,
+          "misfit": [
+            {
+              "feature": "char_double_rate",
+              "z": 4.969081472616187,
+              "voynich": 0.014956851844822016,
+              "accepted_median": 0.04194710859806515
+            },
+            {
+              "feature": "rep_adjacent_exact",
+              "z": 3.5159521805655443,
+              "voynich": 0.006373271401612406,
+              "accepted_median": 0.013756878439219609
+            },
+            {
+              "feature": "vocab_ed1_density",
+              "z": 2.7088358716829544,
+              "voynich": 0.8535173793524984,
+              "accepted_median": 0.9161189390237281
+            },
+            {
+              "feature": "jsd_last",
+              "z": -2.4535737722645425,
+              "voynich": 0.6788784453269417,
+              "accepted_median": 0.5525142572304501
+            },
+            {
+              "feature": "n_symbols",
+              "z": -2.3448191994752294,
+              "voynich": 69.52941176470588,
+              "accepted_median": 47.5
+            },
+            {
+              "feature": "wlen_autocorr1",
+              "z": -2.234048174357155,
+              "voynich": 0.17932802060108416,
+              "accepted_median": 0.04626276521384976
+            },
+            {
+              "feature": "rep_within3",
+              "z": 2.2335445502379954,
+              "voynich": 0.02149892849838571,
+              "accepted_median": 0.03301650825412707
+            },
+            {
+              "feature": "hapax_ratio",
+              "z": -2.176748483395421,
+              "voynich": 0.7413951219266598,
+              "accepted_median": 0.6769294366054333
+            }
+          ],
+          "n_features_off_by_2": 9,
+          "param_shifts": [
+            {
+              "param": "p_exact",
+              "prior_median": 0.4002155031540924,
+              "accepted_median": 0.21974236515510373,
+              "accepted_iqr": [
+                0.1697012657669966,
+                0.3586954558769152
+              ],
+              "quantile_in_prior": 0.20375
+            },
+            {
+              "param": "l_allo_rate",
+              "prior_median": 0.010902363601687028,
+              "accepted_median": 0.09200839590754094,
+              "accepted_iqr": [
+                0.038621490519857284,
+                0.12513246884931883
+              ],
+              "quantile_in_prior": 0.7897727272727273
+            },
+            {
+              "param": "l_allo_per_glyph",
+              "prior_median": 0.22209892286541205,
+              "accepted_median": 1.7175936404566534,
+              "accepted_iqr": [
+                0.6173647592999357,
+                2.5425185067767995
+              ],
+              "quantile_in_prior": 0.769090909090909
+            },
+            {
+              "param": "p_same_line",
+              "prior_median": 0.2516838890203104,
+              "accepted_median": 0.11828030716831628,
+              "accepted_iqr": [
+                0.05737712083497866,
+                0.23997644370261428
+              ],
+              "quantile_in_prior": 0.2325
+            },
+            {
+              "param": "l_initial_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                1.0
+              ],
+              "quantile_in_prior": 0.24448265978790484
+            },
+            {
+              "param": "l_final_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                3.0
+              ],
+              "quantile_in_prior": 0.24832987790831607
+            },
+            {
+              "param": "l_para_initial_p",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.6751194106270445
+              ],
+              "quantile_in_prior": 0.28642045454545456
+            },
+            {
+              "param": "l_initial_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.0
+              ],
+              "quantile_in_prior": 0.30176136363636363
+            },
+            {
+              "param": "p_reach",
+              "prior_median": 6.0,
+              "accepted_median": 9.0,
+              "accepted_iqr": [
+                4.0,
+                18.0
+              ],
+              "quantile_in_prior": 0.6449431818181818
+            },
+            {
+              "param": "p_mut_prefix",
+              "prior_median": 0.3151455495082167,
+              "accepted_median": 0.2515887059820879,
+              "accepted_iqr": [
+                0.16178011887389823,
+                0.4527263471242271
+              ],
+              "quantile_in_prior": 0.36329545454545453
+            },
+            {
+              "param": "p_len_mid",
+              "prior_median": 4.0,
+              "accepted_median": 3.0,
+              "accepted_iqr": [
+                2.0,
+                4.0
+              ],
+              "quantile_in_prior": 0.368125
+            },
+            {
+              "param": "p_mut_mid",
+              "prior_median": 0.31151586831405764,
+              "accepted_median": 0.3613491751959257,
+              "accepted_iqr": [
+                0.23551735582925648,
+                0.5183475463973104
+              ],
+              "quantile_in_prior": 0.5989772727272727
+            },
+            {
+              "param": "l_final_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.23279645717720704,
+              "accepted_iqr": [
+                0.0,
+                0.5711969842289347
+              ],
+              "quantile_in_prior": 0.5847727272727272
+            },
+            {
+              "param": "l_line_initial_p",
+              "prior_median": 0.2287745304190151,
+              "accepted_median": 0.31036279231089836,
+              "accepted_iqr": [
+                0.0,
+                0.5114205088968966
+              ],
+              "quantile_in_prior": 0.5606818181818182
+            },
+            {
+              "param": "p_slot_overlap",
+              "prior_median": 0.5005144233865672,
+              "accepted_median": 0.5579694127199294,
+              "accepted_iqr": [
+                0.3716080617274787,
+                0.7285139077507441
+              ],
+              "quantile_in_prior": 0.5559090909090909
+            },
+            {
+              "param": "p_empty",
+              "prior_median": 0.2990551357166237,
+              "accepted_median": 0.3312085141501153,
+              "accepted_iqr": [
+                0.24047003942878176,
+                0.4736668193957725
+              ],
+              "quantile_in_prior": 0.555340909090909
+            },
+            {
+              "param": "p_n_edge",
+              "prior_median": 14.0,
+              "accepted_median": 16.0,
+              "accepted_iqr": [
+                9.0,
+                23.0
+              ],
+              "quantile_in_prior": 0.5546590909090909
+            },
+            {
+              "param": "l_para_lines",
+              "prior_median": 6.573434347974999,
+              "accepted_median": 7.383899976978352,
+              "accepted_iqr": [
+                0.0,
+                11.640778297514577
+              ],
+              "quantile_in_prior": 0.548409090909091
+            },
+            {
+              "param": "p_mut_suffix",
+              "prior_median": 0.3140991680332482,
+              "accepted_median": 0.29052477472060356,
+              "accepted_iqr": [
+                0.1798735500981279,
+                0.4317388281473109
+              ],
+              "quantile_in_prior": 0.45284090909090907
+            },
+            {
+              "param": "p_copy",
+              "prior_median": 0.7352532434084291,
+              "accepted_median": 0.7200271670332219,
+              "accepted_iqr": [
+                0.5721732520655483,
+                0.808389407141412
+              ],
+              "quantile_in_prior": 0.46579545454545457
+            },
+            {
+              "param": "p_n_mid",
+              "prior_median": 35.0,
+              "accepted_median": 38.0,
+              "accepted_iqr": [
+                21.75,
+                63.0
+              ],
+              "quantile_in_prior": 0.53
+            },
+            {
+              "param": "l_words_per_line",
+              "prior_median": 8.95211704104426,
+              "accepted_median": 9.18376968749096,
+              "accepted_iqr": [
+                8.048386093292939,
+                11.255955114970899
+              ],
+              "quantile_in_prior": 0.5294318181818182
+            },
+            {
+              "param": "l_width_jitter",
+              "prior_median": 0.1768646889326901,
+              "accepted_median": 0.16865722500302271,
+              "accepted_iqr": [
+                0.07995136303710115,
+                0.2442186802232208
+              ],
+              "quantile_in_prior": 0.4771590909090909
+            },
+            {
+              "param": "l_line_final_p",
+              "prior_median": 0.23211372675227257,
+              "accepted_median": 0.2060312401294723,
+              "accepted_iqr": [
+                0.0,
+                0.4348688984257398
+              ],
+              "quantile_in_prior": 0.4775
+            },
+            {
+              "param": "p_len_edge",
+              "prior_median": 2.0,
+              "accepted_median": 2.0,
+              "accepted_iqr": [
+                1.75,
+                2.25
+              ],
+              "quantile_in_prior": 0.4936931818181818
+            },
+            {
+              "param": "p_alphabet",
+              "prior_median": 20.0,
+              "accepted_median": 20.0,
+              "accepted_iqr": [
+                17.0,
+                22.0
+              ],
+              "quantile_in_prior": 0.4977840909090909
             }
           ]
         },
@@ -4414,6 +5380,328 @@
             }
           ]
         },
+        "slotcite": {
+          "n_samples": 8800,
+          "n_accepted": 88,
+          "best_distance": 2.0225249929876905,
+          "accepted_median_distance": 2.73024378864073,
+          "accepted_max_distance": 2.9199434151270887,
+          "share_within_self_max": 0.0,
+          "share_within_self_median": 0.0,
+          "misfit": [
+            {
+              "feature": "h2_over_h1",
+              "z": 3.1456150604866284,
+              "voynich": 0.5210873862455351,
+              "accepted_median": 0.6268348083372004
+            },
+            {
+              "feature": "h2",
+              "z": 2.911769119631796,
+              "voynich": 2.012892788812526,
+              "accepted_median": 2.4178991433828245
+            },
+            {
+              "feature": "jsd_last",
+              "z": -2.841679791430014,
+              "voynich": 0.7123430247363851,
+              "accepted_median": 0.5828854686814333
+            },
+            {
+              "feature": "rep_adjacent_exact",
+              "z": 2.4293876678809054,
+              "voynich": 0.008489161527367967,
+              "accepted_median": 0.014507253626813406
+            },
+            {
+              "feature": "hapax_ratio",
+              "z": -2.293771238794705,
+              "voynich": 0.7148965770470475,
+              "accepted_median": 0.6411649944258639
+            },
+            {
+              "feature": "vocab_ed1_density",
+              "z": 2.231491896261132,
+              "voynich": 0.8233043583243653,
+              "accepted_median": 0.8713032889325657
+            },
+            {
+              "feature": "zipf_slope",
+              "z": 2.0581085686391503,
+              "voynich": -0.7851934277816899,
+              "accepted_median": -0.6448576918140456
+            },
+            {
+              "feature": "wlen_frac1",
+              "z": -1.8696622742397757,
+              "voynich": 0.03250714442197834,
+              "accepted_median": 0.01325
+            }
+          ],
+          "n_features_off_by_2": 7,
+          "param_shifts": [
+            {
+              "param": "p_len_edge",
+              "prior_median": 2.0,
+              "accepted_median": 3.0,
+              "accepted_iqr": [
+                2.0,
+                3.0
+              ],
+              "quantile_in_prior": 0.830625
+            },
+            {
+              "param": "p_exact",
+              "prior_median": 0.4002155031540924,
+              "accepted_median": 0.2157547183774099,
+              "accepted_iqr": [
+                0.1486126956890878,
+                0.38901237743488787
+              ],
+              "quantile_in_prior": 0.19727272727272727
+            },
+            {
+              "param": "l_line_final_p",
+              "prior_median": 0.23211372675227257,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.37663916208027554
+              ],
+              "quantile_in_prior": 0.20022727272727273
+            },
+            {
+              "param": "l_initial_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                2.0
+              ],
+              "quantile_in_prior": 0.24448265978790484
+            },
+            {
+              "param": "p_same_line",
+              "prior_median": 0.2516838890203104,
+              "accepted_median": 0.14109289923907664,
+              "accepted_iqr": [
+                0.05351154655316473,
+                0.24226891303272224
+              ],
+              "quantile_in_prior": 0.2767045454545455
+            },
+            {
+              "param": "l_para_initial_p",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.4297168567697374
+              ],
+              "quantile_in_prior": 0.28642045454545456
+            },
+            {
+              "param": "l_initial_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.0
+              ],
+              "quantile_in_prior": 0.30176136363636363
+            },
+            {
+              "param": "p_reach",
+              "prior_median": 6.0,
+              "accepted_median": 9.5,
+              "accepted_iqr": [
+                4.0,
+                18.0
+              ],
+              "quantile_in_prior": 0.6601136363636364
+            },
+            {
+              "param": "p_copy",
+              "prior_median": 0.7352532434084291,
+              "accepted_median": 0.6638292377622994,
+              "accepted_iqr": [
+                0.5640853503875102,
+                0.7868332583523108
+              ],
+              "quantile_in_prior": 0.34704545454545455
+            },
+            {
+              "param": "l_line_initial_p",
+              "prior_median": 0.2287745304190151,
+              "accepted_median": 0.41087341077218653,
+              "accepted_iqr": [
+                0.0,
+                0.7027069126277125
+              ],
+              "quantile_in_prior": 0.6367045454545455
+            },
+            {
+              "param": "l_final_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.3116217828499149,
+              "accepted_iqr": [
+                0.0,
+                0.6310350350599304
+              ],
+              "quantile_in_prior": 0.6276136363636363
+            },
+            {
+              "param": "p_len_mid",
+              "prior_median": 4.0,
+              "accepted_median": 4.0,
+              "accepted_iqr": [
+                3.0,
+                5.0
+              ],
+              "quantile_in_prior": 0.6155681818181818
+            },
+            {
+              "param": "l_para_lines",
+              "prior_median": 6.573434347974999,
+              "accepted_median": 4.730737622260609,
+              "accepted_iqr": [
+                0.0,
+                9.593324023015537
+              ],
+              "quantile_in_prior": 0.3915909090909091
+            },
+            {
+              "param": "l_words_per_line",
+              "prior_median": 8.95211704104426,
+              "accepted_median": 9.678243085224814,
+              "accepted_iqr": [
+                8.049808217430327,
+                11.364973124133746
+              ],
+              "quantile_in_prior": 0.5945454545454546
+            },
+            {
+              "param": "p_alphabet",
+              "prior_median": 20.0,
+              "accepted_median": 19.0,
+              "accepted_iqr": [
+                16.75,
+                23.0
+              ],
+              "quantile_in_prior": 0.41125
+            },
+            {
+              "param": "l_allo_per_glyph",
+              "prior_median": 0.22209892286541205,
+              "accepted_median": 0.7049619640155138,
+              "accepted_iqr": [
+                0.0,
+                1.8057886733780841
+              ],
+              "quantile_in_prior": 0.5873863636363637
+            },
+            {
+              "param": "l_allo_rate",
+              "prior_median": 0.010902363601687028,
+              "accepted_median": 0.02951355379351952,
+              "accepted_iqr": [
+                0.0,
+                0.09004038819142583
+              ],
+              "quantile_in_prior": 0.5680681818181819
+            },
+            {
+              "param": "p_slot_overlap",
+              "prior_median": 0.5005144233865672,
+              "accepted_median": 0.44170138824126587,
+              "accepted_iqr": [
+                0.2508144263709291,
+                0.679684327530649
+              ],
+              "quantile_in_prior": 0.43795454545454543
+            },
+            {
+              "param": "l_final_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 1.0,
+              "accepted_iqr": [
+                0.0,
+                3.0
+              ],
+              "quantile_in_prior": 0.5595484911310759
+            },
+            {
+              "param": "p_mut_suffix",
+              "prior_median": 0.3140991680332482,
+              "accepted_median": 0.28880652774371274,
+              "accepted_iqr": [
+                0.16651802796783657,
+                0.4321468650376187
+              ],
+              "quantile_in_prior": 0.45
+            },
+            {
+              "param": "p_empty",
+              "prior_median": 0.2990551357166237,
+              "accepted_median": 0.31357660479846,
+              "accepted_iqr": [
+                0.2004734012049148,
+                0.4237539161986599
+              ],
+              "quantile_in_prior": 0.5263636363636364
+            },
+            {
+              "param": "p_n_mid",
+              "prior_median": 35.0,
+              "accepted_median": 37.5,
+              "accepted_iqr": [
+                17.0,
+                61.0
+              ],
+              "quantile_in_prior": 0.525
+            },
+            {
+              "param": "l_width_jitter",
+              "prior_median": 0.1768646889326901,
+              "accepted_median": 0.17057473315006527,
+              "accepted_iqr": [
+                0.09008182247668384,
+                0.2626044779925095
+              ],
+              "quantile_in_prior": 0.48261363636363636
+            },
+            {
+              "param": "p_mut_mid",
+              "prior_median": 0.31151586831405764,
+              "accepted_median": 0.31928313954310006,
+              "accepted_iqr": [
+                0.19155520515484134,
+                0.48990248489881
+              ],
+              "quantile_in_prior": 0.5155681818181819
+            },
+            {
+              "param": "p_n_edge",
+              "prior_median": 14.0,
+              "accepted_median": 14.0,
+              "accepted_iqr": [
+                9.0,
+                22.25
+              ],
+              "quantile_in_prior": 0.48920454545454545
+            },
+            {
+              "param": "p_mut_prefix",
+              "prior_median": 0.3151455495082167,
+              "accepted_median": 0.3129549393196989,
+              "accepted_iqr": [
+                0.2306935914283907,
+                0.46510985777483993
+              ],
+              "quantile_in_prior": 0.4953409090909091
+            }
+          ]
+        },
         "verbose": {
           "n_samples": 8800,
           "n_accepted": 88,
@@ -5570,6 +6858,328 @@
                 0.06685331830062055
               ],
               "quantile_in_prior": 0.4978409090909091
+            }
+          ]
+        },
+        "slotcite": {
+          "n_samples": 8800,
+          "n_accepted": 88,
+          "best_distance": 1.5205726626035534,
+          "accepted_median_distance": 2.4267350319877963,
+          "accepted_max_distance": 2.5890031851479423,
+          "share_within_self_max": 0.0,
+          "share_within_self_median": 0.0,
+          "misfit": [
+            {
+              "feature": "rep_adjacent_exact",
+              "z": 2.4293876678809054,
+              "voynich": 0.008489161527367967,
+              "accepted_median": 0.014507253626813406
+            },
+            {
+              "feature": "jsd_last",
+              "z": -2.3354286330603165,
+              "voynich": 0.7119343872218794,
+              "accepted_median": 0.6045132817915572
+            },
+            {
+              "feature": "h2_over_h1",
+              "z": 2.1603109384143644,
+              "voynich": 0.5540060954660322,
+              "accepted_median": 0.6423190438080031
+            },
+            {
+              "feature": "h2",
+              "z": 2.138731025179232,
+              "voynich": 2.1266667173545963,
+              "accepted_median": 2.500020741137325
+            },
+            {
+              "feature": "vocab_ed1_density",
+              "z": 1.779889162697151,
+              "voynich": 0.8519978065414102,
+              "accepted_median": 0.8804761694629973
+            },
+            {
+              "feature": "h1",
+              "z": 1.7783491805992213,
+              "voynich": 3.836448316484577,
+              "accepted_median": 3.908713553119276
+            },
+            {
+              "feature": "jsd_line_final",
+              "z": -1.7570776400600019,
+              "voynich": 0.11041031924062741,
+              "accepted_median": 0.043512114492504916
+            },
+            {
+              "feature": "first_entropy_ratio",
+              "z": -1.7164277280855778,
+              "voynich": 0.8748564852518624,
+              "accepted_median": 0.8319357692293217
+            }
+          ],
+          "n_features_off_by_2": 4,
+          "param_shifts": [
+            {
+              "param": "l_line_final_p",
+              "prior_median": 0.23211372675227257,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.32782269417789806
+              ],
+              "quantile_in_prior": 0.20022727272727273
+            },
+            {
+              "param": "l_initial_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                2.25
+              ],
+              "quantile_in_prior": 0.24448265978790484
+            },
+            {
+              "param": "l_final_forms_k",
+              "prior_median": 1.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                3.0
+              ],
+              "quantile_in_prior": 0.24832987790831607
+            },
+            {
+              "param": "l_para_initial_p",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.4582507046336116
+              ],
+              "quantile_in_prior": 0.28642045454545456
+            },
+            {
+              "param": "p_exact",
+              "prior_median": 0.4002155031540924,
+              "accepted_median": 0.2703774936340024,
+              "accepted_iqr": [
+                0.16303021654571873,
+                0.41337553986005937
+              ],
+              "quantile_in_prior": 0.28795454545454546
+            },
+            {
+              "param": "p_same_line",
+              "prior_median": 0.2516838890203104,
+              "accepted_median": 0.1480372238517434,
+              "accepted_iqr": [
+                0.061684971552014994,
+                0.22167173305486448
+              ],
+              "quantile_in_prior": 0.29045454545454547
+            },
+            {
+              "param": "l_initial_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.0,
+              "accepted_iqr": [
+                0.0,
+                0.0
+              ],
+              "quantile_in_prior": 0.30176136363636363
+            },
+            {
+              "param": "l_allo_rate",
+              "prior_median": 0.010902363601687028,
+              "accepted_median": 0.06545431732404464,
+              "accepted_iqr": [
+                0.0,
+                0.10441985475597679
+              ],
+              "quantile_in_prior": 0.6954545454545454
+            },
+            {
+              "param": "p_copy",
+              "prior_median": 0.7352532434084291,
+              "accepted_median": 0.6519065197715116,
+              "accepted_iqr": [
+                0.5440302674267471,
+                0.7868332583523108
+              ],
+              "quantile_in_prior": 0.32170454545454547
+            },
+            {
+              "param": "l_line_initial_p",
+              "prior_median": 0.2287745304190151,
+              "accepted_median": 0.4484759457482851,
+              "accepted_iqr": [
+                0.12997041117357427,
+                0.7235643348642552
+              ],
+              "quantile_in_prior": 0.6646590909090909
+            },
+            {
+              "param": "l_final_forms_share",
+              "prior_median": 0.0,
+              "accepted_median": 0.3537963524578224,
+              "accepted_iqr": [
+                0.0,
+                0.5978720776158953
+              ],
+              "quantile_in_prior": 0.6521590909090909
+            },
+            {
+              "param": "l_allo_per_glyph",
+              "prior_median": 0.22209892286541205,
+              "accepted_median": 0.9312545131753538,
+              "accepted_iqr": [
+                0.0,
+                1.9979481665712557
+              ],
+              "quantile_in_prior": 0.6273863636363637
+            },
+            {
+              "param": "l_para_lines",
+              "prior_median": 6.573434347974999,
+              "accepted_median": 4.524926494798924,
+              "accepted_iqr": [
+                0.0,
+                9.72534065459308
+              ],
+              "quantile_in_prior": 0.3789772727272727
+            },
+            {
+              "param": "p_len_mid",
+              "prior_median": 4.0,
+              "accepted_median": 4.0,
+              "accepted_iqr": [
+                3.0,
+                5.0
+              ],
+              "quantile_in_prior": 0.6155681818181818
+            },
+            {
+              "param": "p_reach",
+              "prior_median": 6.0,
+              "accepted_median": 8.0,
+              "accepted_iqr": [
+                4.0,
+                16.0
+              ],
+              "quantile_in_prior": 0.6113636363636363
+            },
+            {
+              "param": "p_empty",
+              "prior_median": 0.2990551357166237,
+              "accepted_median": 0.35452701680686866,
+              "accepted_iqr": [
+                0.21635394314260756,
+                0.4384298099541284
+              ],
+              "quantile_in_prior": 0.5936363636363636
+            },
+            {
+              "param": "p_mut_mid",
+              "prior_median": 0.31151586831405764,
+              "accepted_median": 0.35850384786618894,
+              "accepted_iqr": [
+                0.24136577210941226,
+                0.5088976772720039
+              ],
+              "quantile_in_prior": 0.5926136363636364
+            },
+            {
+              "param": "p_alphabet",
+              "prior_median": 20.0,
+              "accepted_median": 19.0,
+              "accepted_iqr": [
+                17.0,
+                22.25
+              ],
+              "quantile_in_prior": 0.41125
+            },
+            {
+              "param": "l_words_per_line",
+              "prior_median": 8.95211704104426,
+              "accepted_median": 9.4978845413433,
+              "accepted_iqr": [
+                7.8182568185525,
+                11.099973147777217
+              ],
+              "quantile_in_prior": 0.5706818181818182
+            },
+            {
+              "param": "p_n_edge",
+              "prior_median": 14.0,
+              "accepted_median": 13.0,
+              "accepted_iqr": [
+                9.0,
+                21.0
+              ],
+              "quantile_in_prior": 0.4538068181818182
+            },
+            {
+              "param": "p_n_mid",
+              "prior_median": 35.0,
+              "accepted_median": 39.5,
+              "accepted_iqr": [
+                20.0,
+                65.25
+              ],
+              "quantile_in_prior": 0.5461363636363636
+            },
+            {
+              "param": "p_mut_suffix",
+              "prior_median": 0.3140991680332482,
+              "accepted_median": 0.29338886732824243,
+              "accepted_iqr": [
+                0.16235725963996595,
+                0.41295308060361696
+              ],
+              "quantile_in_prior": 0.4590909090909091
+            },
+            {
+              "param": "p_slot_overlap",
+              "prior_median": 0.5005144233865672,
+              "accepted_median": 0.4675004919081767,
+              "accepted_iqr": [
+                0.28374397076836944,
+                0.7274498506913255
+              ],
+              "quantile_in_prior": 0.4643181818181818
+            },
+            {
+              "param": "l_width_jitter",
+              "prior_median": 0.1768646889326901,
+              "accepted_median": 0.16596471552878106,
+              "accepted_iqr": [
+                0.06440144013052437,
+                0.2513375792522827
+              ],
+              "quantile_in_prior": 0.46863636363636363
+            },
+            {
+              "param": "p_mut_prefix",
+              "prior_median": 0.3151455495082167,
+              "accepted_median": 0.30403686817452186,
+              "accepted_iqr": [
+                0.21531820230870782,
+                0.42619156688102244
+              ],
+              "quantile_in_prior": 0.47306818181818183
+            },
+            {
+              "param": "p_len_edge",
+              "prior_median": 2.0,
+              "accepted_median": 2.0,
+              "accepted_iqr": [
+                2.0,
+                3.0
+              ],
+              "quantile_in_prior": 0.4936931818181818
             }
           ]
         },

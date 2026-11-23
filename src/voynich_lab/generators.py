@@ -9,6 +9,9 @@ Dil tabanlı süreçler gerçek bir metni dönüştürür:
 Anlamsız metin üreteçleri gerçek metne ihtiyaç duymaz:
   grille   : Rugg tarzı tablo + ızgara (önek/orta/sonek hücreleri)
   selfcite : Timm ve Schinner tarzı kendinden kopyalama (önceki kelimeyi al, boz)
+  slotcite : melez. Kelimeler grille gibi önek + gövde + sonek hecelerinden
+             kurulur, metin selfcite gibi önceki kelimeleri kopyalayıp bir
+             hecesini değiştirerek ilerler
 
 Bunlar bilinçli olarak basit v0 sürümleri. Hattın bilimsel değeri bu
 üreteçlerin aslına sadakatine bağlı, asıl geliştirme alanı burası.
@@ -215,6 +218,22 @@ PROCESS_PRIOR: dict[str, dict[str, tuple[float, float, str]]] = {
         "p_mut_prefix": (0, 1, "f"),
         "p_mut_delete": (0, 1, "f"),
         "p_mut_double": (0, 1, "f"),
+    },
+    "slotcite": {
+        "p_alphabet": (15, 25, "i"),
+        "p_slot_overlap": (0, 1, "f"),
+        "p_n_edge": (5, 40, "log"),
+        "p_n_mid": (10, 120, "log"),
+        "p_empty": (0, 0.6, "f"),
+        "p_len_edge": (1, 3, "i"),
+        "p_len_mid": (2, 5, "i"),
+        "p_copy": (0.5, 0.97, "f"),
+        "p_exact": (0.1, 0.7, "f"),
+        "p_reach": (1, 30, "log"),
+        "p_same_line": (0, 0.5, "f"),
+        "p_mut_prefix": (0, 1, "f"),
+        "p_mut_mid": (0, 1, "f"),
+        "p_mut_suffix": (0, 1, "f"),
     },
 }
 
@@ -751,6 +770,121 @@ def selfcite(
     return finish(lines, para_starts, layout, rng)
 
 
+def slotcite(
+    n_words: int,
+    rng: np.random.Generator,
+    layout: Layout | None = None,
+    rec: dict | None = None,
+    fixed: dict | None = None,
+) -> Lines:
+    """Melez: yuva yapılı kelime + yerel kopyalayıp değiştirme.
+
+    v0.5 bulgusundan doğan hipotez: grille kelime yapısını tutturuyor ama komşu
+    kelimeleri birbirine benzetemiyor ve yeterince tek geçen kelime üretmiyor;
+    selfcite komşu benzerliğini tutturuyor ama kelime yapısı gevşek. Burada her
+    kelime (önek, gövde, sonek) hece üçlüsüdür. Yazıcı çoğu kelimeyi üst
+    satırlardaki benzer konumdan ya da aynı satırdan kopyalar; kopyada ya hiçbir
+    şeyi değiştirmez ya da üç heceden birini envanterden yenisiyle değiştirir.
+    Böylece her kelime yuva yapısına uyar, komşular birbirine benzer ve
+    çeşitlemeler birikir.
+    """
+    if layout is None:
+        layout = sample_layout(rng)
+    _note(rec, **layout_params(layout))
+    k = Knobs(fixed, rec)
+    alphabet = _symbols(int(k.get("p_alphabet", lambda: int(rng.integers(15, 26)))))
+    overlap = float(k.get("p_slot_overlap", lambda: float(rng.uniform(0, 1))))
+    slot_alphabets = _slot_alphabets(alphabet, 3, overlap, rng)
+    n_edge = int(k.get("p_n_edge", lambda: _log_int(5, 40, rng)))
+    n_mid = int(k.get("p_n_mid", lambda: _log_int(10, 120, rng)))
+    p_empty = float(k.get("p_empty", lambda: float(rng.uniform(0.0, 0.6))))
+    len_edge = int(k.get("p_len_edge", lambda: int(rng.integers(1, 4))))
+    len_mid = int(k.get("p_len_mid", lambda: int(rng.integers(2, 6))))
+    inv = [
+        _syllables(slot_alphabets[0], n_edge, len_edge, p_empty, rng),
+        _syllables(slot_alphabets[1], n_mid, len_mid, 0.0, rng),
+        _syllables(slot_alphabets[2], n_edge, len_edge, p_empty, rng),
+    ]
+    weights = [_zipf_weights(len(v), rng) for v in inv]
+    p_copy = float(k.get("p_copy", lambda: float(rng.uniform(0.5, 0.97))))
+    p_exact = float(k.get("p_exact", lambda: float(rng.uniform(0.1, 0.7))))
+    reach = int(k.get("p_reach", lambda: _log_int(1, 30, rng)))
+    p_same_line = float(k.get("p_same_line", lambda: float(rng.uniform(0.0, 0.5))))
+    drawn = rng.dirichlet(2 * np.ones(3))
+    names = ("p_mut_prefix", "p_mut_mid", "p_mut_suffix")
+    mix = np.array([float(k.get(n, lambda v=v: float(v))) for n, v in zip(names, drawn)])
+    cut = np.cumsum(mix / max(mix.sum(), 1e-9))
+
+    # Tek tek çekmek yavaş: hece ve olasılık çekimleri bloklar hâlinde hazırlanır.
+    block = 4096
+    pools = [iter(()) for _ in range(3)]
+    uniforms = iter(())
+
+    def syllable(j: int) -> int:
+        nonlocal pools
+        v = next(pools[j], None)
+        if v is None:
+            pools[j] = iter(rng.choice(len(inv[j]), size=block, p=weights[j]).tolist())
+            v = next(pools[j])
+        return v
+
+    def u() -> float:
+        nonlocal uniforms
+        v = next(uniforms, None)
+        if v is None:
+            uniforms = iter(rng.random(block).tolist())
+            v = next(uniforms)
+        return v
+
+    Word = tuple[int, int, int]
+
+    def fresh() -> Word:
+        return (syllable(0), syllable(1), syllable(2))
+
+    def spell(w: Word) -> str:
+        return inv[0][w[0]] + inv[1][w[1]] + inv[2][w[2]]
+
+    def next_word(lines: list[list[Word]], line: list[Word]) -> Word:
+        if not lines or u() >= p_copy:
+            return fresh()
+        if line and u() < p_same_line:
+            src = line[int(u() * len(line))]
+        else:
+            src_line = lines[-(1 + int(u() * min(reach, len(lines))))]
+            pos = min(len(src_line) - 1, max(0, len(line) + int(u() * 3) - 1))
+            src = src_line[pos]
+        if u() < p_exact:
+            return src
+        j = int(np.searchsorted(cut, u(), side="right").clip(0, 2))
+        w = list(src)
+        w[j] = syllable(j)
+        return (w[0], w[1], w[2])
+
+    mean_len = sum(float(np.dot(weights[j], [len(x) for x in inv[j]])) for j in range(3))
+    budgets = layout.budgets(mean_len + 1.0, rng)
+    lines: list[list[Word]] = []
+    para_starts: list[bool] = []
+    total = 0
+    carry: Word | None = None
+    while total < n_words:
+        width, starts = next(budgets)
+        line: list[Word] = []
+        used = 0
+        while True:
+            w = carry if carry is not None else next_word(lines, line)
+            carry = None
+            size = len(spell(w)) + 1
+            if line and used + size > width:
+                carry = w
+                break
+            line.append(w)
+            used += size
+        lines.append(line)
+        para_starts.append(starts)
+        total += len(line)
+    return finish([[spell(w) for w in ln] for ln in lines], para_starts, layout, rng)
+
+
 LANGUAGE_PROCESSES: dict[str, Callable[..., Lines]] = {
     "plain": plain,
     "abjad": abjad,
@@ -759,4 +893,5 @@ LANGUAGE_PROCESSES: dict[str, Callable[..., Lines]] = {
 GIBBERISH_PROCESSES: dict[str, Callable[..., Lines]] = {
     "grille": grille,
     "selfcite": selfcite,
+    "slotcite": slotcite,
 }
