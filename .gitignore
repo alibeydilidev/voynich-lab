@@ -1,6 +1,7 @@
 data/raw/
 results/synthetic.csv
 results/abc_synthetic.csv
+results/manuscripts.csv
 results/model.json
 __pycache__/
 *.egg-info/

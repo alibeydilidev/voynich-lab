@@ -36,7 +36,7 @@ Metne anlam atayan kod ancak şu koşulların hepsi sağlanınca yazılır:
 4. **Pencere boyutu her yerde aynı.** Entropi ve TTR örneklem boyutuna duyarlı. Sentetik ve Voynich pencereleri aynı `--window` ile kesilir.
 5. **En az iki transliterasyon.** Tek transliterasyonda çıkan sonuç, transliterasyonun eseri olabilir. Sonuç görünümler arasında tutarlı değilse bulgu değildir.
 6. **CV dil bazında gruplu.** Model hiç görmediği dilde sınanır.
-7. **Sınıflandırıcının sınıf adı başlık değildir.** 2026-11-23 oturumunda sınıflandırıcının kararı, yalnız bir üretecin önseli genişletildiği için üç kez yön değiştirdi (v0.2 `grille`, v0.3 düz EVA'da `verbose`, v0.4 her yerde `grille`). Bir hipotez hakkında hüküm ancak taze örnek ölçütüyle verilir (`cli search`): seçilen ayarlarla yeniden üretilen örnekler Voynich öz mesafesinin içine giriyor mu. Sınıflandırıcı raporu yardımcı göstergedir.
+7. **Sınıflandırıcının sınıf adı başlık değildir.** 2026-11-23 oturumunda sınıflandırıcının kararı, yalnız bir üretecin önseli genişletildiği için üç kez yön değiştirdi (v0.2 `grille`, v0.3 düz EVA'da `verbose`, v0.4 her yerde `grille`). Bir hipotez hakkında hüküm el yazması düzeyinde ve doğrulama yarısında verilir (`cli manuscripts`): tek tablo ve tek ayarla üretilen uzun metnin, seçimde kullanılmayan yarısı Voynich'in kendi yarıları kadar yakın mı. Sınıflandırıcı raporu, pencere düzeyi ABC ve arama yardımcı göstergedir.
 
 ## Komutlar
 
@@ -49,11 +49,12 @@ python -m voynich_lab.cli report    # CV + eğitim + Voynich analizi -> results/
 python -m voynich_lab.cli all       # fetch + build + report, ~1 dk
 python -m voynich_lab.cli abc       # büyük tablo + ABC raporu -> results/abc.md, 4 çekirdekte ~3 dk
 python -m voynich_lab.cli search    # abc tablosundan başlayan yönlendirilmiş arama -> results/search.md, ~6 dk
+python -m voynich_lab.cli manuscripts --rebuild --ms-per-class 2000   # el yazması düzeyi -> results/manuscripts.md, ~8 dk
 python -m voynich_lab.cli checks    # hattın kendi sonuçlarını sınayan deneyler -> results/checks.md
 pytest -q
 ```
 
-Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--abc-per-language 100`, `--abc-seeds 4`, `--accept 0.01`, `--jobs 4`; var olan tabloyu yeniden kullanır, `--rebuild` baştan üretir. Arama için: `--rounds 5`, `--keep 100`, `--children 6`, `--fresh 2`. Sıra önemli: `all` -> `abc --rebuild` -> `search` -> `checks`; üreteç değişince dördü de yeniden koşulur.
+Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--abc-per-language 100`, `--abc-seeds 4`, `--accept 0.01`, `--jobs 4`; var olan tabloyu yeniden kullanır, `--rebuild` baştan üretir. Arama için: `--rounds 5`, `--keep 100`, `--children 6`, `--fresh 2`. El yazması için: `--ms-per-class`, `--ms-windows 16`, `--ms-top 20`, `--ms-reseed-top 5`, `--ms-reseeds 6`. Sıra önemli: `all` -> `abc --rebuild` -> `search` -> `manuscripts --rebuild` -> `checks`; üreteç değişince hepsi yeniden koşulur.
 
 ## Mimari
 
@@ -68,6 +69,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | `analyze.py` | Voynich çıkarımı, SHAP katkıları (`pred_contribs`), Mahalanobis tabanlı OOD |
 | `abc.py` | Rejection ABC: her sınıf Voynich'e en fazla ne kadar yaklaşıyor, neyi tutturamıyor, hangi ayarlarla. Mesafe birimi Voynich'in kendi pencereleri arası değişkenlik |
 | `search.py` | Yönlendirilmiş arama: ABC'nin en yakın örneklerinin ayarlarından başlar, önsel sınırları içinde oynatır, sonucu taze örneklerle ölçer. Sonsal dağılım vermez; "bu hipotezin Voynich'ten ayırt edilemeyen bir ayar bölgesi var mı" sorusunu yanıtlar |
+| `manuscripts.py` | El yazması düzeyinde karşılaştırma: aday = ayarlar + tohum, tek tablodan 16 pencere, 8'i seçim 8'i doğrulama. İstatistik T (standart hataya bölünmüş ortalama farkı; Voynich'in kendi yarıları için yaklaşık 1) ve yayılım oranı (iç değişkenlik). Asıl hüküm buradan verilir |
 | `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor) ve homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) |
 | `cli.py`, `fetch.py` | Komut satırı ve indirme |
 
@@ -145,7 +147,7 @@ Eklenenler: `abc.py` ve `cli abc`; Zandbergen-Landini transliterasyonu (`zl_basi
 
 ## v0.4 bulguları: yönlendirilmiş arama ve taze örnek ölçütü (2026-11-24, seed 7, pencere 2000)
 
-Güncel durum budur. Raporlar: `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`.
+Tarihçe (`9e9cc52`). Buradaki "karşılaştırma birimi yanlıştı" teşhisi v0.5'te giderildi; pencere düzeyindeki sıralamalar yerine v0.5 tablosu okunur. Raporlar: `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`.
 
 Eklenenler: üreteçler ayarları dışarıdan alabiliyor (`Knobs`, `PROCESS_PRIOR`, `layout_from_params`); `search.py` ve `cli search`; `grille` için hece uzunluğu ve boş hücre payı ayarları; `checks` içine homojenlik deneyi.
 
@@ -158,6 +160,20 @@ Eklenenler: üreteçler ayarları dışarıdan alabiliyor (`Knobs`, `PROCESS_PRI
 - **Sınıflandırıcı raporu:** beş görünümde de `grille` (0.66 ila 0.95), OOD oranı 1.1 ila 1.4x, yüzdelik 68 ila 93. İlk kez hem dağılım içi hem görünümler arası tutarlı. Yine de bulgu sayılmıyor (ilke 7): bu karar yalnız `grille` üretecine hece uzunluğu ayarı eklenince oluştu ve taze örnek ölçütü geçilmedi.
 - **EVA'laştırma sınaması güncellendi.** Yeni `grille` ile 300 örneğin 299'u özgün hâliyle `grille`; EVA'laştırılınca 114'ü `verbose` oluyor (v0.3'te 291 idi). Etki küçüldü ama sürüyor; düz EVA görünümleri hakkındaki uyarı geçerli.
 
+## v0.5 bulguları: el yazması düzeyinde karşılaştırma (2026-11-24, seed 7, pencere 2000)
+
+Güncel durum budur. Rapor: `results/manuscripts.md` (sınıf başına 2000 el yazması, her biri 16 pencere; sınıf başına seçim yarısına göre en yakın 20 aday, sayılar doğrulama yarısından).
+
+- **Ölçü artık kararlı.** Seçim yarısı ile doğrulama yarısı aynı değeri veriyor (ör. `eva_basic` `grille` 6.5 ve 6.5). Pencere düzeyindeki seçim iyimserliği burada yok: bir tablonun profili kendi metni boyunca sabit.
+- **Referans.** Voynich'in kendi yarıları birbirine karşı T: rastgele bölmede medyan 0.9, %95'lik 1.5; ardışık bölmede (ilk yarı ile son yarı) 1.4 ila 1.7.
+- **Hiçbir hipotez Voynich'in ortalama profilini üretemiyor.** Seçilen adayların doğrulama T medyanı: `grille` 5.1 ila 6.5, `verbose` 6.4 ila 8.5, `selfcite` 7.4 ila 10.4, `plain` 7.3 ila 12.2, `abjad` 7.6 ila 14.3. En iyi tek aday 4.3 (`grille`, `eva_glyph`). Referansın %95'liğine giren aday yok.
+- **Sıralama beş görünümde de aynı: en yakın `grille`.** İkinci, dört görünümde `verbose`; v101'de `plain` ile `verbose` başa baş (7.3 ve 7.5). Bu, oturumun doğrulama yarısında ölçülmüş ve görünümler arası tutarlı ilk sıralamasıdır. Anlamı sınırlı: "beş hipotezden en az uzak olan", "doğru olan" değil; fark 5'e 7, referans 1.5.
+- **Ayarlar bilgi taşıyor ama tablo da önemli.** Seçilen ayarlar yeni tohumla (yeni tablo) yeniden üretilince `grille` 6.9 ila 8.6'ya çıkıyor. Yani seçilen adayların iyi oluşunun bir kısmı ayar bölgesinden, bir kısmı o tablonun kendisinden.
+- **İç değişkenlik (yayılım oranı, Voynich = 1):** `grille` 0.15 ila 0.17, `verbose` 0.32 ila 0.41, `plain` 0.38 ila 0.50, `abjad` 0.47 ila 0.60, `selfcite` 0.74 ila 0.94. Voynich, 32 bin kelimelik doğal dil metninden (İncil) yaklaşık iki kat, tek tablodan altı kat daha değişken. Kaynağı sınanmadı; Currier A ve B ile çizim bölümleri aday.
+- **`grille` neyi tutturamıyor (beş görünümde tekrar eden, standart hata biriminde):** `wlen_autocorr1` (-6 ila -7: komşu kelimeler uzunlukça benzemiyor), `hapax_ratio` (-6 ila -8: tek geçen kelime az), `vocab_ed1_density` (+5 ila +8: dağarcık fazla sıkı), `rep_adjacent_ed1` (-5 ila -6: komşuda "bir harf farklı" kelime az). Dördü de aynı şeyi söylüyor: tablo kelimeleri birbirinden bağımsız çekiyor, Voynich'te ise komşu kelimeler birbirine benziyor ve sürekli yeni çeşitleme üretiliyor.
+- **`selfcite` tam tersini tutturuyor ve başka yerde kalıyor:** iç değişkenlik ve komşu benzerliği yakın, ama `h2` çok yüksek (+11 ila +15), `char_double_rate` ve `rep_adjacent_exact` fazla, `hapax_ratio` az.
+- **Çıkarım (hipotez, sınanmadı):** Voynich, yuva yapılı kelime (grille'in iyi yaptığı) ile yerel kopyalayıp değiştirme (selfcite'ın iyi yaptığı) birleşimine benziyor. Sıradaki üreteç bu melez; ayrıca dil tarafında aynı iki özelliği (komşu benzerliği, bol hapax) üretebilecek bir hipotez de yazılmalı ki kıyas adil olsun (VL-001).
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
@@ -166,7 +182,7 @@ Eklenenler: üreteçler ayarları dışarıdan alabiliyor (`Knobs`, `PROCESS_PRI
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3) ve yönlendirilmiş arama (v0.4) yapıldı. **Sıradaki:** el yazması düzeyinde karşılaştırma. Üreteçler tabloyu (gizli durumu) sabit tutup uzun metin üretebilmeli; mesafe, pencere ortalaması ve iç değişkenlik üzerinden hesaplanmalı; tablo bir yarıda seçilip öbür yarıda doğrulanmalı. Ardından durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo).
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. **Sıradaki:** (a) melez üreteç: yuva yapılı kelime + yerel kopyalayıp değiştirme; (b) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
 3. **Dönem metinleri.** İncil çevirileri modern. 15. yüzyıl Latince, İtalyanca, Almanca, İbranice, Osmanlıca öncesi Türkçe tıbbi ve botanik metinler ekle. `corpus.py` düz kelime listesi bekliyor, yeni yükleyici yazmak yeterli.
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.

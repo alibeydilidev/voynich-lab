@@ -111,9 +111,8 @@ def homogeneity_experiment(
         while len(books[name]) < n_manuscripts:
             wins = _windows(proc((n_windows + 1) * window_words, rng), window_words)[:n_windows]
             if len(wins) == n_windows:
-                books[name].append(
-                    np.array([[extract_features(w)[f] for f in FEATURE_NAMES] for w in wins])
-                )
+                feats = [extract_features(w) for w in wins]
+                books[name].append(np.array([[f[n] for n in FEATURE_NAMES] for f in feats]))
 
     def rms(z: np.ndarray) -> np.ndarray:
         return np.sqrt((z**2).mean(-1))

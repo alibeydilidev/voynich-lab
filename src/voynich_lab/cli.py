@@ -1,4 +1,4 @@
-"""Komut satırı: python -m voynich_lab.cli {fetch,build,report,all,abc,search,checks}
+"""Komut satırı: python -m voynich_lab.cli {fetch,build,report,all,abc,search,manuscripts,checks}
 
   fetch  : ham veriyi data/raw altına indirir
   build  : sentetik feature tablosunu üretir (results/synthetic.csv)
@@ -8,6 +8,8 @@
            Voynich'e en fazla ne kadar yaklaştığını ölçer, results/abc.md yazar
   search : abc tablosundan başlayıp her hipotez için ayarları yönlendirerek arar,
            ulaşılan en iyi noktayı taze örneklerle ölçer, results/search.md yazar
+  manuscripts : el yazması düzeyinde karşılaştırma (tek tablo, uzun metin; bir
+           yarıda seç, öbür yarıda doğrula), results/manuscripts.md yazar
   checks : hattın kendi sonuçlarını sınayan deneyler, results/checks.md yazar
 """
 
@@ -174,6 +176,86 @@ def cmd_search(args: argparse.Namespace) -> None:
     print(md)
 
 
+def cmd_manuscripts(args: argparse.Namespace) -> None:
+    from concurrent.futures import ProcessPoolExecutor
+
+    from .abc import voynich_features
+    from .features import FEATURE_NAMES
+    from .generators import PROCESS_PRIOR
+    from .manuscripts import (
+        analyze_view,
+        build_chunk,
+        render_markdown,
+        reseed_job,
+        scale_for,
+    )
+    from .search import LANGUAGE_KEY, prior_for
+    from .transliteration import load_views
+
+    out = Path(args.results)
+    out.mkdir(parents=True, exist_ok=True)
+    table = out / "manuscripts.csv"
+    labels = sorted(PROCESS_PRIOR)
+    half = args.ms_windows // 2
+    with ProcessPoolExecutor(max_workers=args.jobs) as pool:
+        if table.exists() and not args.rebuild:
+            df = pd.read_csv(table)
+            print(f"var olan tablo okundu: {len(df)} el yazması ({table}); yeniden üretmek için --rebuild")
+        else:
+            step = max(1, args.ms_per_class // (2 * args.jobs))
+            jobs = [
+                {
+                    "label": label, "label_index": li, "start": a,
+                    "stop": min(a + step, args.ms_per_class), "raw": args.raw,
+                    "window": args.window, "n_windows": args.ms_windows, "seed": args.seed,
+                }
+                for li, label in enumerate(labels)
+                for a in range(0, args.ms_per_class, step)
+            ]  # fmt: skip
+            df = pd.concat(list(pool.map(build_chunk, jobs)), ignore_index=True)
+            df.to_csv(table, index=False)
+            print(f"{len(df)} el yazması yazıldı -> {table}")
+        universe_sd = pd.read_csv(out / "synthetic.csv")[FEATURE_NAMES].to_numpy(dtype=float).std(0)
+        views, reseed_jobs = {}, []
+        for view, lines in load_views(args.raw).items():
+            V = voynich_features(lines, args.window).to_numpy(dtype=float)
+            views[view] = analyze_view(df, V, universe_sd, half, args.ms_top)
+            scale = scale_for(V, universe_sd)
+            for li, label in enumerate(labels):
+                g = df[df["label"] == label].set_index("index")
+                keys = list(prior_for(label)) + [LANGUAGE_KEY]
+                for index in views[view]["classes"][label]["selected_index"][: args.ms_reseed_top]:
+                    row = g.loc[index]
+                    theta = {k: row[k] for k in keys if k in row.index and not pd.isna(row[k])}
+                    theta = {k: (v if k == LANGUAGE_KEY else float(v)) for k, v in theta.items()}
+                    reseed_jobs.append(
+                        {
+                            "label": label, "label_index": li, "view": view, "index": int(index),
+                            "theta": theta, "raw": args.raw, "window": args.window, "half": half,
+                            "n_reseeds": args.ms_reseeds, "seed": args.seed,
+                            "center": V.mean(0).tolist(), "scale": scale.tolist(), "v_n": len(V),
+                        }  # fmt: skip
+                    )
+        pooled: dict = {}
+        for r in pool.map(reseed_job, reseed_jobs):
+            pooled.setdefault((r["view"], r["label"]), []).extend(r["values"])
+    for (view, label), vals in pooled.items():
+        c = views[view]["classes"][label]
+        c["reseed_median"] = float(pd.Series(vals).median())
+        c["reseed_best"] = float(min(vals))
+        c["reseed_n"] = len(vals)
+    settings = {
+        "per_class": args.ms_per_class, "n_windows": args.ms_windows, "top": args.ms_top,
+        "reseed_top": args.ms_reseed_top, "reseeds": args.ms_reseeds,
+    }  # fmt: skip
+    (out / "manuscripts.json").write_text(
+        json.dumps({"settings": settings, "views": views}, indent=2), encoding="utf-8"
+    )
+    md = render_markdown(views, settings)
+    (out / "manuscripts.md").write_text(md, encoding="utf-8")
+    print(md)
+
+
 def cmd_checks(args: argparse.Namespace) -> None:
     from .abc import voynich_features
     from .checks import (
@@ -201,7 +283,7 @@ def cmd_checks(args: argparse.Namespace) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(prog="voynich_lab")
-    p.add_argument("command", choices=["fetch", "build", "report", "all", "abc", "search", "checks"])
+    p.add_argument("command", choices=["fetch", "build", "report", "all", "abc", "search", "manuscripts", "checks"])
     p.add_argument("--raw", default="data/raw")
     p.add_argument("--results", default="results")
     p.add_argument("--window", type=int, default=2000, help="pencere boyutu (kelime)")
@@ -216,6 +298,11 @@ def main() -> None:
     p.add_argument("--keep", type=int, default=100, help="search: her turda tutulan ayar sayısı")
     p.add_argument("--children", type=int, default=6, help="search: tutulan ayar başına deneme")
     p.add_argument("--fresh", type=int, default=2, help="search: son ayar başına taze örnek")
+    p.add_argument("--ms-per-class", type=int, default=1000, help="manuscripts: sınıf başına el yazması")
+    p.add_argument("--ms-windows", type=int, default=16, help="manuscripts: el yazması başına pencere")
+    p.add_argument("--ms-top", type=int, default=20, help="manuscripts: sınıf başına seçilen aday")
+    p.add_argument("--ms-reseed-top", type=int, default=5, help="manuscripts: yeniden tohumlanan aday")
+    p.add_argument("--ms-reseeds", type=int, default=6, help="manuscripts: aday başına yeni tohum")
     args = p.parse_args()
     steps = {
         "fetch": [cmd_fetch],
@@ -223,6 +310,7 @@ def main() -> None:
         "report": [cmd_report],
         "abc": [cmd_abc],
         "search": [cmd_search],
+        "manuscripts": [cmd_manuscripts],
         "checks": [cmd_checks],
     }
     for step in steps.get(args.command, [cmd_fetch, cmd_build, cmd_report]):

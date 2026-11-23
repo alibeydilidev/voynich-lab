@@ -6,6 +6,16 @@ import pytest
 
 from voynich_lab.abc import analyze_view
 from voynich_lab.checks import evaize, homogeneity_experiment
+from voynich_lab.manuscripts import (
+    MEAN_A,
+    MEAN_B,
+    SD_A,
+    SD_B,
+    simulate_manuscript,
+    t_statistic,
+    voynich_reference,
+)
+from voynich_lab.manuscripts import analyze_view as analyze_manuscripts
 from voynich_lab.search import perturb, prior_for, run_search
 
 from voynich_lab.corpus import normalize
@@ -403,4 +413,47 @@ def test_homogeneity_experiment_reports_within_and_between():
     assert set(res) == {"voynich_within"} | set(GIBBERISH_PROCESSES)
     assert all(res[p]["within"] >= 0 and res[p]["between"] >= 0 for p in GIBBERISH_PROCESSES)
     assert 0 < res["voynich_within"] < 2
+
+
+def test_manuscript_is_reproducible_and_has_one_table():
+    a = simulate_manuscript("grille", {}, "unused", 300, 4, [1, 2, 3])
+    b = simulate_manuscript("grille", {}, "unused", 300, 4, [1, 2, 3])
+    assert a is not None and np.array_equal(a[0], b[0]) and a[1] == b[1]
+    assert a[0].shape == (4, len(FEATURE_NAMES))
+    # Ayarlar sabitlenince kayıt aynı ayarları gösterir, tohum değişince metin değişir.
+    theta = {k: v for k, v in a[1].items() if k in prior_for("grille")}
+    c = simulate_manuscript("grille", theta, "unused", 300, 4, [9, 9, 9])
+    assert c[1]["p_rows"] == a[1]["p_rows"] and not np.array_equal(c[0], a[0])
+
+
+def test_t_statistic_is_about_one_for_exchangeable_halves():
+    rng = np.random.default_rng(0)
+    V = rng.normal(0, 1, (400, len(FEATURE_NAMES)))
+    scale = V.std(0, ddof=1)
+    ref = voynich_reference(V[:16], V[:16].std(0, ddof=1), 8, n_splits=300)
+    assert 0.6 < ref["random_median"] < 1.4
+    a, b = V[:200], V[200:]
+    assert 0.6 < float(t_statistic(a.mean(0), 200, b.mean(0), 200, scale)) < 1.4
+    assert float(t_statistic(a.mean(0) + 1, 200, b.mean(0), 200, scale)) > 5
+
+
+def test_manuscript_analysis_validates_on_the_other_half():
+    """Seçim yarısında şansla yakın çıkan aday doğrulama yarısında yakalanır."""
+    rng = np.random.default_rng(1)
+    k = len(FEATURE_NAMES)
+    V = rng.normal(0, 1, (16, k))
+
+    def table(label, mean_a, mean_b, n=200):
+        d = {"label": label, "index": np.arange(n)}
+        d |= dict(zip(MEAN_A, (rng.normal(mean_a, 0.35, (n, k))).T))
+        d |= dict(zip(MEAN_B, (rng.normal(mean_b, 0.35, (n, k))).T))
+        d |= dict(zip(SD_A, np.ones((k, n)))) | dict(zip(SD_B, np.ones((k, n))))
+        return pd.DataFrame(d)
+
+    df = pd.concat([table("grille", 0, 0), table("selfcite", 0, 3)], ignore_index=True)
+    r = analyze_manuscripts(df, V, np.ones(k), half=8, top=20)
+    c = r["classes"]
+    assert c["grille"]["validation_median"] < 2 and c["selfcite"]["validation_median"] > 5
+    assert c["selfcite"]["selection_median"] < 2  # seçim yarısında iyi görünüyordu
+    assert c["grille"]["validation_share_within_p95"] > 0.3
 
