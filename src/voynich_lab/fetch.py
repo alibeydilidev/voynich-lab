@@ -10,6 +10,8 @@ _RAW = "https://raw.githubusercontent.com"
 TRANSLITERATIONS = {
     "takahashi_eva.txt": f"{_RAW}/alephmembeth/voynich/HEAD/analysis/takahashi_original.txt",
     "claston_v101.txt": f"{_RAW}/musyoku/voynich-transcription/HEAD/voynich.txt",
+    # Zandbergen ve Landini, IVTFF 2.0. Dosya adı sürümü taşır (3b, 13/05/2025).
+    "zl_ivtff.txt": "https://www.voynich.nu/data/ZL3b-n.txt",
 }
 
 BIBLE_LANGUAGES = [
@@ -27,7 +29,9 @@ def _download(url: str, dest: Path) -> None:
         print(f"  var: {dest.name}")
         return
     print(f"  indiriliyor: {dest.name}")
-    with urllib.request.urlopen(url, timeout=120) as r:
+    # voynich.nu, Python'un varsayılan istemci adını 406 ile reddediyor; genel bir ad verilir.
+    req = urllib.request.Request(url, headers={"User-Agent": "fetch/1.0"})
+    with urllib.request.urlopen(req, timeout=120) as r:
         dest.write_bytes(r.read())
 
 

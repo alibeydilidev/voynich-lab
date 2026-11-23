@@ -1,7 +1,10 @@
 """Hattın dayandığı varsayımların testleri."""
 
 import numpy as np
+import pandas as pd
 import pytest
+
+from voynich_lab.abc import analyze_view
 
 from voynich_lab.corpus import normalize
 from voynich_lab.dataset import _truncate
@@ -17,7 +20,13 @@ from voynich_lab.generators import (
     lay_out,
     sample_layout,
 )
-from voynich_lab.transliteration import _merge_eva_ligatures, load_takahashi, load_v101, to_windows
+from voynich_lab.transliteration import (
+    _merge_eva_ligatures,
+    load_ivtff,
+    load_takahashi,
+    load_v101,
+    to_windows,
+)
 
 TEXT = (
     "in principio creavit deus caelum et terram terra autem erat inanis et vacua "
@@ -208,6 +217,30 @@ def test_takahashi_parser(tmp_path):
     assert len(_merge_eva_ligatures("chckhy")) == 3
 
 
+def test_ivtff_parser(tmp_path):
+    p = tmp_path / "zl.txt"
+    p.write_text(
+        "#=IVTFF Eva- 2.0 M 5\n"
+        "<f1r>      <! $Q=A $P=A>\n"
+        "# page 1\n"
+        "<f1r.1,@P0>       <%>fachys.ykal.[cth:oto]res.y<!@254;>\n"
+        "<f1r.2,+P0>       sory.or,y.d?n.{c'y}.sh{c'y}<$>\n"
+        "<f1r.6,=Pt>       ydaraishy<$>\n"
+        "<f1v.1,@P0>       <%>kchsy.ol<->o,l.dam@175;\n",
+        encoding="latin-1",
+    )
+    lines = load_ivtff(p)
+    assert [ln.folio for ln in lines] == ["1r", "1r", "1v"]
+    assert lines[0].words == ["fachys", "ykal", "cthres", "y"]
+    # d?n okunamadığı için atılır; {c'y} tek nadir glif olur ve her yerde aynı semboldür
+    assert lines[1].words[:3] == ["sory", "or", "y"]
+    rare = lines[1].words[3]
+    assert len(rare) == 1 and lines[1].words[4] == "sh" + rare
+    assert lines[2].words[:4] == ["kchsy", "ol", "o", "l"] and len(lines[2].words[4]) == 4
+    assert load_ivtff(p, comma_is_space=False)[1].words[1] == "ory"
+    assert len(load_ivtff(p, "glyph")[0].words[2]) == len("cthres") - 2
+
+
 def test_v101_parser(tmp_path):
     p = tmp_path / "v.txt"
     p.write_text("<1r.1>fa19s.9,hae.ay-\n<67r1.labels_2>oy9=\n", encoding="utf-8")
@@ -221,3 +254,49 @@ def test_windows_drop_incomplete_tail(tmp_path):
     wins = to_windows(load_takahashi(p), 10)
     assert len(wins) == 3
     assert wins[0][0] == "1r..2r"
+
+
+def test_params_are_recorded_without_changing_output():
+    """Ayar kaydı (ABC için) üretilen metni değiştirmemeli."""
+    for name, proc in GIBBERISH_PROCESSES.items():
+        rec: dict = {}
+        assert proc(300, np.random.default_rng(5), rec=rec) == proc(300, np.random.default_rng(5))
+        assert any(k.startswith("p_") for k in rec), name
+        assert "l_words_per_line" in rec and "l_final_forms_share" in rec, name
+    for name, proc in LANGUAGE_PROCESSES.items():
+        rec = {}
+        a = proc(list(TEXT), np.random.default_rng(3), rec=rec)
+        assert a == proc(list(TEXT), np.random.default_rng(3))
+        assert "l_line_final_p" in rec, name
+    assert "p_split" in rec  # son süreç verbose
+
+
+def test_abc_finds_matching_class_and_its_parameters():
+    """ABC: hedefe uyan sınıf öz mesafe aralığına girer, uymayan girmez;
+    yalnız belli ayarda uyan sınıfta o ayar önselden kayar."""
+    rng = np.random.default_rng(0)
+    k = len(FEATURE_NAMES)
+
+    def table(mean, label, n=600):
+        knob = rng.uniform(0, 1, n)
+        X = rng.normal(0, 1, (n, k)) + np.outer(mean(knob), np.ones(k))
+        return pd.DataFrame(X, columns=FEATURE_NAMES).assign(label=label, p_knob=knob)
+
+    voy = pd.DataFrame(rng.normal(0, 1, (16, k)), columns=FEATURE_NAMES)
+    df = pd.concat(
+        [
+            table(lambda u: 0 * u, "matches"),
+            table(lambda u: 0 * u + 4, "never"),
+            table(lambda u: 6 * (1 - u), "tuned"),  # yalnız knob 1'e yakınken uyar
+        ],
+        ignore_index=True,
+    )
+    r = analyze_view(df, voy, accept=0.05)
+    limit = r["self_distance"]["max"]
+    c = r["classes"]
+    assert c["matches"]["accepted_median_distance"] < limit
+    assert c["never"]["best_distance"] > limit and c["never"]["share_within_self_max"] == 0
+    assert c["matches"]["share_within_self_max"] > 0.5
+    knob = c["tuned"]["param_shifts"][0]
+    assert knob["param"] == "p_knob" and knob["quantile_in_prior"] > 0.9
+    assert abs(c["matches"]["param_shifts"][0]["quantile_in_prior"] - 0.5) < 0.25

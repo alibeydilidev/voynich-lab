@@ -1,9 +1,11 @@
-"""Komut satırı: python -m voynich_lab.cli {fetch,build,report,all}
+"""Komut satırı: python -m voynich_lab.cli {fetch,build,report,all,abc}
 
   fetch  : ham veriyi data/raw altına indirir
   build  : sentetik feature tablosunu üretir (results/synthetic.csv)
   report : modeli doğrular, eğitir, Voynich'i analiz eder, results/report.md yazar
-  all    : üçünü sırayla çalıştırır
+  all    : ilk üçünü sırayla çalıştırır
+  abc    : büyük sentetik tablo üretir (results/abc_synthetic.csv), her hipotezin
+           Voynich'e en fazla ne kadar yaklaştığını ölçer, results/abc.md yazar
 """
 
 from __future__ import annotations
@@ -60,16 +62,70 @@ def cmd_report(args: argparse.Namespace) -> None:
     print(md)
 
 
+def _abc_chunk(job: tuple[str, int, int, int]) -> pd.DataFrame:
+    """Tek bir tohumla sentetik tablo parçası üretir (ayrı süreçte çalışır)."""
+    from .corpus import load_all
+    from .dataset import build_dataset
+
+    raw, window, per_language, seed = job
+    df = build_dataset(load_all(Path(raw) / "bible"), window, per_language, seed)
+    df["seed"] = seed
+    return df
+
+
+def cmd_abc(args: argparse.Namespace) -> None:
+    from concurrent.futures import ProcessPoolExecutor
+
+    from .abc import analyze_view, render_markdown, voynich_features
+    from .transliteration import load_views
+
+    out = Path(args.results)
+    out.mkdir(parents=True, exist_ok=True)
+    table = out / "abc_synthetic.csv"
+    seeds = [args.seed + 1000 * (i + 1) for i in range(args.abc_seeds)]
+    if table.exists() and not args.rebuild:
+        df = pd.read_csv(table)
+        print(f"var olan tablo okundu: {len(df)} örnek ({table}); yeniden üretmek için --rebuild")
+    else:
+        jobs = [(args.raw, args.window, args.abc_per_language, s) for s in seeds]
+        with ProcessPoolExecutor(max_workers=min(args.jobs, len(jobs))) as pool:
+            df = pd.concat(list(pool.map(_abc_chunk, jobs)), ignore_index=True)
+        df.to_csv(table, index=False)
+        print(f"{len(df)} örnek yazıldı -> {table}")
+    print(df["label"].value_counts().to_string())
+    views = {
+        name: analyze_view(df, voynich_features(lines, args.window), args.accept)
+        for name, lines in load_views(args.raw).items()
+    }
+    (out / "abc.json").write_text(
+        json.dumps({"n_samples": len(df), "accept": args.accept, "views": views}, indent=2),
+        encoding="utf-8",
+    )
+    md = render_markdown(views, len(df), args.accept)
+    (out / "abc.md").write_text(md, encoding="utf-8")
+    print(md)
+
+
 def main() -> None:
     p = argparse.ArgumentParser(prog="voynich_lab")
-    p.add_argument("command", choices=["fetch", "build", "report", "all"])
+    p.add_argument("command", choices=["fetch", "build", "report", "all", "abc"])
     p.add_argument("--raw", default="data/raw")
     p.add_argument("--results", default="results")
     p.add_argument("--window", type=int, default=2000, help="pencere boyutu (kelime)")
     p.add_argument("--per-language", type=int, default=24, help="dil başına pencere")
     p.add_argument("--seed", type=int, default=7)
+    p.add_argument("--abc-per-language", type=int, default=100, help="abc: dil başına pencere")
+    p.add_argument("--abc-seeds", type=int, default=4, help="abc: kaç ayrı tohumla üretilecek")
+    p.add_argument("--accept", type=float, default=0.01, help="abc: kabul oranı")
+    p.add_argument("--jobs", type=int, default=4, help="abc: paralel süreç sayısı")
+    p.add_argument("--rebuild", action="store_true", help="abc: tabloyu baştan üret")
     args = p.parse_args()
-    steps = {"fetch": [cmd_fetch], "build": [cmd_build], "report": [cmd_report]}
+    steps = {
+        "fetch": [cmd_fetch],
+        "build": [cmd_build],
+        "report": [cmd_report],
+        "abc": [cmd_abc],
+    }
     for step in steps.get(args.command, [cmd_fetch, cmd_build, cmd_report]):
         step(args)
 

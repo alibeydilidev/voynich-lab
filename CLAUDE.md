@@ -45,23 +45,25 @@ source .venv/bin/activate
 python -m voynich_lab.cli fetch     # ham veri -> data/raw (depoya girmez)
 python -m voynich_lab.cli build     # sentetik feature tablosu, ~80 sn
 python -m voynich_lab.cli report    # CV + eğitim + Voynich analizi -> results/report.md
-python -m voynich_lab.cli all
+python -m voynich_lab.cli all       # fetch + build + report, ~1 dk
+python -m voynich_lab.cli abc       # büyük tablo + ABC raporu -> results/abc.md, 4 çekirdekte ~3 dk
 pytest -q
 ```
 
-Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`.
+Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--abc-per-language 100`, `--abc-seeds 4`, `--accept 0.01`, `--jobs 4`; var olan tabloyu yeniden kullanır, `--rebuild` baştan üretir.
 
 ## Mimari
 
 | Dosya | Görev |
 |---|---|
-| `transliteration.py` | Takahashi EVA ve Claston v101 ayrıştırıcıları, üç görünüm (`eva_basic`, `eva_glyph`, `v101`), pencereleme |
+| `transliteration.py` | Takahashi EVA, Claston v101 ve Zandbergen-Landini (IVTFF) ayrıştırıcıları, beş görünüm (`eva_basic`, `eva_glyph`, `v101`, `zl_basic`, `zl_glyph`), pencereleme |
 | `corpus.py` | 22 dilde paralel İncil, yazıya göre normalizasyon |
 | `generators.py` | Üretim süreçleri. `LANGUAGE_PROCESSES` gerçek metni dönüştürür, `GIBBERISH_PROCESSES` sıfırdan üretir. Hepsinin üstünde ortak yazıcı katmanı (`Layout`, `lay_out`, `finish`): nadir harf çeşitlemeleri, kelime başı ve sonu için özel harf biçimleri, satırı genişliğe göre doldurma, paragraf, satır başı, satır sonu ve paragraf başı alışkanlıkları |
 | `features.py` | 32 feature: entropi, kelime uzunluğu, dağarcık, tekrar, kelime içi konum, satır konumu |
-| `dataset.py` | Sentetik korpus fabrikası: (dil penceresi x süreç) -> satır |
+| `dataset.py` | Sentetik korpus fabrikası: (dil penceresi x süreç) -> satır. Her satır üreten ayarları da taşır (`p_` süreç, `l_` yazıcı katmanı) |
 | `model.py` | XGBoost, `GroupKFold` |
 | `analyze.py` | Voynich çıkarımı, SHAP katkıları (`pred_contribs`), Mahalanobis tabanlı OOD |
+| `abc.py` | Rejection ABC: her sınıf Voynich'e en fazla ne kadar yaklaşıyor, neyi tutturamıyor, hangi ayarlarla. Mesafe birimi Voynich'in kendi pencereleri arası değişkenlik |
 | `cli.py`, `fetch.py` | Komut satırı ve indirme |
 
 Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bir glif. Çok harfli glifler Unicode özel kullanım alanındaki tek karaktere eşlenir.
@@ -105,7 +107,7 @@ Tarihçe; rapor git geçmişinde (`d0d51d5`). İki değişiklik: Takahashi ayrı
 
 ## v0.2 bulguları: kelime içi yapı (2026-11-23, seed 7, pencere 2000)
 
-Tam rapor: `results/report.md`. Eklenenler: yazıcı katmanına konuma özgü harf biçimleri (`Forms`) ve nadir harf çeşitlemeleri (`Allographs`); `grille` için ayrık sütun alfabeleri, büyük tablo ve büyük hece envanteri; `selfcite` için yuva yapılı yeni kelimeler ve geniş kopyalama ayarları.
+Tarihçe; rapor git geçmişinde (`7afdba9`). **Bu bölümdeki "doğal dil tabanlı sınıfların toplamı 0.02'nin altında" sonucu v0.3'te geri alındı**, aşağıya bak. Eklenenler: yazıcı katmanına konuma özgü harf biçimleri (`Forms`) ve nadir harf çeşitlemeleri (`Allographs`); `grille` için ayrık sütun alfabeleri, büyük tablo ve büyük hece envanteri; `selfcite` için yuva yapılı yeni kelimeler ve geniş kopyalama ayarları.
 
 - **Voynich'te glifin kelimedeki yeri aşırı sabit (EVA).** `n` %99 ve `m` %96 kelime sonunda, `q` %99 kelime başında, `y` %88 sonda; `e`, `h`, `i` neredeyse hiç uçta değil. `jsd_last` 0.72 bunun ölçüsü.
 - **Artık hiçbir feature sentetik aralığın dışında değil** (üç görünümde de). v0'da altı feature dışarıdaydı.
@@ -118,6 +120,23 @@ Tam rapor: `results/report.md`. Eklenenler: yazıcı katmanına konuma özgü ha
 - **CV doğruluğu 0.981.** Sınıflar eskisi kadar karikatür değil ama hâlâ kolay ayrışıyor.
 - **Kestirme yol denetimi:** satır feature'ları olmadan CV 0.982, yani yazıcı katmanı sınıf bilgisi taşımıyor.
 
+## v0.3 bulguları: ABC, üçüncü transliterasyon, adil şifre hipotezi (2026-11-23, seed 7, pencere 2000)
+
+Güncel durum budur. Raporlar: `results/report.md` (sınıflandırıcı) ve `results/abc.md` (ABC, 42800 sentetik örnek, sınıf başına en yakın %1 kabul).
+
+Eklenenler: `abc.py` ve `cli abc`; Zandbergen-Landini transliterasyonu (`zl_basic`, `zl_glyph`); `verbose` için hece hece yazma ve sürekli boşluk ekleme; üreteçlerin çektiği ayarların kaydı.
+
+- **ABC ölçütüyle hiçbir hipotez Voynich'i üretemiyor.** Mesafe birimi Voynich'in kendi pencereleri arası değişkenlik. Voynich öz mesafesi medyan 0.9 ila 1.0, en çok 1.4 ila 1.65. Hiçbir sınıfta, hiçbir görünümde, Voynich'in en uç penceresi kadar yakın tek bir örnek yok (%0.00). En iyi tek örnek: `grille`, v101'de 1.46 (sınır 1.42).
+- **Sıralama beş görünümde de aynı yönde:** `grille` en yakın (kabul edilenlerin medyanı 2.07 ila 2.80), beşte dördünde ikinci `verbose` (2.89 ila 3.98), sonra `selfcite`, `plain`, `abjad`.
+- **v0.2'deki bir sonuç geri alındı.** v0.2'de `verbose` üreteci kelime sınırlarını neredeyse hep koruyordu ve dil tabanlı sınıflar 0.02'nin altında olasılık alıyordu. `verbose` hece hece yazabilir olunca sınıflandırıcı düz EVA görünümlerinde `verbose` dedi (`eva_basic` 0.61, `zl_basic` 0.75), birleşik glif ve v101 görünümlerinde `grille` (0.46 ila 0.82). ABC'de kabul edilen `verbose` örneklerinin tamamına yakını hece modunda. Ders: bir hipotezin elenmesi, o hipotezin üretecinin dar yazılmış olmasından kaynaklanabilir. Dil tarafı hâlâ eksik, o yüzden hiçbir yönde hüküm yok.
+- **Sınıflandırıcının kararı harf tanımına bağlı, okuyana değil.** Takahashi ile Zandbergen-Landini aynı modda aynı sonucu veriyor (`eva_basic` ve `zl_basic` ikisi de `verbose`; `eva_glyph` ve `zl_glyph` ikisi de `grille`). Ayrışma "hangi çizgiler tek harf" kararından geliyor: düz EVA tek glifi birkaç harfle yazdığı için (ch, sh, cth, iin) metin kendiliğinden verbose şifreye benziyor.
+- **Sınıflandırıcı ile ABC farklı soruya cevap veriyor.** Sınıflandırıcı "beş sınıftan hangisi", ABC "bu sınıf ne kadar yaklaşabiliyor" der. Düz EVA'da sınıflandırıcı `verbose`, ABC `grille` diyor. İkisi tutmadığı sürece sınıf adı bulgu değildir.
+- **`grille` neyi tutturamıyor (beş görünümde tekrar edenler):** `wlen_autocorr1` (komşu kelime uzunluk benzerliği üretemiyor, -2.5 ila -3.5 birim), `vocab_ed1_density` (fazla yoğun, +2.2 ila +4.6), `wlen_std` ve `type_len_mean` (kelimeler kısa ve dar), `hapax_ratio` (az).
+- **`verbose` neyi tutturamıyor:** `hapax_ratio` (az), `jsd_last` (kelime sonu kısıtı zayıf), `wlen_std` ve `wlen_skew` (kelime uzunluğu fazla yayvan ve çarpık), `wlen_autocorr1`.
+- **`selfcite` neyi tutturamıyor:** `h2` (fazla yüksek), `char_double_rate`, `rep_adjacent_exact` (fazla tekrar). Kabul edilen örneklerde geriye bakış uzaklığı önselin üst ucuna kayıyor (5 -> 19 satır): yakın kopyalama Voynich'e uymuyor.
+- **Bu ABC'nin sınırı.** Rejection ABC rastgele dener; 32 feature'ı aynı anda tutturan örnek seyrek olduğu için yazıcı katmanı ayarları neredeyse hiç kısıtlanmıyor (kabul edilenlerde `jsd_line_final` 0.02, Voynich 0.11). Yani mesafeler hipotezlerin gerçekte ulaşabileceğinden kötü. Sıradaki iş, en yakın örneklerin çevresinde yeniden arayan ABC (SMC); bunun için üreteçler ayarları dışarıdan alabilmeli.
+- **Sınıflandırıcı raporu:** CV 0.977. OOD oranı 1.4 ila 1.6x, yüzdelik 94 ila 98; hiçbir feature aralık dışında değil.
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
@@ -126,16 +145,18 @@ Tam rapor: `results/report.md`. Eklenenler: yazıcı katmanına konuma özgü ha
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Sınıflandırmanın ötesi: her üreteç için Voynich'e en yakın parametre bölgesini ara (approximate Bayesian computation). "Hangi süreç" yerine "hangi süreç, hangi ayarla, ne kadar yakın".
+2. **ABC ile parametre kestirimi.** Rejection ABC yapıldı (v0.3). **Sıradaki:** üreteçleri ayarları dışarıdan alacak hale getir, en yakın örneklerin çevresinde yeniden arayan ABC-SMC yaz. Ölçüt aynı: kabul edilen örnekler Voynich öz mesafesinin içine giriyor mu.
 3. **Dönem metinleri.** İncil çevirileri modern. 15. yüzyıl Latince, İtalyanca, Almanca, İbranice, Osmanlıca öncesi Türkçe tıbbi ve botanik metinler ekle. `corpus.py` düz kelime listesi bekliyor, yeni yükleyici yazmak yeterli.
-4. **Üçüncü transliterasyon.** Zandbergen ve Landini (ZL, IVTFF). voynich.nu üzerinde, bu ortamdan erişilemedi, elle indirip `data/raw` altına koy, `transliteration.py` içine ayrıştırıcı ekle.
+4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.
 6. **İkinci hat: char-level Transformer.** Yalnızca Voynich üzerinde küçük bir model eğit, sayfa embedding'leri çizim bölümlerine göre kümeleniyor mu bak. Kümeleniyorsa metin konuyla ilişkili. Kontrol: aynı testi satırları karıştırılmış metinde ve `selfcite` çıktısında tekrarla.
 
 ## Bilinen tuzaklar
 
 - Takahashi'de satır ortasındaki `-` çizim boşluğudur ve melez davranır: boşluktan sonraki kelime satır başı gibi (`y`, `d`, `s` fazla, `q` az), ama boşluktan önceki kelime satır sonu gibi değil (`m` %2.5, gerçek satır sonunda %17). Şu an yalnız kelime sınırı sayılıyor, satır sınırı değil. Satır etkilerini biraz seyreltir. `m` gerçek satır sonuna (kenar boşluğuna) özgü görünüyor.
-- v101'de virgül "belirsiz boşluk". Varsayılan boşluk sayılıyor (`comma_is_space=True`). Tersini de koş, sonuç değişiyorsa raporla.
+- v101'de ve ZL'de virgül "belirsiz boşluk". Varsayılan boşluk sayılıyor (`comma_is_space=True`). Tersi hiç koşulmadı; ZL'de 2748 virgül var. Koş, sonuç değişiyorsa raporla.
+- ZL'de yalnız `P0` satırları alınıyor (Takahashi `P` satırlarının karşılığı: 3885 ve 3868 satır). Nadir ve bileşik glifler (`{...}`, `@123;`) içerik başına tek sembole eşleniyor: 149 tür, 434 geçiş. Bu yüzden `zl_*` görünümlerinde sembol sayısı yüksek, `Allographs` katmanı bunu kapsıyor.
+- ZL dosyası `<->` işaretini "çizim metni kesiyor" diye belgeliyor; Takahashi'deki satır içi `-` yorumumuzu doğrular.
 - `n_symbols` v101'de 70 civarı. v0.2'de nadir harf çeşitlemeleri katmanı (`Allographs`) eklendi, sentetik evren artık bunu kapsıyor.
 - `eva_glyph` yalnızca ch, sh ve sehpalı gallows'ları birleştiriyor. `iin`, `ain` gibi diziler de tek glif olabilir, tartışmalı.
 - Mahalanobis mesafeleri sınıf içi örneklerle (in-sample) kalibre ediliyor, biraz iyimser. Örnek sayısı feature sayısının çok üstünde olduğu için etkisi küçük.
@@ -144,6 +165,7 @@ Tam rapor: `results/report.md`. Eklenenler: yazıcı katmanına konuma özgü ha
 ## Veri kaynakları
 
 - Takahashi EVA: `alephmembeth/voynich` (GitHub)
+- Zandbergen ve Landini (ZL), IVTFF 2.0: `voynich.nu/data/ZL3b-n.txt` (sürüm 3b, 13/05/2025). Aynı dizinde Currier dili, el ve çizim türü sayfa değişkenleri olarak hazır (yol haritası 5 için).
 - Claston v101: `musyoku/voynich-transcription` (GitHub)
 - İncil korpusu: `christos-c/bible-corpus` (GitHub)
 

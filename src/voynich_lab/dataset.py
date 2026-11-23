@@ -42,6 +42,9 @@ def build_dataset(
     group sütunu çapraz doğrulama içindir: dil tabanlı örneklerde dil adı,
     anlamsız üreteçlerde yapay aile numarası. Böylece model hiç görmediği bir
     dilde sınanır, "Latinceyi ezberledi" sonucu çıkmaz.
+
+    Her satır, örneği üreten ayarları da taşır: `p_` önekli sütunlar sürecin,
+    `l_` önekli sütunlar yazıcı katmanının parametreleridir (ABC adımı için).
     """
     rng = np.random.default_rng(seed)
     rows: list[dict] = []
@@ -56,17 +59,20 @@ def build_dataset(
                 if name == "abjad" and not can_abjad:
                     continue
                 src = base if name == "verbose" else base[:window_words]
-                lines = _truncate(proc(src, rng), window_words)
+                rec: dict = {}
+                lines = _truncate(proc(src, rng, rec=rec), window_words)
                 rows.append(
-                    extract_features(lines) | {"label": name, "group": lang, "source": lang}
+                    extract_features(lines) | rec | {"label": name, "group": lang, "source": lang}
                 )
 
     for name, proc in GIBBERISH_PROCESSES.items():
         for family in range(len(corpora)):
             for _ in range(windows_per_language):
-                lines = _truncate(proc(window_words + 50, rng), window_words)
+                rec = {}
+                lines = _truncate(proc(window_words + 50, rng, rec=rec), window_words)
                 rows.append(
                     extract_features(lines)
+                    | rec
                     | {"label": name, "group": f"{name}_{family}", "source": "synthetic"}
                 )
 

@@ -1,9 +1,12 @@
 """Voynich transliterasyon dosyalarını ortak `Lines` biçimine çevirir.
 
-Üç görünüm üretilir, çünkü "hangi çizgi tek harf" kararı istatistikleri değiştirir:
+Beş görünüm üretilir, çünkü hem "hangi çizgi tek harf" kararı hem de okuyan
+kişi istatistikleri değiştirir:
   eva_basic : Takahashi EVA, her EVA harfi bir sembol
   eva_glyph : Takahashi EVA, ch/sh ve sehpalı gallows'lar tek sembol
   v101      : Glen Claston v101, bambaşka (daha ince taneli) bir alfabe
+  zl_basic  : Zandbergen ve Landini (IVTFF), EVA, her harf bir sembol
+  zl_glyph  : Zandbergen ve Landini, ch/sh ve sehpalı gallows'lar tek sembol
 """
 
 from __future__ import annotations
@@ -19,6 +22,12 @@ _PRIVATE_BASE = 0xE000  # Unicode özel kullanım alanı, gerçek harflerle çak
 
 _TAKAHASHI_TAG = re.compile(r"^<f(\w+?)\.([A-Za-z])\w*\.\d+;\w>\s*(.*)$")
 _V101_TAG = re.compile(r"^<(\d+[rv]\d*(?:-[rv]?\d*)?)\.(\d+)>(.*)$")
+_IVTFF_LOCUS = re.compile(r"^<f(\w+)\.\d+\w*,[^\w>]?(\w+)>\s*(.*)$")
+_IVTFF_COMMENT = re.compile(r"<![^>]*>")
+_IVTFF_TAG = re.compile(r"<[^>]*>")
+_IVTFF_ALTERNATIVE = re.compile(r"\[([^:\]]*):[^\]]*\]")
+_IVTFF_RARE = re.compile(r"\{[^}]*\}|@\d+;")
+_RARE_BASE = _PRIVATE_BASE + 0x40  # IVTFF'teki nadir ve bileşik glifler
 
 
 @dataclass(frozen=True)
@@ -88,16 +97,67 @@ def load_v101(path: str | Path, comma_is_space: bool = True) -> list[FolioLine]:
     return out
 
 
+def load_ivtff(
+    path: str | Path,
+    glyph_mode: str = "basic",
+    locus_types: tuple[str, ...] = ("P0",),
+    comma_is_space: bool = True,
+) -> list[FolioLine]:
+    """IVTFF 2.0 biçimindeki EVA dosyasını okur (Zandbergen ve Landini, ZL).
+
+    locus_types: varsayılan yalnız olağan paragraf metni (P0). Bu, Takahashi
+    dosyasındaki P satırlarının karşılığıdır; başlık (Pt), ortalanmış ya da sağa
+    yaslı son satır (Pc, Pr) ve özel bloklar (P1, Pb) dışarıda kalır.
+
+    Biçim kuralları: `<!...>` yorumdur; `<->` çizimin metni böldüğü yerdir ve
+    kelime sınırı sayılır; `<%>` ile `<$>` paragraf başı ve sonudur; `[a:b]`
+    alternatif okumadır, ilki alınır; `{...}` ve `@123;` nadir ya da bileşik bir
+    gliftir, her farklı içerik tek bir sembole eşlenir; virgül belirsiz
+    boşluktur; `?` okunamayan gliftir, içeren kelime atılır. Tek tırnak (çizgi
+    eklentisi) atılır.
+    """
+    if glyph_mode not in ("basic", "glyph"):
+        raise ValueError(f"glyph_mode 'basic' ya da 'glyph' olmalı: {glyph_mode}")
+    rare: dict[str, str] = {}
+
+    def rare_glyph(m: re.Match) -> str:
+        return rare.setdefault(m.group(0), chr(_RARE_BASE + len(rare)))
+
+    out: list[FolioLine] = []
+    for raw in Path(path).read_text(encoding="latin-1").splitlines():
+        m = _IVTFF_LOCUS.match(raw)
+        if not m:
+            continue
+        folio, locus, body = m.groups()
+        if locus not in locus_types:
+            continue
+        body = _IVTFF_COMMENT.sub("", body).replace("<->", ".")
+        body = _IVTFF_TAG.sub("", body)
+        body = _IVTFF_ALTERNATIVE.sub(r"\1", body)
+        body = _IVTFF_RARE.sub(rare_glyph, body.lower()).replace("'", "").replace(" ", "")
+        body = body.replace(",", "." if comma_is_space else "")
+        words = [w for w in body.split(".") if w and "?" not in w]
+        if glyph_mode == "glyph":
+            words = [_merge_eva_ligatures(w) for w in words]
+        if words:
+            out.append(FolioLine(folio, words))
+    return out
+
+
 def load_views(raw_dir: str | Path) -> dict[str, list[FolioLine]]:
     """Mevcut bütün transliterasyon görünümlerini yükler."""
     raw_dir = Path(raw_dir)
     eva, v101 = raw_dir / "takahashi_eva.txt", raw_dir / "claston_v101.txt"
+    zl = raw_dir / "zl_ivtff.txt"
     views: dict[str, list[FolioLine]] = {}
     if eva.exists():
         views["eva_basic"] = load_takahashi(eva, "basic")
         views["eva_glyph"] = load_takahashi(eva, "glyph")
     if v101.exists():
         views["v101"] = load_v101(v101)
+    if zl.exists():
+        views["zl_basic"] = load_ivtff(zl, "basic")
+        views["zl_glyph"] = load_ivtff(zl, "glyph")
     if not views:
         raise FileNotFoundError(f"{raw_dir} içinde transliterasyon yok, önce 'fetch' çalıştır")
     return views
