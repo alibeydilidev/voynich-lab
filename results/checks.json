@@ -1,78 +1,141 @@
 {
-  "n": 300,
-  "classes": [
-    "abjad",
-    "grille",
-    "plain",
-    "selfcite",
-    "verbose"
-  ],
-  "processes": {
-    "grille": {
-      "original": {
-        "votes": {
-          "abjad": 0,
-          "grille": 300,
-          "plain": 0,
-          "selfcite": 0,
-          "verbose": 0
+  "evaize": {
+    "n": 300,
+    "classes": [
+      "abjad",
+      "grille",
+      "plain",
+      "selfcite",
+      "verbose"
+    ],
+    "processes": {
+      "grille": {
+        "original": {
+          "votes": {
+            "abjad": 1,
+            "grille": 299,
+            "plain": 0,
+            "selfcite": 0,
+            "verbose": 0
+          },
+          "mean_proba": {
+            "abjad": 0.0058929347433149815,
+            "grille": 0.986609697341919,
+            "plain": 0.0005808139103464782,
+            "selfcite": 0.0024156151339411736,
+            "verbose": 0.0045013525523245335
+          }
         },
-        "mean_proba": {
-          "abjad": 0.0017857251223176718,
-          "grille": 0.9948278069496155,
-          "plain": 0.00016318249981850386,
-          "selfcite": 0.0023096869699656963,
-          "verbose": 0.0009135473519563675
+        "evaized": {
+          "votes": {
+            "abjad": 0,
+            "grille": 185,
+            "plain": 1,
+            "selfcite": 0,
+            "verbose": 114
+          },
+          "mean_proba": {
+            "abjad": 0.0017804402159526944,
+            "grille": 0.6077989339828491,
+            "plain": 0.007393867243081331,
+            "selfcite": 0.006919054314494133,
+            "verbose": 0.3761079013347626
+          }
         }
       },
-      "evaized": {
-        "votes": {
-          "abjad": 0,
-          "grille": 7,
-          "plain": 0,
-          "selfcite": 2,
-          "verbose": 291
+      "selfcite": {
+        "original": {
+          "votes": {
+            "abjad": 0,
+            "grille": 1,
+            "plain": 0,
+            "selfcite": 299,
+            "verbose": 0
+          },
+          "mean_proba": {
+            "abjad": 0.00042960475548170507,
+            "grille": 0.010734617710113525,
+            "plain": 0.0006110327085480094,
+            "selfcite": 0.987973153591156,
+            "verbose": 0.0002521156857255846
+          }
         },
-        "mean_proba": {
-          "abjad": 0.0018654960440471768,
-          "grille": 0.06567360460758209,
-          "plain": 0.006805524230003357,
-          "selfcite": 0.013473094440996647,
-          "verbose": 0.9121823310852051
+        "evaized": {
+          "votes": {
+            "abjad": 0,
+            "grille": 4,
+            "plain": 0,
+            "selfcite": 293,
+            "verbose": 3
+          },
+          "mean_proba": {
+            "abjad": 0.0003541700425557792,
+            "grille": 0.016658421605825424,
+            "plain": 0.000625545799266547,
+            "selfcite": 0.9623737335205078,
+            "verbose": 0.019988154992461205
+          }
         }
       }
-    },
-    "selfcite": {
-      "original": {
-        "votes": {
-          "abjad": 0,
-          "grille": 3,
-          "plain": 0,
-          "selfcite": 297,
-          "verbose": 0
+    }
+  },
+  "homogeneity": {
+    "n_manuscripts": 12,
+    "n_windows": 8,
+    "views": {
+      "eva_basic": {
+        "voynich_within": 0.9214001505658965,
+        "grille": {
+          "within": 0.32210946731046447,
+          "between": 6.00577008841185
         },
-        "mean_proba": {
-          "abjad": 0.0013045461382716894,
-          "grille": 0.009865817613899708,
-          "plain": 0.00018030400678981096,
-          "selfcite": 0.987984836101532,
-          "verbose": 0.0006646672263741493
+        "selfcite": {
+          "within": 1.6714319729216107,
+          "between": 6.7019728585080465
         }
       },
-      "evaized": {
-        "votes": {
-          "abjad": 0,
-          "grille": 0,
-          "plain": 0,
-          "selfcite": 293,
-          "verbose": 7
+      "eva_glyph": {
+        "voynich_within": 0.9321156116064575,
+        "grille": {
+          "within": 0.30243247748199203,
+          "between": 5.326707009336231
         },
-        "mean_proba": {
-          "abjad": 0.0008434824412688613,
-          "grille": 0.0015623292420059443,
-          "plain": 0.0010936999460682273,
-          "selfcite": 0.9567590355873108,
-          "verbose": 0.03974100574851036
+        "selfcite": {
+          "within": 1.3676683290623857,
+          "between": 5.804861440180581
+        }
+      },
+      "v101": {
+        "voynich_within": 0.9388872312434416,
+        "grille": {
+          "within": 0.2814250911488905,
+          "between": 4.582449023766617
+        },
+        "selfcite": {
+          "within": 1.6198396467266722,
+          "between": 6.480286055712021
+        }
+      },
+      "zl_basic": {
+        "voynich_within": 0.9452987467395391,
+        "grille": {
+          "within": 0.2749327165136304,
+          "between": 4.581248238927095
+        },
+        "selfcite": {
+          "within": 1.5562941972621198,
+          "between": 5.836145608380463
+        }
+      },
+      "zl_glyph": {
+        "voynich_within": 0.9451218727354396,
+        "grille": {
+          "within": 0.2565054903186971,
+          "between": 3.7835218699478315
+        },
+        "selfcite": {
+          "within": 1.2635869162262894,
+          "between": 4.883806374409962
         }
       }
     }

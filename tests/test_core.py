@@ -5,12 +5,15 @@ import pandas as pd
 import pytest
 
 from voynich_lab.abc import analyze_view
-from voynich_lab.checks import evaize
+from voynich_lab.checks import evaize, homogeneity_experiment
+from voynich_lab.search import perturb, prior_for, run_search
 
 from voynich_lab.corpus import normalize
 from voynich_lab.dataset import _truncate
 from voynich_lab.features import FEATURE_NAMES, _is_ed1, extract_features
 from voynich_lab.generators import (
+    LAYOUT_PRIOR,
+    PROCESS_PRIOR,
     Allographs,
     GIBBERISH_PROCESSES,
     LANGUAGE_PROCESSES,
@@ -18,6 +21,8 @@ from voynich_lab.generators import (
     Layout,
     Mark,
     _slot_alphabets,
+    layout_from_params,
+    layout_params,
     lay_out,
     sample_layout,
 )
@@ -312,3 +317,90 @@ def test_evaize_splits_six_glyphs_into_shared_strokes():
     # Altı glif gider, iki ortak çizgi gelir.
     assert b["n_symbols"] == a["n_symbols"] - 6 + 2
     assert evaize([["ab", "ba"] * 30]) is None  # alfabe çok küçük
+
+
+
+def test_priors_cover_what_is_drawn():
+    """Arama sınırları (PRIOR tabloları) ile üreteçlerin gerçekte çektiği aralık aynı olmalı."""
+    seen: dict[str, dict[str, list[float]]] = {}
+    for i in range(150):
+        for name, proc in GIBBERISH_PROCESSES.items():
+            rec: dict = {}
+            proc(120, np.random.default_rng(i), rec=rec)
+            for key, v in rec.items():
+                seen.setdefault(name, {}).setdefault(key, []).append(float(v))
+        rec = {}
+        LANGUAGE_PROCESSES["verbose"](TEXT[:300], np.random.default_rng(i), rec=rec)
+        for key, v in rec.items():
+            seen.setdefault("verbose", {}).setdefault(key, []).append(float(v))
+    for name, cols in seen.items():
+        prior = prior_for(name)
+        drawn = {k for k in cols if k != "p_code_len_mean"}
+        assert drawn == set(prior), (name, drawn ^ set(prior))
+        for key, (lo, hi, kind) in prior.items():
+            vals = np.array([v for v in cols[key] if not np.isnan(v)])
+            on = vals[vals > 0] if kind == "m" else vals
+            assert on.min() >= lo - 1e-9 and on.max() <= hi + 1e-9, (name, key, on.min(), on.max())
+    assert set(PROCESS_PRIOR) == set(LANGUAGE_PROCESSES) | set(GIBBERISH_PROCESSES)
+
+
+def test_fixed_params_are_honoured():
+    fixed = {"p_rows": 77, "p_len_mid": 5, "p_slot_overlap": 0.0, "p_alphabet": 20}
+    rec: dict = {}
+    lines = GIBBERISH_PROCESSES["grille"](400, np.random.default_rng(1), Layout(), rec, fixed)
+    assert all(rec[k] == v for k, v in fixed.items())
+    assert extract_features(lines)["n_symbols"] <= 20
+    rec = {}
+    GIBBERISH_PROCESSES["selfcite"](200, np.random.default_rng(1), Layout(), rec, {"p_reach": 30, "p_copy": 0.9})
+    assert rec["p_reach"] == 30 and rec["p_copy"] == 0.9
+
+
+def test_layout_params_round_trip():
+    for i in range(50):
+        rng = np.random.default_rng(i)
+        params = layout_params(sample_layout(rng))
+        back = layout_params(layout_from_params(params, rng))
+        for key in LAYOUT_PRIOR:
+            a, b = params[key], back[key]
+            assert (np.isnan(a) and np.isnan(b)) or a == pytest.approx(b), (i, key, a, b)
+    off = layout_from_params({k: 0.0 for k in LAYOUT_PRIOR} | {"l_words_per_line": 8.0}, np.random.default_rng(0))
+    assert off == Layout(words_per_line=8.0)
+
+
+def test_perturb_stays_inside_prior():
+    rng = np.random.default_rng(0)
+    prior = prior_for("grille")
+    theta = {k: (lo if kind != "m" else 0.0) for k, (lo, hi, kind) in prior.items()}
+    for _ in range(300):
+        theta = perturb(theta, {k: 10.0 for k in prior}, prior, [], rng)
+        for key, (lo, hi, kind) in prior.items():
+            v = theta[key]
+            assert (kind == "m" and v == 0) or lo <= v <= hi, (key, v)
+            assert kind not in ("i", "log", "b") or v == round(v), (key, v)
+
+
+def test_search_runs_and_is_deterministic():
+    k = len(FEATURE_NAMES)
+    job = {
+        "label": "grille", "view": "t", "raw": "unused", "window": 200,
+        "center": [0.0] * k, "scale": [1.0] * k, "self_max": 1.0, "languages": [],
+        "init": [{} for _ in range(4)], "keep": 4, "children": 2, "rounds": 2, "fresh": 1,
+        "seed": [1, 2, 3],
+    }  # fmt: skip
+    a, b = run_search(job), run_search(job)
+    assert a == b
+    assert len(a["round_medians"]) == 2 and a["n_fresh"] == 4
+    assert np.isfinite(a["fresh_median_distance"])
+
+
+def test_homogeneity_experiment_reports_within_and_between():
+    rng = np.random.default_rng(0)
+    k = len(FEATURE_NAMES)
+    df = pd.DataFrame(rng.normal(0, 1, (50, k)), columns=FEATURE_NAMES)
+    voy = {"v": pd.DataFrame(rng.normal(0, 1, (6, k)), columns=FEATURE_NAMES)}
+    r = homogeneity_experiment(df, voy, window_words=200, n_manuscripts=2, n_windows=2)
+    res = r["views"]["v"]
+    assert set(res) == {"voynich_within"} | set(GIBBERISH_PROCESSES)
+    assert all(res[p]["within"] >= 0 and res[p]["between"] >= 0 for p in GIBBERISH_PROCESSES)
+    assert 0 < res["voynich_within"] < 2
+

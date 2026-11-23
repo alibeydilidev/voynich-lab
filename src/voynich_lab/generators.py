@@ -28,7 +28,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass
-from math import nan
+from math import isnan, nan
 from typing import Callable, Iterator
 
 import numpy as np
@@ -147,6 +147,78 @@ def _note(rec: dict | None, **values: float) -> None:
         rec.update(values)
 
 
+class Knobs:
+    """Bir sürecin ayarlarını verir: dışarıdan sabitlenmişse onu, değilse önselden
+    çekileni. Her ayar kaydedilir. Hiçbir şey sabitlenmemişse rastgele sayı
+    akışı, ayarlar doğrudan çekilseydi nasıl olacaksa öyledir."""
+
+    def __init__(self, fixed: dict | None = None, rec: dict | None = None):
+        self.fixed = fixed or {}
+        self.rec = rec
+
+    def get(self, name: str, draw: Callable[[], float]) -> float:
+        value = self.fixed.get(name)
+        if value is None or (isinstance(value, float) and isnan(value)):
+            value = draw()
+        if self.rec is not None:
+            self.rec[name] = value
+        return value
+
+
+# Ayarların önsel sınırları: (alt, üst, tür). Yönlendirilmiş arama bu sınırların
+# dışına çıkmaz. Tür: "f" sürekli, "i" tam sayı, "log" logaritmik ölçekte tam sayı,
+# "b" 0 ya da 1, "m" ya 0 (kapalı) ya da [alt, üst] aralığında.
+# Çekim kodundaki aralıklarla aynı olmalı (testi: test_priors_cover_what_is_drawn).
+LAYOUT_PRIOR: dict[str, tuple[float, float, str]] = {
+    "l_words_per_line": (5, 13, "f"),
+    "l_width_jitter": (0, 0.35, "f"),
+    "l_para_lines": (3, 15, "m"),
+    "l_allo_per_glyph": (0.2, 3.0, "m"),
+    "l_allo_rate": (0.01, 0.15, "m"),
+    "l_final_forms_share": (0.1, 1.0, "m"),
+    "l_final_forms_k": (0, 4, "i"),
+    "l_initial_forms_share": (0.1, 1.0, "m"),
+    "l_initial_forms_k": (0, 4, "i"),
+    "l_line_initial_p": (0.1, 0.9, "m"),
+    "l_line_final_p": (0.1, 0.9, "m"),
+    "l_para_initial_p": (0.3, 1.0, "m"),
+}
+PROCESS_PRIOR: dict[str, dict[str, tuple[float, float, str]]] = {
+    "plain": {},
+    "abjad": {},
+    "verbose": {
+        "p_alphabet": (12, 22, "i"),
+        "p_by_syllable": (0, 1, "b"),
+        "p_split": (0.05, 0.7, "m"),
+    },
+    "grille": {
+        "p_alphabet": (15, 25, "i"),
+        "p_rows": (60, 3000, "log"),
+        "p_slot_overlap": (0, 1, "f"),
+        "p_n_edge": (5, 40, "log"),
+        "p_n_mid": (10, 120, "log"),
+        "p_empty": (0, 0.6, "f"),
+        "p_len_edge": (1, 3, "i"),
+        "p_len_mid": (2, 5, "i"),
+        "p_n_grilles": (3, 8, "i"),
+    },
+    "selfcite": {
+        "p_alphabet": (15, 25, "i"),
+        "p_glyph_classes": (4, 7, "i"),
+        "p_copy": (0.85, 0.97, "f"),
+        "p_exact": (0.2, 0.8, "f"),
+        "p_reach": (1, 30, "log"),
+        "p_same_line": (0, 0.3, "f"),
+        "p_slot_overlap": (0, 1, "f"),
+        "p_affix": (0.3, 0.9, "f"),
+        "p_mut_substitute": (0, 1, "f"),
+        "p_mut_prefix": (0, 1, "f"),
+        "p_mut_delete": (0, 1, "f"),
+        "p_mut_double": (0, 1, "f"),
+    },
+}
+
+
 def layout_params(layout: Layout) -> dict[str, float]:
     """Yazıcı katmanı ayarlarını düz sayısal sözlüğe çevirir. Kapalı alışkanlığın
     olasılığı ya da oranı 0 yazılır, böylece "yok" ile "az" aynı eksende durur."""
@@ -210,6 +282,47 @@ def sample_layout(rng: np.random.Generator) -> Layout:
         else None,
         para_initial=_sample_mark(rng, (0.3, 1.0), ["add", "replace"])
         if has_para and rng.random() < 0.6
+        else None,
+    )
+
+
+def layout_from_params(params: dict, rng: np.random.Generator) -> Layout:
+    """`l_` önekli ayarlardan Layout kurar (layout_params'ın tersi).
+
+    Sayısal olmayan seçimler (işaret türü, hangi glifler) önselden çekilir.
+    Verilmeyen ayar da önselden gelir. 0 değeri "bu alışkanlık yok" demektir.
+    """
+    base = sample_layout(rng)
+    given = layout_params(base)
+    for key, value in params.items():
+        if key in given and value is not None and not (isinstance(value, float) and isnan(value)):
+            given[key] = float(value)
+    v = {k[2:]: x for k, x in given.items()}
+
+    def forms(name: str) -> Forms | None:
+        if v[f"{name}_forms_share"] <= 0:
+            return None
+        k = v[f"{name}_forms_k"]
+        return Forms(v[f"{name}_forms_share"], 0 if isnan(k) else int(round(k)))
+
+    def mark(name: str, template: Mark | None, p_range: tuple[float, float], modes: list[str]) -> Mark | None:
+        if v[f"{name}_p"] <= 0:
+            return None
+        m = template or _sample_mark(rng, p_range, modes)
+        return Mark(v[f"{name}_p"], m.mode, m.glyphs, m.weights)
+
+    has_allo = v["allo_per_glyph"] > 0 and v["allo_rate"] > 0
+    return Layout(
+        words_per_line=v["words_per_line"],
+        width_jitter=v["width_jitter"],
+        para_lines=v["para_lines"],
+        allographs=Allographs(v["allo_per_glyph"], v["allo_rate"]) if has_allo else None,
+        final_forms=forms("final"),
+        initial_forms=forms("initial"),
+        line_initial=mark("line_initial", base.line_initial, (0.1, 0.9), ["add", "replace"]),
+        line_final=mark("line_final", base.line_final, (0.1, 0.9), ["add", "replace", "abbreviate"]),
+        para_initial=mark("para_initial", base.para_initial, (0.3, 1.0), ["add", "replace"])
+        if v["para_lines"] > 0
         else None,
     )
 
@@ -357,13 +470,21 @@ def lay_out(
 
 
 def plain(
-    words: list[str], rng: np.random.Generator, layout: Layout | None = None, rec: dict | None = None
+    words: list[str],
+    rng: np.random.Generator,
+    layout: Layout | None = None,
+    rec: dict | None = None,
+    fixed: dict | None = None,
 ) -> Lines:
     return lay_out(list(words), rng, layout, rec)
 
 
 def abjad(
-    words: list[str], rng: np.random.Generator, layout: Layout | None = None, rec: dict | None = None
+    words: list[str],
+    rng: np.random.Generator,
+    layout: Layout | None = None,
+    rec: dict | None = None,
+    fixed: dict | None = None,
 ) -> Lines:
     """Sesli harfleri atar. Tamamen sesliden oluşan kelimenin ilk harfi kalır."""
     out = []
@@ -374,7 +495,11 @@ def abjad(
 
 
 def verbose(
-    words: list[str], rng: np.random.Generator, layout: Layout | None = None, rec: dict | None = None
+    words: list[str],
+    rng: np.random.Generator,
+    layout: Layout | None = None,
+    rec: dict | None = None,
+    fixed: dict | None = None,
 ) -> Lines:
     """Verbose şifre: sık harfler kısa, seyrek harfler uzun sembol grubu alır.
 
@@ -384,7 +509,8 @@ def verbose(
     yazılır (hece = ünsüzler + ünlü grubu). Son ikisi "Voynich kelimesi düz
     metnin kelimesi değil, bir parçasıdır" hipotezinin karşılığıdır.
     """
-    alphabet = _symbols(int(rng.integers(12, 23)))
+    k = Knobs(fixed, rec)
+    alphabet = _symbols(int(k.get("p_alphabet", lambda: int(rng.integers(12, 23)))))
     letters, counts = np.unique([ch for w in words for ch in w], return_counts=True)
     order = letters[np.argsort(-counts)]
 
@@ -402,15 +528,10 @@ def verbose(
                 break
 
     r = rng.random()
-    by_syllable = r < 0.25
-    split_p = 0.0 if r < 0.55 else float(rng.uniform(0.05, 0.7))  # rastgele boşluk ekleme
-    _note(
-        rec,
-        p_alphabet=len(alphabet),
-        p_split=split_p,
-        p_by_syllable=float(by_syllable),
-        p_code_len_mean=float(np.mean([len(c) for c in codes.values()])),
-    )
+    by_syllable = bool(k.get("p_by_syllable", lambda: float(r < 0.25)))
+    # Rastgele boşluk ekleme olasılığı (hece modunda kullanılmaz).
+    split_p = float(k.get("p_split", lambda: 0.0 if r < 0.55 else float(rng.uniform(0.05, 0.7))))
+    _note(rec, p_code_len_mean=float(np.mean([len(c) for c in codes.values()])))
     out: list[str] = []
     for w in words:
         cur = ""
@@ -475,7 +596,11 @@ def _syllables(
 
 
 def grille(
-    n_words: int, rng: np.random.Generator, layout: Layout | None = None, rec: dict | None = None
+    n_words: int,
+    rng: np.random.Generator,
+    layout: Layout | None = None,
+    rec: dict | None = None,
+    fixed: dict | None = None,
 ) -> Lines:
     """Rugg (2004) tarzı: üç sütunlu hece tablosu, üzerinde gezen delikli ızgara.
 
@@ -483,30 +608,28 @@ def grille(
     baştan sona tarar, sonra sıradaki ızgaraya geçilir.
 
     Örnek başına rastgele: tablo boyutu (küçük tablo kendini tekrar eder, büyük
-    tablo her kelimeyi neredeyse bağımsız çeker) ve üç sütunun glif kümelerinin
-    ne kadar örtüştüğü (Rugg'ın tablosunda önek, gövde ve sonek heceleri ayrıdır).
+    tablo her kelimeyi neredeyse bağımsız çeker), üç sütunun glif kümelerinin
+    ne kadar örtüştüğü (Rugg'ın tablosunda önek, gövde ve sonek heceleri ayrıdır),
+    hecelerin en çok kaç glif olduğu ve önek ile sonek hücrelerinin boş kalma payı.
     """
-    alphabet = _symbols(int(rng.integers(15, 26)))
-    rows = _log_int(60, 3000, rng)
-    overlap = float(rng.uniform(0, 1))
+    k = Knobs(fixed, rec)
+    alphabet = _symbols(int(k.get("p_alphabet", lambda: int(rng.integers(15, 26)))))
+    rows = int(k.get("p_rows", lambda: _log_int(60, 3000, rng)))
+    overlap = float(k.get("p_slot_overlap", lambda: float(rng.uniform(0, 1))))
     alpha_p, alpha_m, alpha_s = _slot_alphabets(alphabet, 3, overlap, rng)
-    n_edge, n_mid = _log_int(5, 40, rng), _log_int(10, 120, rng)
-    inv_p = _syllables(alpha_p, n_edge, 2, 0.3, rng)
-    inv_m = _syllables(alpha_m, n_mid, 3, 0.0, rng)
-    inv_s = _syllables(alpha_s, n_edge, 2, 0.3, rng)
+    n_edge = int(k.get("p_n_edge", lambda: _log_int(5, 40, rng)))
+    n_mid = int(k.get("p_n_mid", lambda: _log_int(10, 120, rng)))
+    p_empty = float(k.get("p_empty", lambda: float(rng.uniform(0.0, 0.6))))
+    len_edge = int(k.get("p_len_edge", lambda: int(rng.integers(1, 4))))
+    len_mid = int(k.get("p_len_mid", lambda: int(rng.integers(2, 6))))
+    inv_p = _syllables(alpha_p, n_edge, len_edge, p_empty, rng)
+    inv_m = _syllables(alpha_m, n_mid, len_mid, 0.0, rng)
+    inv_s = _syllables(alpha_s, n_edge, len_edge, p_empty, rng)
     col_p = rng.choice(inv_p, size=rows, p=_zipf_weights(len(inv_p), rng))
     col_m = rng.choice(inv_m, size=rows, p=_zipf_weights(len(inv_m), rng))
     col_s = rng.choice(inv_s, size=rows, p=_zipf_weights(len(inv_s), rng))
-    grilles = rng.integers(0, rows, size=(int(rng.integers(3, 9)), 3))
-    _note(
-        rec,
-        p_alphabet=len(alphabet),
-        p_rows=rows,
-        p_slot_overlap=overlap,
-        p_n_edge=n_edge,
-        p_n_mid=n_mid,
-        p_n_grilles=len(grilles),
-    )
+    n_grilles = int(k.get("p_n_grilles", lambda: int(rng.integers(3, 9))))
+    grilles = rng.integers(0, rows, size=(n_grilles, 3))
 
     words: list[str] = []
     j = 0
@@ -521,7 +644,11 @@ def grille(
 
 
 def selfcite(
-    n_words: int, rng: np.random.Generator, layout: Layout | None = None, rec: dict | None = None
+    n_words: int,
+    rng: np.random.Generator,
+    layout: Layout | None = None,
+    rec: dict | None = None,
+    fixed: dict | None = None,
 ) -> Lines:
     """Timm ve Schinner (2019) tarzı: yazıcı önceki satırlardan kelime kopyalar,
     küçük değişikliklerle yeniden yazar. Benzer kelimelerin yakın durması ve
@@ -539,39 +666,32 @@ def selfcite(
     if layout is None:
         layout = sample_layout(rng)
     _note(rec, **layout_params(layout))
-    alphabet = _symbols(int(rng.integers(15, 26)))
+    k = Knobs(fixed, rec)
+    alphabet = _symbols(int(k.get("p_alphabet", lambda: int(rng.integers(15, 26)))))
     sym_w = _zipf_weights(len(alphabet), rng)
     # Benzer görünen glif sınıfları: değişiklikler çoğunlukla sınıf içinde olur.
-    classes = np.array_split(rng.permutation(len(alphabet)), int(rng.integers(4, 8)))
+    classes = np.array_split(
+        rng.permutation(len(alphabet)),
+        int(k.get("p_glyph_classes", lambda: int(rng.integers(4, 8)))),
+    )
     class_of = {alphabet[i]: [alphabet[k] for k in cls] for cls in classes for i in cls}
     prefixes = [str(s) for s in rng.choice(alphabet, size=3, p=sym_w)]
-    p_copy = rng.uniform(0.85, 0.97)
-    p_exact = rng.uniform(0.2, 0.8)  # kopyanın hiç değişmeme olasılığı
-    reach = _log_int(1, 30, rng)  # kaç satır geriye bakılır
-    p_same_line = rng.uniform(0.0, 0.3)  # kaynağın aynı satırdan seçilme olasılığı
+    p_copy = k.get("p_copy", lambda: rng.uniform(0.85, 0.97))
+    p_exact = k.get("p_exact", lambda: rng.uniform(0.2, 0.8))  # kopyanın hiç değişmeme olasılığı
+    reach = int(k.get("p_reach", lambda: _log_int(1, 30, rng)))  # kaç satır geriye bakılır
+    # Kaynağın aynı satırdan seçilme olasılığı.
+    p_same_line = k.get("p_same_line", lambda: rng.uniform(0.0, 0.3))
     # Değişiklik türlerinin payı: değiştir, önek, sil, ikile (ortalama 0.43, 0.21, 0.17, 0.19).
-    cut = np.cumsum(rng.dirichlet(4 * np.array([0.43, 0.21, 0.17, 0.19])))
+    drawn = rng.dirichlet(4 * np.array([0.43, 0.21, 0.17, 0.19]))
+    names = ("p_mut_substitute", "p_mut_prefix", "p_mut_delete", "p_mut_double")
+    mix = np.array([float(k.get(n, lambda v=v: float(v))) for n, v in zip(names, drawn)])
+    cut = np.cumsum(mix / max(mix.sum(), 1e-9))
     # Yeni kelimeler önek + gövde + sonek yuvalarından kurulur.
-    overlap = float(rng.uniform(0, 1))
+    overlap = float(k.get("p_slot_overlap", lambda: float(rng.uniform(0, 1))))
     slot_p, slot_m, slot_s = (
         (a, _zipf_weights(len(a), rng)) for a in _slot_alphabets(alphabet, 3, overlap, rng)
     )
-    p_affix = rng.uniform(0.3, 0.9)
-    _note(
-        rec,
-        p_alphabet=len(alphabet),
-        p_glyph_classes=len(classes),
-        p_copy=p_copy,
-        p_exact=p_exact,
-        p_reach=reach,
-        p_same_line=p_same_line,
-        p_slot_overlap=overlap,
-        p_affix=p_affix,
-        p_mut_substitute=cut[0],
-        p_mut_prefix=cut[1] - cut[0],
-        p_mut_delete=cut[2] - cut[1],
-        p_mut_double=1 - cut[2],
-    )
+    p_affix = k.get("p_affix", lambda: rng.uniform(0.3, 0.9))
 
     def fresh() -> str:
         w = "".join(rng.choice(slot_m[0], size=int(rng.integers(1, 5)), p=slot_m[1]))

@@ -36,6 +36,7 @@ Metne anlam atayan kod ancak şu koşulların hepsi sağlanınca yazılır:
 4. **Pencere boyutu her yerde aynı.** Entropi ve TTR örneklem boyutuna duyarlı. Sentetik ve Voynich pencereleri aynı `--window` ile kesilir.
 5. **En az iki transliterasyon.** Tek transliterasyonda çıkan sonuç, transliterasyonun eseri olabilir. Sonuç görünümler arasında tutarlı değilse bulgu değildir.
 6. **CV dil bazında gruplu.** Model hiç görmediği dilde sınanır.
+7. **Sınıflandırıcının sınıf adı başlık değildir.** 2026-11-23 oturumunda sınıflandırıcının kararı, yalnız bir üretecin önseli genişletildiği için üç kez yön değiştirdi (v0.2 `grille`, v0.3 düz EVA'da `verbose`, v0.4 her yerde `grille`). Bir hipotez hakkında hüküm ancak taze örnek ölçütüyle verilir (`cli search`): seçilen ayarlarla yeniden üretilen örnekler Voynich öz mesafesinin içine giriyor mu. Sınıflandırıcı raporu yardımcı göstergedir.
 
 ## Komutlar
 
@@ -47,11 +48,12 @@ python -m voynich_lab.cli build     # sentetik feature tablosu, ~80 sn
 python -m voynich_lab.cli report    # CV + eğitim + Voynich analizi -> results/report.md
 python -m voynich_lab.cli all       # fetch + build + report, ~1 dk
 python -m voynich_lab.cli abc       # büyük tablo + ABC raporu -> results/abc.md, 4 çekirdekte ~3 dk
+python -m voynich_lab.cli search    # abc tablosundan başlayan yönlendirilmiş arama -> results/search.md, ~6 dk
 python -m voynich_lab.cli checks    # hattın kendi sonuçlarını sınayan deneyler -> results/checks.md
 pytest -q
 ```
 
-Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--abc-per-language 100`, `--abc-seeds 4`, `--accept 0.01`, `--jobs 4`; var olan tabloyu yeniden kullanır, `--rebuild` baştan üretir.
+Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--abc-per-language 100`, `--abc-seeds 4`, `--accept 0.01`, `--jobs 4`; var olan tabloyu yeniden kullanır, `--rebuild` baştan üretir. Arama için: `--rounds 5`, `--keep 100`, `--children 6`, `--fresh 2`. Sıra önemli: `all` -> `abc --rebuild` -> `search` -> `checks`; üreteç değişince dördü de yeniden koşulur.
 
 ## Mimari
 
@@ -65,14 +67,15 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | `model.py` | XGBoost, `GroupKFold` |
 | `analyze.py` | Voynich çıkarımı, SHAP katkıları (`pred_contribs`), Mahalanobis tabanlı OOD |
 | `abc.py` | Rejection ABC: her sınıf Voynich'e en fazla ne kadar yaklaşıyor, neyi tutturamıyor, hangi ayarlarla. Mesafe birimi Voynich'in kendi pencereleri arası değişkenlik |
-| `checks.py` | Hattın kendi sonuçlarını sınayan deneyler. Şimdilik: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor) |
+| `search.py` | Yönlendirilmiş arama: ABC'nin en yakın örneklerinin ayarlarından başlar, önsel sınırları içinde oynatır, sonucu taze örneklerle ölçer. Sonsal dağılım vermez; "bu hipotezin Voynich'ten ayırt edilemeyen bir ayar bölgesi var mı" sorusunu yanıtlar |
+| `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor) ve homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) |
 | `cli.py`, `fetch.py` | Komut satırı ve indirme |
 
 Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bir glif. Çok harfli glifler Unicode özel kullanım alanındaki tek karaktere eşlenir.
 
 Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu: önek, gövde, sonek heceleri; sütunların glif kümeleri ayrık ya da örtüşük), `selfcite` (Timm ve Schinner kendinden kopyalama; yeni kelimeler yuva yapısından).
 
-Yeni süreç eklemek: fonksiyonu `generators.py` içine yaz, sonunda `lay_out(kelimeler, rng, layout)` çağır, ilgili sözlüğe ekle. Başka hiçbir yere dokunmak gerekmez.
+Yeni süreç eklemek: fonksiyonu `generators.py` içine yaz, ayarları `Knobs.get` ile çek (böylece hem kaydedilir hem dışarıdan sabitlenebilir), sınırlarını `PROCESS_PRIOR` tablosuna yaz, sonunda `lay_out(kelimeler, rng, layout, rec)` çağır, ilgili sözlüğe ekle. `test_priors_cover_what_is_drawn` tablo ile çekimin tutarlılığını denetler.
 
 Yazıcı katmanının kuralı: parametreleri (`sample_layout`) bütün sınıflar için aynı önselden çekilir ve "hiç satır etkisi yok" durumunu da içerir. Sınıfa özel satır kuralı yazılmaz; yazılırsa sınıflandırıcı onu kestirme yol yapar. Önsel aralıkları Voynich'e göre ayarlanmaz, o iş ABC adımınındır.
 
@@ -124,7 +127,7 @@ Tarihçe; rapor git geçmişinde (`7afdba9`). **Bu bölümdeki "doğal dil taban
 
 ## v0.3 bulguları: ABC, üçüncü transliterasyon, adil şifre hipotezi (2026-11-23, seed 7, pencere 2000)
 
-Güncel durum budur. Raporlar: `results/report.md` (sınıflandırıcı) ve `results/abc.md` (ABC, 42800 sentetik örnek, sınıf başına en yakın %1 kabul).
+Tarihçe; raporlar git geçmişinde (`c0c69d1`). Buradaki sıralama ("beş görünümde en yakın `grille`") v0.4'te taze örnek ölçütüyle zayıfladı, aşağıya bak. Raporlar: `results/report.md` (sınıflandırıcı) ve `results/abc.md` (ABC, 42800 sentetik örnek, sınıf başına en yakın %1 kabul).
 
 Eklenenler: `abc.py` ve `cli abc`; Zandbergen-Landini transliterasyonu (`zl_basic`, `zl_glyph`); `verbose` için hece hece yazma ve sürekli boşluk ekleme; üreteçlerin çektiği ayarların kaydı.
 
@@ -140,6 +143,21 @@ Eklenenler: `abc.py` ve `cli abc`; Zandbergen-Landini transliterasyonu (`zl_basi
 - **Bu ABC'nin sınırı.** Rejection ABC rastgele dener; 32 feature'ı aynı anda tutturan örnek seyrek olduğu için yazıcı katmanı ayarları neredeyse hiç kısıtlanmıyor (kabul edilenlerde `jsd_line_final` 0.02, Voynich 0.11). Yani mesafeler hipotezlerin gerçekte ulaşabileceğinden kötü. Sıradaki iş, en yakın örneklerin çevresinde yeniden arayan ABC (SMC); bunun için üreteçler ayarları dışarıdan alabilmeli.
 - **Sınıflandırıcı raporu:** CV 0.977. OOD oranı 1.4 ila 1.6x, yüzdelik 94 ila 98; hiçbir feature aralık dışında değil.
 
+## v0.4 bulguları: yönlendirilmiş arama ve taze örnek ölçütü (2026-11-24, seed 7, pencere 2000)
+
+Güncel durum budur. Raporlar: `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`.
+
+Eklenenler: üreteçler ayarları dışarıdan alabiliyor (`Knobs`, `PROCESS_PRIOR`, `layout_from_params`); `search.py` ve `cli search`; `grille` için hece uzunluğu ve boş hücre payı ayarları; `checks` içine homojenlik deneyi.
+
+- **Taze örnek ölçütüyle hiçbir hipotez Voynich'i üretemiyor.** Arama sonunda kalan 100 ayarın her biriyle 2 taze örnek üretildi. Taze örneklerin medyan mesafesi her sınıfta, her görünümde 2.46 ila 5.80; Voynich öz mesafesi medyan 0.9 ila 1.0, en çok 1.4 ila 1.65. Sınırın içine düşen taze örnek: yalnız `grille`, `eva_glyph` ve `zl_glyph` görünümlerinde 200'de 1.
+- **Sıralama görünüme bağlı ve farklar küçük.** `eva_basic`, `eva_glyph`, `zl_basic`, `zl_glyph`: `grille` en yakın (2.46 ila 3.29), hemen ardında `selfcite` (2.55 ila 3.62). v101: `plain` en yakın (2.62), `grille` sonuncu (3.54; `char_double_rate` +7.9 birim). İlke 5 gereği "en yakın hipotez" diye bir bulgu yok.
+- **Rejection ABC'deki mesafeler iyimserdi.** `grille` için ABC'de kabul edilenlerin medyanı 2.15 ila 2.76 iken aynı bölgenin taze örnekleri 2.46 ila 3.54. Kabul edilen örnekler kısmen şansla seçilmişti. Arama tur içi medyanı düşürüyor (ör. `eva_basic` `grille` 2.92 -> 2.57) ama taze örnekte bu kazanç kalmıyor.
+- **Neden: örnekler arası farkı ayarlar değil tablo belirliyor (`results/checks.md`, homojenlik).** Aynı tablo ve ayarla üretilen 8 pencerenin kendi ortalamasına uzaklığı `grille` için 0.26 ila 0.32, farklı tabloların ortalamaları arası uzaklık 3.8 ila 6.0. Yani her örnekte tablo baştan çekildiği sürece ayar araması gürültüde kayboluyor.
+- **Tek bir `grille` tablosu Voynich'ten çok daha tekdüze metin üretiyor.** Voynich'in iç değişkenliği 0.92 ila 0.95, tek tablonun 0.26 ila 0.32. `selfcite` ise fazla değişken (1.26 ila 1.67). Voynich'in bölümler arası farkını (Currier A ve B, çizim bölümleri) hiçbir üreteç taklit etmiyor; üreteçler durağan.
+- **Sonuç: karşılaştırma birimi yanlıştı.** Şimdiye kadar "bir sentetik örnek = yeni bir el yazması" ile "bir Voynich penceresi = aynı el yazmasının parçası" kıyaslandı. Doğru kıyas el yazması düzeyinde: tek tablo ve tek ayarla uzun metin üret, pencerelere böl, hem ortalamayı hem iç değişkenliği Voynich'inkiyle karşılaştır; tabloyu bir yarıda seç, öbür yarıda doğrula. Sıradaki iş bu (yol haritası 2).
+- **Sınıflandırıcı raporu:** beş görünümde de `grille` (0.66 ila 0.95), OOD oranı 1.1 ila 1.4x, yüzdelik 68 ila 93. İlk kez hem dağılım içi hem görünümler arası tutarlı. Yine de bulgu sayılmıyor (ilke 7): bu karar yalnız `grille` üretecine hece uzunluğu ayarı eklenince oluştu ve taze örnek ölçütü geçilmedi.
+- **EVA'laştırma sınaması güncellendi.** Yeni `grille` ile 300 örneğin 299'u özgün hâliyle `grille`; EVA'laştırılınca 114'ü `verbose` oluyor (v0.3'te 291 idi). Etki küçüldü ama sürüyor; düz EVA görünümleri hakkındaki uyarı geçerli.
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
@@ -148,7 +166,7 @@ Eklenenler: `abc.py` ve `cli abc`; Zandbergen-Landini transliterasyonu (`zl_basi
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC yapıldı (v0.3). **Sıradaki:** üreteçleri ayarları dışarıdan alacak hale getir, en yakın örneklerin çevresinde yeniden arayan ABC-SMC yaz. Ölçüt aynı: kabul edilen örnekler Voynich öz mesafesinin içine giriyor mu.
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3) ve yönlendirilmiş arama (v0.4) yapıldı. **Sıradaki:** el yazması düzeyinde karşılaştırma. Üreteçler tabloyu (gizli durumu) sabit tutup uzun metin üretebilmeli; mesafe, pencere ortalaması ve iç değişkenlik üzerinden hesaplanmalı; tablo bir yarıda seçilip öbür yarıda doğrulanmalı. Ardından durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo).
 3. **Dönem metinleri.** İncil çevirileri modern. 15. yüzyıl Latince, İtalyanca, Almanca, İbranice, Osmanlıca öncesi Türkçe tıbbi ve botanik metinler ekle. `corpus.py` düz kelime listesi bekliyor, yeni yükleyici yazmak yeterli.
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.
