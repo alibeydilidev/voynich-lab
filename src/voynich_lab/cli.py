@@ -195,6 +195,7 @@ def cmd_manuscripts(args: argparse.Namespace) -> None:
         render_markdown,
         reseed_job,
         scale_for,
+        voynich_growth,
     )
     from .search import LANGUAGE_KEY, prior_for
     from .transliteration import load_views
@@ -226,7 +227,9 @@ def cmd_manuscripts(args: argparse.Namespace) -> None:
         views, reseed_jobs = {}, []
         for view, lines in load_views(args.raw).items():
             V = voynich_features(lines, args.window).to_numpy(dtype=float)
-            views[view] = analyze_view(df, V, universe_sd, half, args.ms_top)
+            views[view] = analyze_view(
+                df, V, universe_sd, half, args.ms_top, voynich_growth(lines, args.window, half)
+            )
             scale = scale_for(V, universe_sd)
             for label in labels:
                 g = df[df["label"] == label].set_index("index")
@@ -254,6 +257,7 @@ def cmd_manuscripts(args: argparse.Namespace) -> None:
         c["reseed_n"] = len(vals)
     settings = {
         "per_class": args.ms_per_class, "n_windows": args.ms_windows, "top": args.ms_top,
+        "window": args.window,
         "reseed_top": args.ms_reseed_top, "reseeds": args.ms_reseeds,
     }  # fmt: skip
     (out / "manuscripts.json").write_text(

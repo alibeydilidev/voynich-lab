@@ -21,6 +21,12 @@ yarılarının birbirine karşı T değeri (rastgele bölmeler ve ardışık bö
 T yalnız ortalamaya bakar. İç değişkenlik ayrı raporlanır (yayılım oranı):
 adayın pencereleri arası standart sapmanın Voynich'inkine oranı, feature'lar
 üzerinden medyan. 1 ise aday Voynich kadar değişken.
+
+Büyüme profili: T, 2000 kelimelik pencerelerin profilidir ve metin uzadıkça
+dağarcığın nasıl büyüdüğünü göremez. Kapalı bir tablo 2000 kelimede Voynich
+kadar çeşitli görünür ama 16 bin kelimede doyar; Voynich doymaz. Bu yüzden her
+yarının tamamı üzerinden üç ölçü ayrıca tutulur: tür / kelime, hapax / tür,
+"bir harf farklı" komşusu olan türlerin oranı.
 """
 
 from __future__ import annotations
@@ -31,7 +37,9 @@ import numpy as np
 import pandas as pd
 
 from .abc import SCALE_FLOOR
-from .features import FEATURE_NAMES, extract_features
+from collections import Counter
+
+from .features import FEATURE_NAMES, _ed1_density, extract_features
 from .generators import GIBBERISH_PROCESSES, LANGUAGE_PROCESSES, layout_from_params
 from .search import LANGUAGE_KEY, _corpora, prior_for
 
@@ -39,6 +47,22 @@ MEAN_A = [f"ma_{f}" for f in FEATURE_NAMES]
 MEAN_B = [f"mb_{f}" for f in FEATURE_NAMES]
 SD_A = [f"sa_{f}" for f in FEATURE_NAMES]
 SD_B = [f"sb_{f}" for f in FEATURE_NAMES]
+GROWTH_NAMES = ["ttr", "hapax", "ed1"]
+GROWTH_A = [f"ga_{g}" for g in GROWTH_NAMES]
+GROWTH_B = [f"gb_{g}" for g in GROWTH_NAMES]
+# Büyüme profilinde "Voynich'e uyuyor" sayılma payı (her ölçüde mutlak fark).
+GROWTH_TOLERANCE = 0.05
+
+
+def growth_profile(words: list[str]) -> list[float]:
+    """Bir metin parçasının dağarcık büyüme ölçüleri: tür/kelime, hapax/tür, ed1 oranı."""
+    counts = Counter(words)
+    types = list(counts)
+    return [
+        len(types) / len(words),
+        sum(v == 1 for v in counts.values()) / len(types),
+        _ed1_density(types),
+    ]
 
 
 def windows(lines: list[list[str]], window_words: int) -> list[list[list[str]]]:
@@ -60,12 +84,12 @@ def simulate_manuscript(
     window_words: int,
     n_windows: int,
     seed: list[int],
-) -> tuple[np.ndarray, dict] | None:
+) -> tuple[np.ndarray, dict, list[list[float]]] | None:
     """Tek tablo ve tek ayar kümesiyle n_windows pencerelik bir el yazması üretir.
 
     theta boşsa bütün ayarlar önselden çekilir. Dönen değer: (pencere x feature
-    matrisi, kullanılan ayarlar). Aynı (theta, seed) hep aynı metni verir.
-    Metin yeterince uzun çıkmazsa None döner.
+    matrisi, kullanılan ayarlar, iki yarının büyüme profili). Aynı (theta,
+    seed) hep aynı metni verir. Metin yeterince uzun çıkmazsa None döner.
     """
     rng = np.random.default_rng(seed)
     layout = layout_from_params(theta, rng)
@@ -87,7 +111,12 @@ def simulate_manuscript(
         return None
     feats = [extract_features(w) for w in wins]
     F = np.array([[f[name] for name in FEATURE_NAMES] for f in feats], dtype=float)
-    return F, rec
+    half = n_windows // 2
+    growth = []
+    for part in (wins[:half], wins[half:]):
+        words = [w for win in part for ln in win for w in ln][: half * window_words]
+        growth.append(growth_profile(words))
+    return F, rec, growth
 
 
 def _languages(label: str, raw: str) -> list[str]:
@@ -110,9 +139,10 @@ def build_chunk(job: dict) -> pd.DataFrame:
         )
         if res is None:
             continue
-        F, rec = res
+        F, rec, growth = res
         a, b = F[:half], F[half:]
         row = {"label": job["label"], "index": i} | rec
+        row |= dict(zip(GROWTH_A, growth[0])) | dict(zip(GROWTH_B, growth[1]))
         row |= dict(zip(MEAN_A, a.mean(0))) | dict(zip(MEAN_B, b.mean(0)))
         row |= dict(zip(SD_A, a.std(0, ddof=1))) | dict(zip(SD_B, b.std(0, ddof=1)))
         rows.append(row)
@@ -146,12 +176,37 @@ def scale_for(V: np.ndarray, universe_sd: np.ndarray) -> np.ndarray:
     return np.maximum(V.std(0, ddof=1), SCALE_FLOOR * universe_sd) + 1e-12
 
 
-def analyze_view(df: pd.DataFrame, V: np.ndarray, universe_sd: np.ndarray, half: int, top: int) -> dict:
-    """Bir görünüm için: her sınıfta seçim yarısına göre en yakın `top` aday ve doğrulamaları."""
+def voynich_growth(lines, window_words: int, half: int) -> list[list[float]]:
+    """Voynich'in ilk ve ikinci yarısının büyüme profili (adaylarla aynı kelime sayısında)."""
+    words = [w for ln in lines for w in ln.words]
+    n = half * window_words
+    return [growth_profile(words[:n]), growth_profile(words[n : 2 * n])]
+
+
+def analyze_view(
+    df: pd.DataFrame,
+    V: np.ndarray,
+    universe_sd: np.ndarray,
+    half: int,
+    top: int,
+    v_growth: list[list[float]] | None = None,
+) -> dict:
+    """Bir görünüm için: her sınıfta seçim yarısına göre en yakın `top` aday ve doğrulamaları.
+
+    v_growth verilirse büyüme profili de raporlanır: sınıfın önselde nereye
+    düştüğü, kaç el yazmasının Voynich'e uyduğu ve uyanlar içinde en iyi T.
+    """
     scale = scale_for(V, universe_sd)
     v_mean, v_n = V.mean(0), len(V)
     v_sd = V.std(0, ddof=1)
     out = {"reference": voynich_reference(V, scale, half), "n_windows": int(v_n), "classes": {}}
+    target = None
+    if v_growth is not None and all(c in df for c in GROWTH_B):
+        target = np.mean(v_growth, axis=0)
+        out["growth_reference"] = {
+            "first_half": dict(zip(GROWTH_NAMES, map(float, v_growth[0]))),
+            "second_half": dict(zip(GROWTH_NAMES, map(float, v_growth[1]))),
+        }
     for label, g in df.groupby("label"):
         t_sel = t_statistic(g[MEAN_A].to_numpy(float), half, v_mean, v_n, scale)
         t_val = t_statistic(g[MEAN_B].to_numpy(float), half, v_mean, v_n, scale)
@@ -174,7 +229,21 @@ def analyze_view(df: pd.DataFrame, V: np.ndarray, universe_sd: np.ndarray, half:
                 "selected_median": float(np.median(vals)),
                 "selected_iqr": [float(np.percentile(vals, 25)), float(np.percentile(vals, 75))],
             }
+        growth = None
+        if target is not None:
+            G = g[GROWTH_B].to_numpy(float)
+            fits = (np.abs(G - target) <= GROWTH_TOLERANCE).all(1)
+            growth = {
+                "prior_median": dict(zip(GROWTH_NAMES, map(float, np.median(G, axis=0)))),
+                "prior_p05": dict(zip(GROWTH_NAMES, map(float, np.percentile(G, 5, axis=0)))),
+                "prior_p95": dict(zip(GROWTH_NAMES, map(float, np.percentile(G, 95, axis=0)))),
+                "selected_median": dict(zip(GROWTH_NAMES, map(float, np.median(G[order], axis=0)))),
+                "n_fitting": int(fits.sum()),
+                "best_t_among_fitting": float(t_val[fits].min()) if fits.any() else None,
+                "median_t_among_fitting": float(np.median(t_val[fits])) if fits.any() else None,
+            }
         out["classes"][label] = {
+            "growth": growth,
             "n_manuscripts": int(len(g)),
             "n_selected": int(len(order)),
             "selection_median": float(np.median(t_sel[order])),
@@ -266,6 +335,52 @@ def render_markdown(views: dict[str, dict], settings: dict) -> str:
             f"| {name} | "
             + " | ".join(f"{v['classes'][c]['spread_ratio_median']:.2f}" for c in labels) + " |"
         )
+    if all("growth_reference" in v for v in views.values()):
+        md += [
+            "",
+            f"## 5. Büyüme profili ({half * settings.get('window', 2000)} kelimede; doğrulama yarısı)",
+            "",
+            "Sıra: tür / kelime, hapax / tür, \"bir harf farklı\" komşusu olan türlerin oranı. "
+            "Voynich için iki yarının değeri; sınıflar için önseldeki medyan [%5, %95].",
+            "",
+            "| görünüm | Voynich (ilk yarı; ikinci yarı) | " + " | ".join(labels) + " |",
+            "|---|---|" + "---|" * len(labels),
+        ]
+        for name, v in views.items():
+            r = v["growth_reference"]
+            ref = "; ".join(
+                ", ".join(f"{r[h][g]:.2f}" for g in GROWTH_NAMES) for h in ("first_half", "second_half")
+            )
+            cells = []
+            for c in labels:
+                gr = v["classes"][c]["growth"]
+                cells.append(
+                    "<br>".join(
+                        f"{gr['prior_median'][g]:.2f} [{gr['prior_p05'][g]:.2f}, {gr['prior_p95'][g]:.2f}]"
+                        for g in GROWTH_NAMES
+                    )
+                )
+            md.append(f"| {name} | {ref} | " + " | ".join(cells) + " |")
+        md += [
+            "",
+            "## 6. Büyüme profili Voynich'e uyan el yazması sayısı ve bunların doğrulama T'si (medyan; en iyi)",
+            "",
+            f"Uyma ölçütü: üç ölçünün her birinde Voynich ortalamasından fark en çok {GROWTH_TOLERANCE}.",
+            "",
+            "| görünüm | " + " | ".join(labels) + " |",
+            "|---|" + "---|" * len(labels),
+        ]
+        for name, v in views.items():
+            cells = []
+            for c in labels:
+                gr = v["classes"][c]["growth"]
+                if gr["n_fitting"]:
+                    cells.append(
+                        f"{gr['n_fitting']} ({gr['median_t_among_fitting']:.1f}; {gr['best_t_among_fitting']:.1f})"
+                    )
+                else:
+                    cells.append("0")
+            md.append(f"| {name} | " + " | ".join(cells) + " |")
     for name, v in views.items():
         md += ["", f"## {name}: sınıf sınıf", ""]
         for c in sorted(labels, key=lambda c: v["classes"][c]["validation_median"]):

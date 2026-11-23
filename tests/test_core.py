@@ -7,10 +7,12 @@ import pytest
 from voynich_lab.abc import analyze_view
 from voynich_lab.checks import evaize, homogeneity_experiment
 from voynich_lab.manuscripts import (
+    GROWTH_B,
     MEAN_A,
     MEAN_B,
     SD_A,
     SD_B,
+    growth_profile,
     simulate_manuscript,
     t_statistic,
     voynich_reference,
@@ -418,7 +420,8 @@ def test_homogeneity_experiment_reports_within_and_between():
 def test_manuscript_is_reproducible_and_has_one_table():
     a = simulate_manuscript("grille", {}, "unused", 300, 4, [1, 2, 3])
     b = simulate_manuscript("grille", {}, "unused", 300, 4, [1, 2, 3])
-    assert a is not None and np.array_equal(a[0], b[0]) and a[1] == b[1]
+    assert a is not None and np.array_equal(a[0], b[0]) and a[1] == b[1] and a[2] == b[2]
+    assert len(a[2]) == 2 and all(0 < x <= 1 for half in a[2] for x in half)
     assert a[0].shape == (4, len(FEATURE_NAMES))
     # Ayarlar sabitlenince kayıt aynı ayarları gösterir, tohum değişince metin değişir.
     theta = {k: v for k, v in a[1].items() if k in prior_for("grille")}
@@ -456,4 +459,32 @@ def test_manuscript_analysis_validates_on_the_other_half():
     assert c["grille"]["validation_median"] < 2 and c["selfcite"]["validation_median"] > 5
     assert c["selfcite"]["selection_median"] < 2  # seçim yarısında iyi görünüyordu
     assert c["grille"]["validation_share_within_p95"] > 0.3
+
+
+def test_growth_profile_separates_closed_and_open_vocabularies():
+    """Kapalı dağarcık uzun metinde doyar (hapax azalır), açık dağarcık doymaz."""
+    rng = np.random.default_rng(0)
+    closed = [f"w{i}" for i in rng.integers(0, 300, 8000)]
+    opened = [f"w{i}" for i in (rng.pareto(1.0, 8000) * 50).astype(int)]
+    c, o = growth_profile(closed), growth_profile(opened)
+    assert c[0] < 0.05 and c[1] < 0.01  # 300 türün hepsi çok kez geçer
+    assert o[0] > 2 * c[0] and o[1] > 0.3
+    assert growth_profile(["daiin", "dain", "aiin", "okeey"])[2] == 0.75
+
+
+def test_manuscript_analysis_reports_growth_fit():
+    rng = np.random.default_rng(2)
+    k = len(FEATURE_NAMES)
+    V = rng.normal(0, 1, (16, k))
+    n = 100
+    d = {"label": "grille", "index": np.arange(n)}
+    d |= dict(zip(MEAN_A, rng.normal(0, 0.35, (k, n)))) | dict(zip(MEAN_B, rng.normal(0, 0.35, (k, n))))
+    d |= dict(zip(SD_A, np.ones((k, n)))) | dict(zip(SD_B, np.ones((k, n))))
+    G = np.tile([0.2, 0.6, 0.9], (n, 1))
+    G[: n // 2, 1] = 0.3  # yarısı hapax'ta uymuyor
+    d |= dict(zip(GROWTH_B, G.T))
+    r = analyze_manuscripts(pd.DataFrame(d), V, np.ones(k), 8, 10, [[0.21, 0.61, 0.9], [0.19, 0.6, 0.89]])
+    g = r["classes"]["grille"]["growth"]
+    assert g["n_fitting"] == n // 2 and g["best_t_among_fitting"] is not None
+    assert r["growth_reference"]["first_half"]["hapax"] == 0.61
 

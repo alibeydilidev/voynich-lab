@@ -36,7 +36,7 @@ Metne anlam atayan kod ancak şu koşulların hepsi sağlanınca yazılır:
 4. **Pencere boyutu her yerde aynı.** Entropi ve TTR örneklem boyutuna duyarlı. Sentetik ve Voynich pencereleri aynı `--window` ile kesilir.
 5. **En az iki transliterasyon.** Tek transliterasyonda çıkan sonuç, transliterasyonun eseri olabilir. Sonuç görünümler arasında tutarlı değilse bulgu değildir.
 6. **CV dil bazında gruplu.** Model hiç görmediği dilde sınanır.
-7. **Sınıflandırıcının sınıf adı başlık değildir.** 2026-11-23 oturumunda sınıflandırıcının kararı, yalnız bir üretecin önseli genişletildiği için üç kez yön değiştirdi (v0.2 `grille`, v0.3 düz EVA'da `verbose`, v0.4 her yerde `grille`). Bir hipotez hakkında hüküm el yazması düzeyinde ve doğrulama yarısında verilir (`cli manuscripts`): tek tablo ve tek ayarla üretilen uzun metnin, seçimde kullanılmayan yarısı Voynich'in kendi yarıları kadar yakın mı. Sınıflandırıcı raporu, pencere düzeyi ABC ve arama yardımcı göstergedir.
+7. **Sınıflandırıcının sınıf adı başlık değildir.** 2026-11-23 oturumunda sınıflandırıcının kararı, yalnız bir üretecin önseli genişletildiği için üç kez yön değiştirdi (v0.2 `grille`, v0.3 düz EVA'da `verbose`, v0.4 her yerde `grille`). Bir hipotez hakkında hüküm el yazması düzeyinde ve doğrulama yarısında verilir (`cli manuscripts`) ve iki ölçüt birlikte aranır: (a) pencere profili: tek tablo ve tek ayarla üretilen uzun metnin, seçimde kullanılmayan yarısı Voynich'in kendi yarıları kadar yakın mı (T); (b) büyüme profili: aynı yarının tamamında dağarcık Voynich'inki gibi büyüyor mu. Yalnız biri tutuyorsa hipotez geçmiş sayılmaz. Sınıflandırıcı raporu, pencere düzeyi ABC ve arama yardımcı göstergedir.
 
 ## Komutlar
 
@@ -69,7 +69,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | `analyze.py` | Voynich çıkarımı, SHAP katkıları (`pred_contribs`), Mahalanobis tabanlı OOD |
 | `abc.py` | Rejection ABC: her sınıf Voynich'e en fazla ne kadar yaklaşıyor, neyi tutturamıyor, hangi ayarlarla. Mesafe birimi Voynich'in kendi pencereleri arası değişkenlik |
 | `search.py` | Yönlendirilmiş arama: ABC'nin en yakın örneklerinin ayarlarından başlar, önsel sınırları içinde oynatır, sonucu taze örneklerle ölçer. Sonsal dağılım vermez; "bu hipotezin Voynich'ten ayırt edilemeyen bir ayar bölgesi var mı" sorusunu yanıtlar |
-| `manuscripts.py` | El yazması düzeyinde karşılaştırma: aday = ayarlar + tohum, tek tablodan 16 pencere, 8'i seçim 8'i doğrulama. İstatistik T (standart hataya bölünmüş ortalama farkı; Voynich'in kendi yarıları için yaklaşık 1) ve yayılım oranı (iç değişkenlik). Asıl hüküm buradan verilir |
+| `manuscripts.py` | El yazması düzeyinde karşılaştırma: aday = ayarlar + tohum, tek tablodan 16 pencere, 8'i seçim 8'i doğrulama. İstatistik T (standart hataya bölünmüş ortalama farkı; Voynich'in kendi yarıları için yaklaşık 1), yayılım oranı (iç değişkenlik) ve büyüme profili (yarı başına 16 bin kelimede tür/kelime, hapax/tür, ed1 oranı). Asıl hüküm buradan verilir |
 | `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor) ve homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) |
 | `cli.py`, `fetch.py` | Komut satırı ve indirme |
 
@@ -190,7 +190,7 @@ Eklenen: `slotcite` sınıfı. Hipotez sınanmadan önce v0.5 bölümüne yazıl
 
 ## v0.7 bulguları: çok yuvalı gramer sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
 
-Güncel durum budur. Raporlar: `results/manuscripts.md` (asıl hüküm; yedi sınıf, sınıf başına 2000 el yazması) ve yardımcı raporlar.
+Tarihçe (`321bae9`). Buradaki T sıralaması geçerli ama tek başına okunmamalı; v0.8 büyüme profilini ekledi ve sıralamanın anlamını değiştirdi. Raporlar: `results/manuscripts.md` (asıl hüküm; yedi sınıf, sınıf başına 2000 el yazması) ve yardımcı raporlar.
 
 Eklenen: `slotgram` sınıfı; kopyalama döngüsü `_cite_text` yardımcısına taşındı (`slotcite` çıktısı bayt bayt aynı kaldı). Tohumlar artık sınıf ve görünüm adına bağlı (`_stable_id`), bu yüzden v0.6'ya göre bütün sayılar birkaç ondalık oynadı; bundan sonra yeni sınıf eklemek eskilerin sayılarını değiştirmez.
 
@@ -201,6 +201,19 @@ Eklenen: `slotgram` sınıfı; kopyalama döngüsü `_cite_text` yardımcısına
 - **Sıralama (doğrulama T):** `grille` 5.2 ila 6.7; `slotcite` 5.6 ila 7.1; `slotgram` 5.5 ila 7.4; `verbose` 6.6 ila 8.9; `selfcite` 7.0 ila 10.5; `plain` 7.3 ila 12.8; `abjad` 7.4 ila 14.8. Beş görünümde aynı yönde. Referans 1.5.
 - **Sınıflandırıcı raporu (yardımcı):** CV 0.920; kararı üç anlamsız metin sınıfı arasında bölünüyor; OOD yüzdeliği 36 ila 81.
 
+## v0.8 bulguları: büyüme profili (2026-11-24, seed 7, pencere 2000)
+
+Güncel durum budur. Rapor: `results/manuscripts.md` bölüm 5 ve 6. Üreteçler değişmedi; T değerleri v0.7 ile aynı (doğrulandı), yalnız ölçüme büyüme profili eklendi.
+
+- **Voynich'in dağarcığı doymuyor.** 16 bin kelimelik yarıda: tür/kelime 0.25 ila 0.30, hapax/tür 0.68 ila 0.72, "bir harf farklı" komşusu olan tür oranı 0.86 ila 0.89. İki yarı birbirini 0.03 içinde tutuyor. 32 bin kelimede 6700 ila 7700 farklı kelime var ve hapax oranı 500 kelimeden 32 bin kelimeye yalnız 0.79'dan 0.68'e düşüyor.
+- **Tablo üreteçlerinin dağarcığı doyuyor.** `grille` önselinde tür/kelime medyanı 0.10, hapax 0.37, ed1 0.99. 2000 kelimelik pencerede Voynich kadar çeşitli görünen tablo, 16 bin kelimede kendini tekrar ediyor. Pencere düzeyi feature'lar bunu göremiyordu.
+- **Pencere profiline göre seçilen adaylar büyüme profiline uymuyor.** T'ye göre en iyi 20 `grille` adayında tür/kelime 0.12 ila 0.18, hapax 0.28 ila 0.52, ed1 0.97 ila 0.99. Yani v0.5 ila v0.7'deki "en yakın `grille`" sıralaması, 2000 kelimelik pencerenin göremediği bir uyumsuzluğu saklıyordu.
+- **Büyüme profiline en çok uyan sınıf seslisiz yazılmış doğal dil (`abjad`).** 2000 el yazmasından üç ölçüde de 0.05 içinde kalanların sayısı: `abjad` 105 ila 335, `verbose` 11 ila 40, `slotgram` 29 ila 35, `slotcite` 16 ila 36, `selfcite` 3 ila 18, `grille` 2 ila 15, `plain` 2 ila 8. Düz doğal dilde (`plain`) tür/kelime ve hapax tutuyor ama ed1 oranı düşük (medyan 0.63); sesliler atılınca ed1 Voynich düzeyine çıkıyor (0.86). Ayrı ölçüm: 22 dilin düz metninde 32 bin kelimede ed1 oranı 0.41 ila 0.62, yalnız zaten seslisiz yazılan İbranice (0.89) ve Arapça (0.78) yüksek.
+- **Ama büyümeye uyan `abjad` el yazmalarının pencere profili çok uzak.** Uyanların doğrulama T'si medyan 15 ila 28, en iyi 7.2 ila 13.6. Seslisiz yazımda kelimeler Voynich'e göre fazla kısa ve harf dizilişi fazla öngörülemez (`h2` yüksek).
+- **İki ölçütü birlikte sağlayan hipotez yok.** Büyümeye uyanlar içinde en iyi T: `slotcite` 5.1 (`zl_glyph`), `slotgram` 5.5 ila 9.8, `grille` 6.5 ila 22.7, `verbose` 7.2 ila 9.9, `abjad` 7.2 ila 13.6, `plain` 7.3 ila 11.8. Referans 1.5. İki ölçüt birbirine karşı çalışıyor: pencere profilini tutturan aday dağarcığı kapatıyor, dağarcığı açan aday pencere profilinden uzaklaşıyor.
+- **Sıralama artık net değil.** Ortak ölçütte `grille` önde değil; yuva gramerleri, `verbose` ve `abjad` 5 ila 10 bandında iç içe. "Anlamsız metin üreteçleri dil hipotezlerinden yakın" cümlesi yalnız pencere profili için doğruydu.
+- **Yeni hipotez (sınanmadı):** `abjad` büyüme profilini, `verbose` kelime uzunluğunu ve düşük `h2`'yi getiriyor. İkisinin bileşimi (önce sesliler atılır, sonra her harf bir ila üç gliflik gruba açılır) iki ölçütü birlikte tutturabilir. Öngörü: bileşimde büyümeye uyan el yazması sayısı `verbose`'un 11 ila 40'ının belirgin üstüne çıkar ve uyanlar içinde en iyi T, beş görünümün çoğunda 5'in altına iner. Risk: bir harf farkı çok glifli koda dönüşünce ed1 oranı düşebilir; düşerse öngörü tutmaz.
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
@@ -209,7 +222,7 @@ Eklenen: `slotgram` sınıfı; kopyalama döngüsü `_cite_text` yardımcısına
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. **Sıradaki:** (a) açığın kaynağını Voynich verisinde doğrudan ölç (dağarcık büyüme eğrisi, hapax ve komşuluk yapısının örneklem boyutuna göre değişimi), aday mekanizmayı önce yalnız `cli manuscripts` ile ucuza sına; (b) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8). **Sıradaki:** (a) `abjad` ile `verbose` bileşimi (v0.8'deki hipotez), önce yalnız `cli manuscripts` ile; (b) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
 3. **Dönem metinleri.** İncil çevirileri modern. 15. yüzyıl Latince, İtalyanca, Almanca, İbranice, Osmanlıca öncesi Türkçe tıbbi ve botanik metinler ekle. `corpus.py` düz kelime listesi bekliyor, yeni yükleyici yazmak yeterli.
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.
