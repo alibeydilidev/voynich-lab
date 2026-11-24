@@ -4,6 +4,14 @@ Voynich el yazmasına (Beinecke MS 408) "ne yazıyor" diye değil, "bunu nasıl 
 
 Bu dosya projenin devir notudur. Kararların gerekçesi burada, kodu değiştirmeden önce oku.
 
+## Mevcut durum (2026-11-24)
+
+Deney durakta (Ali, 2026-11-24 akşam). Ölçüm aşaması paylaşılabilir bir sonuca bağlandı: "Voynich için dört sınav", `README.md`. Depo yayına hazırlandı; README o yazının kendisidir ve sayıları `results/checks.md` ile `results/manuscripts.md` dosyalarından gelir. Bu dosyalar yeniden üretilip değişirse README'deki sayılar da güncellenir.
+
+Kapanmayanlar: 1. basamak geçilmedi (dokuz üretecin hiçbiri Voynich'i üretmiyor) ve tercüme için elde yol yok. Yeniden başlanırsa sıradaki işler "Yol haritası" bölümünde ve v0.18 bölümünün sonunda.
+
+Aşağıdaki bölümler çalışma sırasında yazılmış defter kayıtlarıdır; tutmayan öngörüler ve sonradan düzeltilen hükümler bilerek silinmedi. Güncel hüküm: v0.15 "Düzeltilmiş hüküm", v0.16, v0.17 ve v0.18.
+
 ## Amaç ve hedef merdiveni (Ali kararı, 2026-11-23; yeniden çerçeveleme 2026-11-24)
 
 **Birincil amaç (Ali kararı, 2026-11-24):** Voynich metninin ne tür bir süreçten çıktığını ve bir doğal dili doğrudan yazıp yazmadığını, başkasının tek komutla yeniden üretebileceği ölçümlerle göstermek. Dışarıya kurulacak cümle "Claude çözdü" değil, "Claude şunu ölçtü" biçimindedir.

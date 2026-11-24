@@ -1,7 +1,7 @@
 [project]
 name = "voynich-lab"
-version = "0.1.0"
-description = "Voynich el yazmasını üreten süreci simülasyon tabanlı çıkarımla sınıflandırır"
+version = "0.18.0"
+description = "Voynich el yazması metni için tekrarlanabilir ölçümler: dört sınav ve aday üretim süreçleriyle karşılaştırma"
 requires-python = ">=3.12"
 dependencies = ["numpy", "pandas", "scikit-learn", "xgboost"]
 
