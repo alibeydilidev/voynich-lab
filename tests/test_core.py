@@ -5,7 +5,17 @@ import pandas as pd
 import pytest
 
 from voynich_lab.abc import analyze_view
-from voynich_lab.checks import evaize, homogeneity_experiment, lexicon_stats, markov_surrogate
+from voynich_lab.checks import (
+    degradation_experiment,
+    evaize,
+    homogeneity_experiment,
+    homophonic,
+    lexicon_stats,
+    markov_surrogate,
+    order_stats,
+    spelling_noise,
+    word_families,
+)
 from voynich_lab.manuscripts import (
     GROWTH_B,
     MEAN_A,
@@ -561,4 +571,65 @@ def test_period_text_loading_and_html_cleanup(tmp_path):
     period = load_period(tmp_path)
     assert list(period) == ["latin_test_1420"]  # kısa metin alınmaz
     assert period["latin_test_1420"][:4] == ["qui", "sequitur", "me", "non"]
+    # Çok sayfalı Wikisource metni: her sayfanın üst bilgisi ve sayfa işaretleri atılır.
+    page = "Questo testo è riletto <dc:title>X</dc:title> ◄ Capitolo I Capitolo III ► [p. 7 modifica ] colla di spicchi "
+    (tmp_path / "italian_test_1400.txt").write_text("\n\n".join([page * 1] * 3000), encoding="utf-8")
+    words = load_period(tmp_path)["italian_test_1400"]
+    assert words[:6] == ["colla", "di", "spicchi", "colla", "di", "spicchi"] and len(words) == 9000
+
+
+def _ordered_text(rng, n=6000):
+    """Sırası bilgi taşıyan yapay metin: her kelime bir öncekine bağlı (kelime zinciri)."""
+    vocab = [f"w{i}" for i in range(60)]
+    nxt = {w: [vocab[int(j)] for j in rng.choice(60, size=3, replace=False)] for w in vocab}
+    words, cur = [], vocab[0]
+    for _ in range(n):
+        words.append(cur)
+        cur = nxt[cur][int(rng.integers(3))]
+    return words
+
+
+def test_order_test_finds_order_and_ignores_its_absence():
+    """Sıra sınaması: zincirle üretilen metinde sıra bilgisi büyük, aynı kelimeler
+    karıştırılınca sıfır. Bire bir kelime kodlaması sonucu değiştirmez."""
+    rng = np.random.default_rng(0)
+    words = _ordered_text(rng)
+    lines = [words[i : i + 9] for i in range(0, len(words), 9)]
+    a = order_stats(lines, 2500, np.random.default_rng(1))
+    assert a["order"] > 1.0 and a["weight"] >= 0.45
+    shuffled = [words[int(i)] for i in rng.permutation(len(words))]
+    b = order_stats([shuffled[i : i + 9] for i in range(0, len(shuffled), 9)], 2500, np.random.default_rng(1))
+    assert abs(b["order"]) < 0.05
+    code = {w: f"x{i:03d}q" for i, w in enumerate(sorted(set(words)))}
+    recoded = order_stats([[code[w] for w in ln] for ln in lines], 2500, np.random.default_rng(1))
+    assert recoded["order"] == pytest.approx(a["order"])  # kod defteri sırayı korur
+    assert order_stats(lines[:10], 2500, rng) is None
+
+
+def test_word_families_and_noise_helpers():
+    fam = word_families(["daiin"] * 5 + ["dain"] * 3 + ["aiin"] * 2 + ["saiin", "chol", "chol", "okeey"])
+    assert fam["dain"] == fam["aiin"] == fam["saiin"] == fam["daiin"] == "daiin"
+    assert fam["chol"] == "chol" and fam["okeey"] == "okeey"
+    rng = np.random.default_rng(0)
+    assert spelling_noise(TEXT[:200], 0.0, rng) == TEXT[:200]
+    noisy = spelling_noise(TEXT[:2000], 1.0, rng)
+    assert sum(a != b for a, b in zip(noisy, TEXT)) > 0.9 * len(TEXT)  # hemen hepsi değişir
+    same = homophonic(TEXT[:2000], 0.0, 2, rng)  # eşsesli yok: bire bir ikame
+    assert len(set(same)) == len(set(TEXT[:2000])) and [len(w) for w in same] == [len(w) for w in TEXT[:2000]]
+    assert len(set(homophonic(TEXT[:2000], 1.0, 3, rng))) > 3 * len(set(TEXT[:2000]))
+
+
+def test_degradation_scan_reports_joint_fit():
+    rng = np.random.default_rng(0)
+    words = _ordered_text(rng, 20000 + 2 * 400 + 400)
+    bands = {
+        "type_ratio": (0.0, 99.0), "order": (float("-inf"), 99.0),
+        "ttr": (0.0, 1.0), "hapax": (0.0, 1.0), "ed1": (0.0, 1.0),
+    }  # fmt: skip
+    r = degradation_experiment({"Yapay": words}, bands, half=400)
+    assert len(r["rows"]) == 14  # sesli ve seslisiz, yedişer bozulma düzeni
+    assert all(row["fits_lexicon"] and row["fits_order"] and row["fits_growth"] for row in r["rows"])
+    assert all("family_order" in row for row in r["rows"])
+    tight = degradation_experiment({"Yapay": words}, bands | {"ttr": (0.9, 1.0)}, half=400)
+    assert not any(row["fits_growth"] for row in tight["rows"])
 

@@ -41,15 +41,29 @@ def _download(url: str, dest: Path) -> None:
         dest.write_bytes(r.read())
 
 
-# 15. yüzyıl dönem metinleri (İncil çevirileri modern olduğu için karşılaştırma tabanı).
-# Dosya adı: dil_eser_yaklaşık-yıl. Kaynak ya Latin Library sayfa listesi ya da
-# Wikisource alt sayfa öneki (isteğe bağlı başlık süzgeciyle).
+# Karşılaştırma metinleri. İki amaç: (1) dönem denetimi, çünkü İncil çevirileri
+# modern; (2) tür denetimi, çünkü Voynich'in çizimleri bitki, ilaç ve tarif
+# türünü düşündürüyor ve "liste gibi" metinlerde kelime sırası zayıf olabilir.
+# Dosya adı: dil_eser_tür-ya-da-yıl. Kaynak: Latin Library sayfa listesi,
+# Wikisource alt sayfa öneki (isteğe bağlı başlık süzgeciyle) ya da Wikisource sayfa listesi.
+_PLINY_BOOKS = ["XX", "XXI", "XXII", "XXIII", "XXIV", "XXV", "XXVI", "XXVII"]
 PERIOD_TEXTS: dict[str, dict] = {
     "latin_kempis_1420": {
         "latin_library": [f"kempis/kempis{i}.shtml" for i in range(1, 5)],
     },
     "italian_alberti_1440": {"wikisource": ("it", "I libri della famiglia/", None)},
     "spanish_celestina_1499": {"wikisource": ("es", "La Celestina (1913)/", "aucto")},
+    # Tür denetimi: tarif, tarım, bitki ve ilaç.
+    "italian_cennini_tarif_1400": {"wikisource": ("it", "Il libro dell'arte/Capitolo", None)},
+    "latin_apicius_tarif": {"latin_library": [f"apicius/apicius{i}.shtml" for i in range(1, 6)]},
+    "latin_cato_tarim": {"latin_library": ["cato/cato.agri.html"]},
+    "latin_pliny_bitki": {
+        "wikisource_pages": ("la", [f"Naturalis Historia/Liber {b}" for b in _PLINY_BOOKS]),
+    },
+    "latin_celsus_ilac": {
+        "wikisource_pages": ("la", ["De medicina (Celsus)/V", "De medicina (Celsus)/VI"]),
+    },
+    "latin_macer_bitki": {"wikisource_pages": ("la", ["De viribus herbarum"])},
 }
 _UA = {"User-Agent": "fetch/1.0"}
 _TAG_BLOCK = re.compile(r"<(style|script)[^>]*>.*?</\1>", re.S)
@@ -89,15 +103,21 @@ def _period_text(spec: dict) -> str:
             for path in spec["latin_library"]
         ]
         return "\n\n".join(_html_to_text(p) for p in pages)
-    site, prefix, must = spec["wikisource"]
-    titles: list[str] = []
-    cont: dict = {}
-    while True:
-        d = _wikisource(site, action="query", list="allpages", apprefix=prefix, aplimit=200, apnamespace=0, **cont)
-        titles += [p["title"] for p in d["query"]["allpages"]]
-        if "continue" not in d:
-            break
-        cont = {"apcontinue": d["continue"]["apcontinue"]}
+    if "wikisource_pages" in spec:
+        site, titles = spec["wikisource_pages"]
+        must = None
+    else:
+        site, prefix, must = spec["wikisource"]
+        titles = []
+        cont: dict = {}
+        while True:
+            d = _wikisource(
+                site, action="query", list="allpages", apprefix=prefix, aplimit=500, apnamespace=0, **cont
+            )
+            titles += [p["title"] for p in d["query"]["allpages"]]
+            if "continue" not in d:
+                break
+            cont = {"apcontinue": d["continue"]["apcontinue"]}
     parts = []
     for title in titles:
         if must is not None and must not in title.lower():

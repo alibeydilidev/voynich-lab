@@ -72,7 +72,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | `abc.py` | Rejection ABC: her sınıf Voynich'e en fazla ne kadar yaklaşıyor, neyi tutturamıyor, hangi ayarlarla. Mesafe birimi Voynich'in kendi pencereleri arası değişkenlik |
 | `search.py` | Yönlendirilmiş arama: ABC'nin en yakın örneklerinin ayarlarından başlar, önsel sınırları içinde oynatır, sonucu taze örneklerle ölçer. Sonsal dağılım vermez; "bu hipotezin Voynich'ten ayırt edilemeyen bir ayar bölgesi var mı" sorusunu yanıtlar |
 | `manuscripts.py` | El yazması düzeyinde karşılaştırma: aday = ayarlar + tohum, tek tablodan 16 pencere, 8'i seçim 8'i doğrulama. İstatistik T (standart hataya bölünmüş ortalama farkı; Voynich'in kendi yarıları için yaklaşık 1), yayılım oranı (iç değişkenlik) ve büyüme profili (yarı başına 16 bin kelimede tür/kelime, hapax/tür, ed1 oranı). Asıl hüküm buradan verilir |
-| `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor), homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) ve sözlük sınaması (kelimeler sınırlı bir sözlükten mi geliyor; üretece ve önsele dayanmaz) |
+| `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor), homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) sözlük sınaması (kelimeler sınırlı bir sözlükten mi geliyor), sıra sınaması (kelimelerin sırası görülmemiş metinde bilgi taşıyor mu) ve bozulma taraması (gerçek dil hangi bozulma altında Voynich gibi görünür). Son üçü üretece ve önsele dayanmaz |
 | `probe.py` | Ön sınama (bekçi): bir mekanizmayı birkaç el yazmasında saniyeler içinde ölçer (büyüme ölçüleri ve seçilmiş pencere feature'ları), Voynich ile yan yana koyar. Eleme aracıdır, hüküm aracı değildir |
 | `cli.py`, `fetch.py` | Komut satırı ve indirme. `fetch` dönem metinlerini de indirir; Wikisource hız sınırı koyduğu için istekler arası 4 sn bekler ve 429 gelirse söylenen süre kadar bekleyip yeniden dener (ilk indirme ~3 dk) |
 
@@ -277,7 +277,7 @@ VL-012'de yazılan dört sınırın durumu:
 
 ## v0.13 bulguları: rastgele glif otomatı sınandı, öngörünün yarısı tuttu (2026-11-24, seed 7, pencere 2000)
 
-Rapor: `results/manuscripts.md` (dokuz sınıf, sınıf başına 2000 el yazması). Eklenen: `automaton` sınıfı. Ön sınama ve öngörü v0.12 bölümünde, zincirden önce yazıldı.
+Tarihçe (`7a86eab`); el yazması tablosu hâlâ geçerli. Rapor: `results/manuscripts.md` (dokuz sınıf, sınıf başına 2000 el yazması). Eklenen: `automaton` sınıfı. Ön sınama ve öngörü v0.12 bölümünde, zincirden önce yazıldı.
 
 - **Tutan yarı:** büyüme profiline uyan `automaton` el yazması sayısı 88 ila 112 (2000'de); `slotgram` 29 ila 35, `slotcite` 16 ila 36, `grille` 2 ila 15. Anlamsız metin üreteçleri içinde en yükseği; yalnız `abjad` daha yüksek (105 ila 335).
 - **Tutmayan yarı:** uyanlar içinde en iyi doğrulama T'si 6.1 ila 8.9; hiçbir görünümde 5'in altına inmedi. Yalnız pencere profiline göre seçilenlerde T medyanı 6.9 ila 8.5 (`grille` 5.2 ila 6.7). Otomat da iki ölçütü birleştiremiyor.
@@ -285,6 +285,47 @@ Rapor: `results/manuscripts.md` (dokuz sınıf, sınıf başına 2000 el yazmas�
 - **Sözlük sınamasında otomat Voynich ile aynı imzayı veriyor:** 30 örnekte tür oranı 0.89 ila 1.03 (medyan 0.98), yeni kelime oranı medyan 0.93; 24 örnek Voynich aralığında (sınıflar içinde en yüksek; `slotgram` 13).
 - **Ortak ölçütte sıralama** (büyümeye uyanlar içinde en iyi T): `slotcite` 5.1 ila 12.7, `slotgram` 5.5 ila 9.9, `automaton` 6.1 ila 8.9, `grille` 6.5 ila 23.1, `verbose` 6.8 ila 13.7, `abjad` 7.2 ila 13.6, `plain` 7.3 ila 11.9, `selfcite` 11.8 ila 30.6, `codebook` uyan yok. Referans 1.5. Dokuz hipotezin hiçbiri Voynich'i üretemiyor.
 - **Sınıflandırıcı raporu (yardımcı):** CV 0.922; kararı anlamsız metin sınıfları arasında bölünüyor.
+
+## v0.14 bulguları: kelime sırası, bozulma taraması ve hedef hakkında hüküm (2026-11-25, seed 7)
+
+Güncel durum budur. Rapor: `results/checks.md` (dördüncü ve beşinci bölüm). Üreteçler değişmedi; `results/manuscripts.md` ve `results/report.md` v0.13 ile aynı.
+
+Eklenen: `checks` içine sıra deneyi (`order_stats`), kelime aileleri (`word_families`), bozulma taraması (`degradation_experiment`); tür denetimi metinleri; Wikisource üst bilgisi temizliği.
+
+### Kelime sırası sınaması
+
+Yöntem üretece ve önsele dayanmaz. İlk 16 bin kelimeden kelime ikilisi modeli öğrenilir; görülmemiş sonraki 16 bin kelimede, tek kelime sıklığına göre kelime başına kaç bit kazandırdığı ölçülür; aynı ölçüm satır içi karıştırılmış metinde tekrarlanır ve fark alınır.
+
+- **Voynich'te kelime sırası bilgi taşımıyor.** Beş görünüm: -0.008 ila +0.020 bit/kelime. Karışım ağırlığı eğitim yarısında 0.05 ila 0.1 seçiliyor, yani model sıranın işe yaramadığını kendisi buluyor.
+- **Her doğal dil metninde taşıyor.** 22 dil: en az 0.165 (Macarca), medyan 0.522, en çok 0.963. Dönem ve tür metinleri: Kempis 0.180, Plinius (bitki) 0.221, Celestina 0.253, Alberti 0.294, Cennini (tarif, yaklaşık 1400) 0.832. Voynich, en düşük doğal dil metninin sekizde birinden az.
+- **"Liste gibi metin" itirazı tutmuyor.** Tarif ve ilaç metinlerinde sıra bilgisi düşük değil, yüksek (kalıplaşmış ifadeler): 3500 kelimelik yarıyla Celsus 0.806, Apicius 0.615, Cennini 0.501, Macer 0.326. Aynı boyda Voynich 0.000 ila 0.011, bölümleri (Currier A ve B, bitki, yıldız) 0.000 ila 0.005; 22 dilin en düşüğü 0.132. Bu boyda en düşük gerçek metinler Kempis 0.057 ve Cato 0.074; boy küçüldükçe ayrım daralıyor ama kapanmıyor.
+- **Üreteçler:** bağımsız kelime çekenler sıfır (`automaton` 20/20, `slotgram` 19/20, `selfcite` 18/20, `slotcite` 16/20 örnek 0.04'ün altında). `grille` çok yüksek (medyan 1.33; tablo döngüsü). Dil tabanlılar: `verbose` medyan 0.204, `codebook` medyan 0.251; ikisinde de 20 örnekten 2 ve 3'ü 0.04'ün altında (yazıcı katmanındaki harf çeşitlemeleri kelime kimliğini bozduğunda).
+- **Aile düzeyinde** (kelime türleri "bir harf farklı" ailelerine toplanınca) Voynich +0.017 ila +0.032: sıfırdan büyük ama çok küçük.
+
+### Bozulma taraması: sınamaların eleyemediği tek dil ihtimali
+
+Soru: gerçek bir dil metni hangi bozulma altında sözlük, sıra ve büyüme ölçülerinde birden Voynich gibi görünür? 287 düzen (22 dil; sesli ve seslisiz; kelimelerin 0.3, 0.6, 0.9'unun bir harf farklı yazılması; harflerin bir bölümünün 2 ya da 3 eşseslisi).
+
+- **Kelime sınırı hatası açıklamıyor** (ayrı deneme): boşlukların %40'ı yanlış olsa bile sıra bilgisi 0.15 ila 0.25 kalıyor.
+- **Sesli yazımda üçü birden tutmuyor.** 154 düzenden 54'ü sözlük ve sırayı tutturuyor, ama hepsinde dağarcık Voynich'inkinden çok daha hızlı büyüyor (tür/kelime en az 0.44; Voynich 0.25 ila 0.30).
+- **Üçünü birden tutturan 25 düzenin hepsi seslisiz yazım + yoğun yazım çeşitlemesi** (21'i kelimelerin 0.3 ila 0.9'u bir harf farklı, 4'ü eşsesli yazım). Bu düzenlerde kelimeler çok kısa (ortalama 2.3 ila 3.1 harf; Voynich 3.8 ila 4.9 glif) ve aile düzeyinde bile sıra bilgisi geri gelmiyor (-0.014 ila +0.002). Yani dil bilgisi istatistik olarak görünmez hâle geliyor.
+
+### Hüküm
+
+Üretece dayanmayan üç ölçüm (sözlük, sıra, büyüme) birlikte şunu söylüyor. Voynich şunlardan biri gibi davranmıyor:
+
+1. Alfabeyle (sesli ya da seslisiz) bire bir yazılmış doğal dil: sözlük sınaması ve sıra sınaması ayrı ayrı eliyor.
+2. Kelime sırası korunmuş kelime kelime kodlama: kelime kimliği korunduğu için kaynak dilin sıra bilgisini taşır (22 dilde en az 0.165); Voynich'te yok.
+3. Kelimesi düz metnin harfi ya da hecesi olan yazım: komşu parçalar arasında güçlü bağ olur (`verbose` medyan 0.204); Voynich'te yok.
+
+Sınamaların eleyemediği iki ihtimal kalıyor:
+
+- **A. Anlam taşımayan üretim:** kelimeler harf dizilişi kurallarından, sözlüksüz ve birbirinden bağımsız (ya da zayıf bağlı) üretilmiş. `automaton`, `slotgram`, `slotcite`, `selfcite` bu türden; hiçbiri Voynich'i tam üretemiyor (v0.13), ama üç ölçümde de Voynich ile aynı tarafta duruyorlar.
+- **B. Dil bilgisinin istatistik olarak silindiği yazım:** örneğin kısa ünsüz iskeletleri ve kelimelerin çoğunda yazım çeşitlemesi, ya da kelime sırasını ve kelime kimliğini bilerek bozan bir şifre.
+
+**Hedef açısından sonuç.** Birincil amaç "toplulukça kabul edilebilir ve kanıtlanabilir tercüme" idi. A doğruysa tercüme edilecek bir şey yok. B doğruysa, önerilen hiçbir tercüme çözme kapısındaki sınavlardan geçemez: boş sınav (aynı yöntem karıştırılmış metinde anlam çıkarmamalı) geçilemez, çünkü Voynich'in kendisi kelime sırası bakımından karıştırılmış metinden ayırt edilemiyor; sözlüğe dayalı doğrulama yapılamaz, çünkü kelimeler bir sözlük kısıtı göstermiyor. Yani iki durumda da amaca istatistik yoldan ulaşılamaz. Bu bir kanıt değil, ölçüme dayalı güçlü bir gerekçedir; sınırları aşağıda.
+
+**Sınırlar (dışarıya söylenmeden önce):** (1) 22 modern dil ve 6 dönem ya da tür metni; Semitik ve Türk dilleri için dönem metni yok. (2) Kelime sınırı Takahashi, v101 ve ZL okumalarındaki gibi alındı; belirsiz boşlukların tersi koşulmadı (VL-005). (3) Sıra ölçümü komşu iki kelimeye bakıyor; daha uzak bağlar (aynı sayfada tekrar, konu kümelenmesi) ölçülmedi ve literatürde Voynich için bildirilmiş. (4) Literatür taraması yapılmadı; bu ölçümlerin benzerleri daha önce yayımlanmış olabilir. (5) "B" ihtimali ancak dışarıdan bilgiyle (anahtar, eşleşen bir kaynak metin) sınanabilir.
 
 ## Yol haritası (öncelik sırasıyla)
 
@@ -294,7 +335,7 @@ Rapor: `results/manuscripts.md` (dokuz sınıf, sınıf başına 2000 el yazmas�
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). Sözlük sınaması genişletildi (v0.12); rastgele glif otomatı sınandı, yarısı tuttu (v0.13). **Sıradaki:** (a) kelime sırası sınaması ve bozulma taraması (üretece dayanmayan ölçümler); (b) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). Sözlük sınaması genişletildi (v0.12); rastgele glif otomatı sınandı, yarısı tuttu (v0.13). Kelime sırası sınaması ve bozulma taraması yapıldı (v0.14). **Sıradaki:** (a) literatür taraması (bu ölçümler yeni mi); (b) uzak mesafeli bağlar ve belirsiz boşluk duyarlılığı; (c) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
 3. **Dönem metinleri.** Üç metin eklendi (v0.12: Latince, İtalyanca, İspanyolca; yalnız sözlük sınamasında kullanılıyor). Eksik: Almanca, İbranice, tıbbi ve botanik tür; dönem metinlerinin üreteçlere kaynak olarak bağlanması (`corpus.load_all` yalnız İncil okuyor).
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.
@@ -317,6 +358,6 @@ Rapor: `results/manuscripts.md` (dokuz sınıf, sınıf başına 2000 el yazmas�
 - Zandbergen ve Landini (ZL), IVTFF 2.0: `voynich.nu/data/ZL3b-n.txt` (sürüm 3b, 13/05/2025). Aynı dizinde Currier dili, el ve çizim türü sayfa değişkenleri olarak hazır (yol haritası 5 için).
 - Claston v101: `musyoku/voynich-transcription` (GitHub)
 - İncil korpusu: `christos-c/bible-corpus` (GitHub)
-- Dönem metinleri (`data/raw/period/`): Thomas à Kempis, De imitatione Christi (Latince, yaklaşık 1420; The Latin Library, 41.9 bin kelime); Leon Battista Alberti, I libri della famiglia (İtalyanca, yaklaşık 1440; it.wikisource, 120.8 bin kelime); Fernando de Rojas, La Celestina (İspanyolca, 1499, 1913 baskısı eski yazımı koruyor; es.wikisource, yalnız "aucto" sayfaları, 65.0 bin kelime). Sayfa başlığı ve gezinme metni temizlenmedi (payı küçük); dipnotlar atıldı. Project Gutenberg 2026-11-24'te bakımdaydı, oradan metin alınamadı.
+- Dönem ve tür metinleri (`data/raw/period/`). Tür denetimi için: Cennino Cennini, Il libro dell'arte (İtalyanca zanaat tarifleri, yaklaşık 1400; it.wikisource, 189 bölüm, temiz 39.1 bin kelime); Apicius (Latince yemek tarifleri, 7.7 bin); Cato, De agri cultura (15.7 bin); Plinius, Naturalis historia 20 ila 27 (bitki ilaçları, 78.4 bin); Celsus, De medicina 5 ve 6 (ilaç tarifleri, 30.2 bin); Macer Floridus, De viribus herbarum (ortaçağ bitki kitabı, 14.3 bin). Wikisource sayfalarının tekrarlanan üst bilgisi yükleme sırasında atılır (`corpus._strip_page_boilerplate`); atılmazsa kelime sırası ölçümlerini şişirir (Cennini'de 53 bin kelimenin 14 bini üst bilgiydi). Dönem denetimi için: Thomas à Kempis, De imitatione Christi (Latince, yaklaşık 1420; The Latin Library, 41.9 bin kelime); Leon Battista Alberti, I libri della famiglia (İtalyanca, yaklaşık 1440; it.wikisource, 120.8 bin kelime); Fernando de Rojas, La Celestina (İspanyolca, 1499, 1913 baskısı eski yazımı koruyor; es.wikisource, yalnız "aucto" sayfaları, 65.0 bin kelime). Sayfa başlığı ve gezinme metni temizlenmedi (payı küçük); dipnotlar atıldı. Project Gutenberg 2026-11-24'te bakımdaydı, oradan metin alınamadı.
 
 Ham veri depoya girmez, `fetch` ile yeniden üretilir.

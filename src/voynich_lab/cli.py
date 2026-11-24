@@ -274,12 +274,17 @@ def cmd_checks(args: argparse.Namespace) -> None:
     from .abc import voynich_features
     from .checks import (
         evaize_experiment,
+        degradation_experiment,
         homogeneity_experiment,
         lexicon_experiment,
+        order_experiment,
+        render_degradation,
         render_homogeneity,
         render_lexicon,
         render_markdown,
+        render_order,
     )
+    from .manuscripts import voynich_growth
     from .corpus import load_period
     from .search import _corpora
     from .transliteration import ivtff_page_variables, load_ivtff, load_views
@@ -293,24 +298,57 @@ def cmd_checks(args: argparse.Namespace) -> None:
     # Voynich bölümleri: ZL dosyasındaki sayfa değişkenlerinden (Currier dili ve çizim türü).
     zl = Path(args.raw) / "zl_ivtff.txt"
     sections: dict[str, list[str]] = {}
+    section_lines: dict[str, list[list[str]]] = {}
     if zl.exists():
         pages = ivtff_page_variables(zl)
         for ln in load_ivtff(zl, "glyph"):
             v = pages.get(ln.folio, {})
+            names = []
             if v.get("L") in ("A", "B"):
-                sections.setdefault(f"Currier {v['L']} (zl_glyph)", []).extend(ln.words)
+                names.append(f"Currier {v['L']} (zl_glyph)")
             if "I" in v:
-                sections.setdefault(f"çizim türü {v['I']} (zl_glyph)", []).extend(ln.words)
+                names.append(f"çizim türü {v['I']} (zl_glyph)")
+            for name in names:
+                sections.setdefault(name, []).extend(ln.words)
+                section_lines.setdefault(name, []).append(ln.words)
     period_dir = Path(args.raw) / "period"
+    period = load_period(period_dir) if period_dir.exists() else None
+    corpora = _corpora(args.raw)
     lexicon = lexicon_experiment(
         {name: [w for ln in lines for w in ln.words] for name, lines in views.items()},
-        _corpora(args.raw),
-        period=load_period(period_dir) if period_dir.exists() else None,
+        corpora,
+        period=period,
         sections=dict(sorted(sections.items())),
     )
+    order = order_experiment(
+        {name: [ln.words for ln in lines] for name, lines in views.items()},
+        corpora,
+        period=period,
+        sections=dict(sorted(section_lines.items())),
+    )
+    # Voynich bantları: beş görünümün ölçülen aralığı, küçük bir payla.
+    half = args.ms_windows // 2
+    growth = [g for lines in views.values() for g in voynich_growth(lines, args.window, half)]
+    ratios = [r["type_ratio_k2"] for r in lexicon["voynich"].values()]
+    orders = [r["order"] for r in order["voynich"].values() if r is not None]
+    bands = {
+        "type_ratio": (min(ratios) - 0.06, max(ratios) + 0.06),
+        "order": (float("-inf"), max(orders) + 0.02),
+        "ttr": (min(g[0] for g in growth) - 0.05, max(g[0] for g in growth) + 0.05),
+        "hapax": (min(g[1] for g in growth) - 0.05, max(g[1] for g in growth) + 0.05),
+        "ed1": (min(g[2] for g in growth) - 0.05, max(g[2] for g in growth) + 0.05),
+    }
+    degradation = degradation_experiment(corpora, bands)
+    degradation["bands"]["order"][0] = None  # alt sınır yok; JSON'da sonsuz yazılmaz
     (out / "checks.json").write_text(
         json.dumps(
-            {"evaize": evaized, "homogeneity": homogeneity, "lexicon": lexicon},
+            {
+                "evaize": evaized,
+                "homogeneity": homogeneity,
+                "lexicon": lexicon,
+                "order": order,
+                "degradation": degradation,
+            },
             indent=2,
             ensure_ascii=False,
         ),
@@ -322,6 +360,10 @@ def cmd_checks(args: argparse.Namespace) -> None:
         + render_homogeneity(homogeneity)
         + "\n"
         + render_lexicon(lexicon)
+        + "\n"
+        + render_order(order)
+        + "\n"
+        + render_degradation(degradation)
     )
     (out / "checks.md").write_text(md, encoding="utf-8")
     print(md)

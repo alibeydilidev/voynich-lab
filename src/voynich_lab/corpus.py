@@ -72,16 +72,36 @@ def load_bible(path: str | Path) -> list[str]:
     return words
 
 
-def load_period(period_dir: str | Path) -> dict[str, list[str]]:
-    """Dönem metinleri: {dosya adı: kelimeler}. Dosyalar `fetch` ile gelen düz metinlerdir.
+_PAGE_MARK = re.compile(r"\[p\.\s*\d+\s*modifica\s*\]|<dc:[^>]*>[^<]*</dc:[^>]*>")
 
-    Baştaki ve sondaki birkaç yüz kelime (sayfa başlığı, gezinme bağlantıları)
-    atılmaz; 30 bin kelimenin üstündeki metinde payları ihmal edilebilir.
+
+def _strip_page_boilerplate(page: str) -> str:
+    """Wikisource sayfasının başındaki üst bilgiyi ve sayfa içi işaretleri atar.
+
+    Çok sayfalı metinlerde her sayfa aynı üst bilgiyle başlar (başlık, lisans,
+    gezinme okları). Temizlenmezse aynı kelime dizisi yüzlerce kez tekrar eder
+    ve kelime sırası ölçümlerini şişirir. Üst bilgi, sayfanın başındaki son
+    gezinme okuna ("►" ya da "→") kadar olan kısımdır.
+    """
+    head = page[:1500]
+    cut = max(head.rfind("►"), head.rfind("→"))
+    if cut >= 0:
+        page = page[cut + 1 :]
+    return _PAGE_MARK.sub(" ", page)
+
+
+def load_period(period_dir: str | Path) -> dict[str, list[str]]:
+    """Dönem ve tür metinleri: {dosya adı: kelimeler}. Dosyalar `fetch` ile gelen düz metinlerdir.
+
+    Sayfalar dosyada boş satırla ayrılır; her sayfanın üst bilgisi atılır. 7 bin
+    kelimeden kısa metinler alınmaz. Kısa metinler yalnız küçük yarı boyuyla
+    yapılan ölçümlere girer; uzun metin isteyen ölçümler onları kendisi atlar.
     """
     out = {}
     for p in sorted(Path(period_dir).glob("*.txt")):
-        words = normalize(p.read_text(encoding="utf-8", errors="replace"))
-        if len(words) > 30_000:
+        pages = p.read_text(encoding="utf-8", errors="replace").split("\n\n")
+        words = [w for page in pages for w in normalize(_strip_page_boilerplate(page))]
+        if len(words) > 7_000:
             out[p.stem] = words
     return out
 
