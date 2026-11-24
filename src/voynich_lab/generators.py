@@ -16,6 +16,8 @@ Anlamsız metin üreteçleri gerçek metne ihtiyaç duymaz:
              hecesini değiştirerek ilerler
   slotgram : çok yuvalı kelime grameri. Kelime 3 ila 8 sıralı, seçmeli yuvadan
              kurulur; isteğe bağlı olarak yerel kopyalama da yapar
+  automaton: rastgele kurulmuş katmanlı glif otomatı. Her kelime, gliften glife
+             bağımsız bir yürüyüştür; sözlük yoktur
 
 Bunlar bilinçli olarak basit v0 sürümleri. Hattın bilimsel değeri bu
 üreteçlerin aslına sadakatine bağlı, asıl geliştirme alanı burası.
@@ -191,6 +193,14 @@ LAYOUT_PRIOR: dict[str, tuple[float, float, str]] = {
     "l_para_initial_p": (0.3, 1.0, "m"),
 }
 PROCESS_PRIOR: dict[str, dict[str, tuple[float, float, str]]] = {
+    "automaton": {
+        "p_alphabet": (15, 25, "i"),
+        "p_levels": (3, 8, "i"),
+        "p_out_degree": (2, 8, "i"),
+        "p_concentration": (0.2, 3.0, "f"),
+        "p_stay": (0, 1, "f"),
+        "p_end_from": (1, 3, "i"),
+    },
     "plain": {},
     "abjad": {},
     "verbose": {
@@ -1077,6 +1087,82 @@ def slotgram(
     return _cite_text(inv, weights, p_copy, p_exact, reach, p_same_line, cut, mean_len, n_words, layout, rng)
 
 
+def automaton(
+    n_words: int,
+    rng: np.random.Generator,
+    layout: Layout | None = None,
+    rec: dict | None = None,
+    fixed: dict | None = None,
+) -> Lines:
+    """Rastgele kurulmuş katmanlı glif otomatı: her kelime bağımsız bir yürüyüş.
+
+    v0.11 sözlük sınamasından doğan hipotez: Voynich'in dağarcığı, kelime içi
+    glif geçişlerinden serbestçe üretilen kelimelerle aynı büyüklükte. Burada
+    geçiş yapısı Voynich'ten öğrenilmez, önselden çekilir: glifler katmanlara
+    dağıtılır (kelimenin başından sonuna doğru sıralı konum sınıfları), her
+    glif aynı ya da sonraki iki katmandaki birkaç glife gidebilir, belli bir
+    katmandan sonra kelime bitebilir. Tablo ya da sözlük yoktur; olası kelime
+    kümesi sınırsız değil ama çok büyüktür ve seyrek kullanılır.
+
+    Örnek başına rastgele: glif ve katman sayısı, glif başına çıkış sayısı,
+    geçiş ağırlıklarının yoğunlaşması (küçükse birkaç geçiş baskın), aynı
+    katmanda kalmaya izin verilen kenar payı, kelimenin bitebildiği ilk katman.
+    Komşu kelimeler arasında bağ yoktur.
+    """
+    k = Knobs(fixed, rec)
+    n_glyphs = int(k.get("p_alphabet", lambda: int(rng.integers(15, 26))))
+    n_levels = int(k.get("p_levels", lambda: int(rng.integers(3, 9))))
+    out_deg = int(k.get("p_out_degree", lambda: int(rng.integers(2, 9))))
+    conc = float(k.get("p_concentration", lambda: float(np.exp(rng.uniform(np.log(0.2), np.log(3.0))))))
+    p_stay = float(k.get("p_stay", lambda: float(rng.uniform(0, 1))))
+    end_from = min(
+        int(k.get("p_end_from", lambda: int(rng.integers(1, 4)))), n_levels - 1
+    )
+
+    glyphs = _symbols(n_glyphs)
+    level = rng.integers(0, n_levels, n_glyphs)
+    level[:n_levels] = np.arange(n_levels)  # boş katman kalmasın
+    level = np.sort(level)
+    by_level = [[i for i in range(n_glyphs) if level[i] == lv] for lv in range(n_levels)]
+    starts = [i for i in range(n_glyphs) if level[i] <= 1]
+    start_cum = np.cumsum(rng.dirichlet(np.full(len(starts), conc)))
+    trans: list[tuple[list[int], np.ndarray]] = []
+    for i in range(n_glyphs):
+        cand: list[int] = []
+        for lv in range(int(level[i]), min(n_levels, int(level[i]) + 3)):
+            for j in by_level[lv]:
+                if lv == level[i] and (j == i or rng.random() > p_stay):
+                    continue
+                cand.append(j)
+        cand = [int(j) for j in rng.permutation(cand)][:out_deg] if cand else []
+        opts = cand + ([-1] if level[i] >= end_from or not cand else [])  # -1: kelime biter
+        trans.append((opts, np.cumsum(rng.dirichlet(np.full(len(opts), conc)))))
+
+    block = 8192
+    uniforms = iter(())
+
+    def u() -> float:
+        nonlocal uniforms
+        v = next(uniforms, None)
+        if v is None:
+            uniforms = iter(rng.random(block).tolist())
+            v = next(uniforms)
+        return v
+
+    words: list[str] = []
+    while len(words) < n_words:
+        i = starts[min(int(np.searchsorted(start_cum, u(), side="right")), len(starts) - 1)]
+        w = glyphs[i]
+        while len(w) < 12:
+            opts, cum = trans[i]
+            i = opts[min(int(np.searchsorted(cum, u(), side="right")), len(opts) - 1)]
+            if i < 0:
+                break
+            w += glyphs[i]
+        words.append(w)
+    return lay_out(words, rng, layout, rec)
+
+
 LANGUAGE_PROCESSES: dict[str, Callable[..., Lines]] = {
     "plain": plain,
     "abjad": abjad,
@@ -1088,4 +1174,5 @@ GIBBERISH_PROCESSES: dict[str, Callable[..., Lines]] = {
     "selfcite": selfcite,
     "slotcite": slotcite,
     "slotgram": slotgram,
+    "automaton": automaton,
 }

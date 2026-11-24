@@ -1,38 +1,38 @@
 # ABC raporu: her hipotez Voynich'e ne kadar yaklaşabiliyor
 
-Sentetik örnek: 69200. Her sınıfta Voynich'e en yakın %1 kabul edildi.
+Sentetik örnek: 78000. Her sınıfta Voynich'e en yakın %1 kabul edildi.
 
 Mesafe birimi Voynich'in kendi pencereleri arasındaki değişkenliktir. "Voynich öz mesafesi" bir Voynich penceresinin diğerlerinin ortalamasına uzaklığıdır; bir hipotezin mesafesi bu aralığa girmiyorsa o hipotez Voynich'i (bu feature kümesinde) üretemiyor demektir.
 
 ## 1. Kabul edilen örneklerin medyan mesafesi
 
-| görünüm | Voynich öz mesafesi (medyan, en çok) | abjad | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
-|---|---|---|---|---|---|---|---|---|---|
-| eva_basic | 0.91, 1.65 | 6.18 | 4.76 | 2.86 | 5.36 | 4.48 | 3.10 | 3.36 | 4.06 |
-| eva_glyph | 0.96, 1.64 | 4.04 | 4.31 | 2.54 | 4.13 | 3.53 | 2.84 | 2.93 | 3.59 |
-| v101 | 0.97, 1.42 | 3.27 | 3.94 | 2.60 | 3.05 | 3.83 | 2.96 | 2.83 | 3.41 |
-| zl_basic | 0.96, 1.52 | 5.40 | 4.77 | 2.47 | 4.66 | 3.94 | 2.62 | 2.97 | 3.37 |
-| zl_glyph | 1.03, 1.43 | 3.61 | 4.04 | 2.15 | 3.76 | 3.10 | 2.27 | 2.49 | 2.99 |
+| görünüm | Voynich öz mesafesi (medyan, en çok) | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
+|---|---|---|---|---|---|---|---|---|---|---|
+| eva_basic | 0.91, 1.65 | 6.18 | 3.70 | 4.77 | 2.86 | 5.38 | 4.49 | 3.10 | 3.37 | 4.07 |
+| eva_glyph | 0.96, 1.64 | 4.04 | 3.60 | 4.32 | 2.54 | 4.13 | 3.53 | 2.84 | 2.93 | 3.60 |
+| v101 | 0.97, 1.42 | 3.27 | 3.09 | 3.94 | 2.60 | 3.05 | 3.83 | 2.96 | 2.83 | 3.41 |
+| zl_basic | 0.96, 1.52 | 5.40 | 3.53 | 4.77 | 2.47 | 4.66 | 3.94 | 2.62 | 2.97 | 3.37 |
+| zl_glyph | 1.03, 1.43 | 3.61 | 3.19 | 4.04 | 2.15 | 3.76 | 3.10 | 2.27 | 2.49 | 2.99 |
 
 ## 2. En iyi tek örneğin mesafesi
 
-| görünüm | abjad | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
-|---|---|---|---|---|---|---|---|---|
-| eva_basic | 5.29 | 3.99 | 2.27 | 3.80 | 3.58 | 2.51 | 2.31 | 2.49 |
-| eva_glyph | 3.29 | 3.25 | 2.00 | 2.91 | 2.92 | 1.91 | 2.16 | 2.38 |
-| v101 | 2.47 | 3.25 | 1.79 | 2.10 | 2.76 | 2.08 | 2.07 | 2.47 |
-| zl_basic | 4.40 | 3.80 | 1.79 | 3.28 | 3.04 | 2.10 | 2.14 | 2.11 |
-| zl_glyph | 2.89 | 2.86 | 1.73 | 2.80 | 2.45 | 1.63 | 1.79 | 2.20 |
+| görünüm | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
+|---|---|---|---|---|---|---|---|---|---|
+| eva_basic | 5.30 | 2.65 | 3.99 | 2.27 | 3.82 | 3.58 | 2.51 | 2.31 | 2.49 |
+| eva_glyph | 3.29 | 2.67 | 3.26 | 2.00 | 2.91 | 2.92 | 1.91 | 2.17 | 2.38 |
+| v101 | 2.47 | 2.27 | 3.25 | 1.79 | 2.10 | 2.76 | 2.08 | 2.07 | 2.47 |
+| zl_basic | 4.40 | 2.64 | 3.80 | 1.79 | 3.28 | 3.04 | 2.10 | 2.14 | 2.11 |
+| zl_glyph | 2.89 | 2.61 | 2.86 | 1.73 | 2.80 | 2.45 | 1.63 | 1.79 | 2.20 |
 
 ## 3. Voynich'in en uç penceresi kadar yakın olan örneklerin oranı
 
-| görünüm | abjad | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
-|---|---|---|---|---|---|---|---|---|
-| eva_basic | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
-| eva_glyph | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
-| v101 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
-| zl_basic | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
-| zl_glyph | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
+| görünüm | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
+|---|---|---|---|---|---|---|---|---|---|
+| eva_basic | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
+| eva_glyph | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
+| v101 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
+| zl_basic | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
+| zl_glyph | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 | %0.00 |
 
 ## eva_basic: sınıf sınıf
 
@@ -74,25 +74,45 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 9
 | l_allo_per_glyph | 0.224 | 0 [0, 0] | 25 |
 | l_allo_rate | 0.0111 | 0 [0, 0] | 25 |
 
-### slotgram: medyan mesafe 3.36 (88 / 8800 örnek kabul)
+### slotgram: medyan mesafe 3.37 (88 / 8800 örnek kabul)
 
 Voynich'ten 2 birimden fazla sapan feature sayısı: 10
 
 | tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
 |---|---|---|---|
-| zipf_slope | +3.7 | -0.778 | -0.545 |
+| zipf_slope | +3.8 | -0.778 | -0.541 |
 | jsd_last | -3.4 | 0.719 | 0.558 |
-| wlen_autocorr1 | -2.7 | 0.127 | 0.022 |
+| wlen_autocorr1 | -2.8 | 0.127 | 0.021 |
 | h2_over_h1 | +2.7 | 0.524 | 0.608 |
-| h2 | +2.6 | 2.016 | 2.328 |
 | word_entropy_norm | +2.6 | 0.804 | 0.887 |
+| h2 | +2.6 | 2.016 | 2.328 |
 
 | kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
 |---|---|---|---|
-| l_allo_per_glyph | 0.24 | 0 [0, 0.0789] | 25 |
-| l_allo_rate | 0.0119 | 0 [0, 0.0044] | 25 |
+| l_allo_per_glyph | 0.24 | 0 [0, 0] | 25 |
+| l_allo_rate | 0.0119 | 0 [0, 0] | 25 |
 
-### verbose: medyan mesafe 4.06 (88 / 8800 örnek kabul)
+### automaton: medyan mesafe 3.70 (88 / 8800 örnek kabul)
+
+Voynich'ten 2 birimden fazla sapan feature sayısı: 7
+
+| tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
+|---|---|---|---|
+| jsd_first | +8.1 | 0.385 | 0.660 |
+| wlen_skew | +6.3 | 0.074 | 0.891 |
+| first_entropy_ratio | -4.9 | 0.806 | 0.718 |
+| char_double_rate | -4.8 | 0.067 | 0.000 |
+| wlen_autocorr1 | -3.4 | 0.127 | -0.004 |
+| jsd_last | -3.3 | 0.719 | 0.563 |
+
+| kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
+|---|---|---|---|
+| p_alphabet | 20 | 17 [16, 19] | 23 |
+| l_allo_per_glyph | 0.229 | 0 [0, 0] | 25 |
+| l_allo_rate | 0.0114 | 0 [0, 0] | 25 |
+| l_final_forms_share | 0.101 | 0 [0, 0.288] | 25 |
+
+### verbose: medyan mesafe 4.07 (88 / 8800 örnek kabul)
 
 Voynich'ten 2 birimden fazla sapan feature sayısı: 18
 
@@ -109,29 +129,29 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 18
 |---|---|---|---|
 | p_by_syllable | 0 | 1 [1, 1] | 87 |
 
-### selfcite: medyan mesafe 4.48 (88 / 8800 örnek kabul)
+### selfcite: medyan mesafe 4.49 (88 / 8800 örnek kabul)
 
 Voynich'ten 2 birimden fazla sapan feature sayısı: 19
 
 | tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
 |---|---|---|---|
-| h2 | +7.3 | 2.016 | 2.895 |
-| h2_over_h1 | +6.7 | 0.524 | 0.733 |
-| char_double_rate | +5.9 | 0.067 | 0.148 |
-| rep_adjacent_exact | +5.6 | 0.009 | 0.026 |
+| h2 | +7.3 | 2.016 | 2.898 |
+| h2_over_h1 | +6.8 | 0.524 | 0.735 |
+| char_double_rate | +5.8 | 0.067 | 0.147 |
+| rep_adjacent_exact | +5.7 | 0.009 | 0.026 |
 | hapax_ratio | -5.3 | 0.717 | 0.598 |
 | type_len_mean | -5.1 | 5.692 | 4.827 |
 
 | kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
 |---|---|---|---|
 | p_reach | 6 | 18 [13, 23] | 85 |
-| p_affix | 0.602 | 0.774 [0.606, 0.845] | 79 |
+| p_affix | 0.602 | 0.77 [0.601, 0.845] | 78 |
 | p_alphabet | 20 | 17 [16, 19] | 22 |
 | p_same_line | 0.149 | 0.0735 [0.0273, 0.128] | 25 |
 | l_allo_per_glyph | 0.211 | 0 [0, 0] | 25 |
 | l_allo_rate | 0.0105 | 0 [0, 0] | 25 |
 
-### codebook: medyan mesafe 4.76 (88 / 8800 örnek kabul)
+### codebook: medyan mesafe 4.77 (88 / 8800 örnek kabul)
 
 Voynich'ten 2 birimden fazla sapan feature sayısı: 12
 
@@ -139,8 +159,8 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 12
 |---|---|---|---|
 | wlen_std | -13.5 | 1.693 | 0.705 |
 | type_len_mean | -8.6 | 5.692 | 4.228 |
-| vocab_ed1_density | +6.7 | 0.823 | 0.989 |
-| wlen_frac_le2 | -5.6 | 0.077 | 0.011 |
+| vocab_ed1_density | +6.7 | 0.823 | 0.990 |
+| wlen_frac_le2 | -5.6 | 0.077 | 0.012 |
 | wlen_mean | -4.4 | 5.066 | 4.047 |
 | jsd_first | +4.3 | 0.385 | 0.532 |
 
@@ -153,17 +173,17 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 12
 | l_allo_per_glyph | 0.2 | 0 [0, 0.738] | 25 |
 | l_allo_rate | 0.0101 | 0 [0, 0.0823] | 25 |
 
-### plain: medyan mesafe 5.36 (88 / 8800 örnek kabul)
+### plain: medyan mesafe 5.38 (88 / 8800 örnek kabul)
 
 Voynich'ten 2 birimden fazla sapan feature sayısı: 20
 
 | tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
 |---|---|---|---|
-| eff_symbols | +10.9 | 14.240 | 17.797 |
+| eff_symbols | +11.1 | 14.240 | 17.797 |
 | h1 | +9.0 | 3.845 | 4.056 |
 | h2 | +8.2 | 2.016 | 3.010 |
 | h2_over_h1 | +7.0 | 0.524 | 0.742 |
-| n_symbols | +6.1 | 19.562 | 27.000 |
+| n_symbols | +6.2 | 19.562 | 27.000 |
 | type_len_mean | -5.7 | 5.692 | 4.714 |
 
 | kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
@@ -179,11 +199,11 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 17
 | tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
 |---|---|---|---|
 | wlen_frac_le2 | +21.3 | 0.077 | 0.323 |
-| first_entropy_ratio | +8.9 | 0.806 | 0.966 |
+| first_entropy_ratio | +9.2 | 0.806 | 0.970 |
 | wlen_frac1 | +8.7 | 0.017 | 0.114 |
-| h2_over_h1 | +7.5 | 0.524 | 0.755 |
+| h2_over_h1 | +7.5 | 0.524 | 0.756 |
 | type_len_mean | -7.4 | 5.692 | 4.422 |
-| wlen_mean | -7.0 | 5.066 | 3.444 |
+| wlen_mean | -7.0 | 5.066 | 3.436 |
 
 | kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
 |---|---|---|---|
@@ -213,17 +233,16 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 8
 |---|---|---|---|
 | hapax_ratio | -4.5 | 0.717 | 0.617 |
 | rep_adjacent_exact | +3.2 | 0.009 | 0.019 |
-| zipf_slope | +2.9 | -0.778 | -0.594 |
-| h2 | +2.4 | 2.131 | 2.507 |
+| zipf_slope | +2.9 | -0.778 | -0.597 |
 | first_entropy_ratio | -2.4 | 0.867 | 0.814 |
-| h2_over_h1 | +2.4 | 0.556 | 0.645 |
+| h2 | +2.4 | 2.131 | 2.504 |
+| h2_over_h1 | +2.3 | 0.556 | 0.643 |
 
 | kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
 |---|---|---|---|
-| p_exact | 0.396 | 0.245 [0.167, 0.35] | 24 |
-| p_same_line | 0.248 | 0.121 [0.0549, 0.235] | 25 |
+| p_exact | 0.396 | 0.246 [0.167, 0.35] | 25 |
 | l_allo_per_glyph | 0.224 | 0 [0, 0.557] | 25 |
-| l_allo_rate | 0.0111 | 0 [0, 0.083] | 25 |
+| l_allo_rate | 0.0111 | 0 [0, 0.0819] | 25 |
 
 ### slotgram: medyan mesafe 2.93 (88 / 8800 örnek kabul)
 
@@ -231,17 +250,17 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 7
 
 | tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
 |---|---|---|---|
-| zipf_slope | +2.9 | -0.778 | -0.596 |
+| zipf_slope | +2.9 | -0.778 | -0.594 |
 | wlen_autocorr1 | -2.7 | 0.103 | 0.013 |
+| first_entropy_ratio | -2.3 | 0.867 | 0.817 |
 | vocab_ed1_density | +2.2 | 0.850 | 0.900 |
-| first_entropy_ratio | -2.2 | 0.867 | 0.817 |
 | wlen_frac1 | +2.1 | 0.017 | 0.042 |
-| jsd_last | -2.0 | 0.718 | 0.621 |
+| jsd_last | -2.1 | 0.718 | 0.619 |
 
 | kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
 |---|---|---|---|
-| l_allo_per_glyph | 0.24 | 0 [0, 0.737] | 25 |
-| l_allo_rate | 0.0119 | 0 [0, 0.0538] | 25 |
+| l_allo_per_glyph | 0.24 | 0 [0, 0.71] | 25 |
+| l_allo_rate | 0.0119 | 0 [0, 0.0442] | 25 |
 
 ### selfcite: medyan mesafe 3.53 (88 / 8800 örnek kabul)
 
@@ -263,23 +282,43 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 14
 | l_allo_per_glyph | 0.211 | 0 [0, 0.0542] | 25 |
 | l_allo_rate | 0.0105 | 0 [0, 0.00251] | 25 |
 
-### verbose: medyan mesafe 3.59 (88 / 8800 örnek kabul)
+### verbose: medyan mesafe 3.60 (88 / 8800 örnek kabul)
 
-Voynich'ten 2 birimden fazla sapan feature sayısı: 14
+Voynich'ten 2 birimden fazla sapan feature sayısı: 15
 
 | tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
 |---|---|---|---|
 | hapax_ratio | -7.0 | 0.717 | 0.561 |
 | wlen_std | +6.2 | 1.552 | 1.874 |
-| jsd_last | -4.1 | 0.718 | 0.523 |
 | wlen_autocorr1 | -4.1 | 0.103 | -0.032 |
 | wlen_skew | +4.0 | 0.183 | 0.608 |
+| jsd_last | -4.0 | 0.718 | 0.527 |
 | ttr | -3.7 | 0.443 | 0.243 |
 
 | kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
 |---|---|---|---|
 | p_by_syllable | 0 | 1 [1, 1] | 87 |
+| p_alphabet | 17 | 14 [13, 18] | 23 |
 | l_initial_forms_k | 1 | 0 [0, 3] | 25 |
+
+### automaton: medyan mesafe 3.60 (88 / 8800 örnek kabul)
+
+Voynich'ten 2 birimden fazla sapan feature sayısı: 10
+
+| tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
+|---|---|---|---|
+| jsd_first | +7.6 | 0.350 | 0.663 |
+| wlen_skew | +6.2 | 0.183 | 0.840 |
+| first_entropy_ratio | -5.3 | 0.867 | 0.749 |
+| char_double_rate | -5.2 | 0.076 | 0.000 |
+| wlen_autocorr1 | -2.9 | 0.103 | 0.006 |
+| n_symbols | -2.7 | 25.250 | 22.000 |
+
+| kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
+|---|---|---|---|
+| l_allo_per_glyph | 0.229 | 0 [0, 0.306] | 25 |
+| l_allo_rate | 0.0114 | 0 [0, 0.0325] | 25 |
+| l_final_forms_share | 0.101 | 0 [0, 0.268] | 25 |
 
 ### abjad: medyan mesafe 4.04 (76 / 7600 örnek kabul)
 
@@ -304,20 +343,20 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 17
 
 | tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
 |---|---|---|---|
-| h1 | +9.0 | 3.832 | 4.077 |
-| eff_symbols | +8.5 | 14.404 | 18.384 |
-| h2 | +6.9 | 2.131 | 3.207 |
-| h2_over_h1 | +6.0 | 0.556 | 0.782 |
+| h1 | +8.9 | 3.832 | 4.076 |
+| eff_symbols | +8.5 | 14.404 | 18.375 |
+| h2 | +6.9 | 2.131 | 3.201 |
 | vocab_ed1_density | -6.0 | 0.850 | 0.718 |
+| h2_over_h1 | +5.9 | 0.556 | 0.779 |
 | char_double_rate | -4.6 | 0.076 | 0.009 |
 
 | kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
 |---|---|---|---|
-| l_line_final_p | 0.249 | 0 [0, 0.318] | 20 |
+| l_line_final_p | 0.249 | 0 [0, 0.323] | 20 |
 | l_allo_per_glyph | 0.212 | 0 [0, 0] | 25 |
 | l_allo_rate | 0.0104 | 0 [0, 0] | 25 |
 
-### codebook: medyan mesafe 4.31 (88 / 8800 örnek kabul)
+### codebook: medyan mesafe 4.32 (88 / 8800 örnek kabul)
 
 Voynich'ten 2 birimden fazla sapan feature sayısı: 13
 
@@ -406,6 +445,26 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 15
 | l_line_final_p | 0.249 | 0 [0, 0.301] | 20 |
 | l_allo_per_glyph | 0.212 | 0 [0, 0] | 25 |
 | l_allo_rate | 0.0104 | 0 [0, 0] | 25 |
+
+### automaton: medyan mesafe 3.09 (88 / 8800 örnek kabul)
+
+Voynich'ten 2 birimden fazla sapan feature sayısı: 9
+
+| tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
+|---|---|---|---|
+| jsd_first | +6.9 | 0.310 | 0.657 |
+| n_symbols | -4.5 | 69.529 | 27.000 |
+| wlen_frac1 | -4.5 | 0.046 | 0.000 |
+| first_entropy_ratio | -3.7 | 0.886 | 0.767 |
+| wlen_skew | +3.3 | 0.225 | 0.682 |
+| wlen_autocorr1 | -3.0 | 0.179 | 0.002 |
+
+| kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
+|---|---|---|---|
+| p_out_degree | 5 | 7 [5, 8] | 79 |
+| l_allo_per_glyph | 0.229 | 0 [0, 1.45] | 25 |
+| l_allo_rate | 0.0114 | 0 [0, 0.0671] | 25 |
+| l_final_forms_share | 0.101 | 0 [0, 0.512] | 25 |
 
 ### abjad: medyan mesafe 3.27 (76 / 7600 örnek kabul)
 
@@ -553,6 +612,26 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 17
 |---|---|---|---|
 | p_by_syllable | 0 | 1 [1, 1] | 87 |
 | l_initial_forms_k | 1 | 0 [0, 2.5] | 25 |
+
+### automaton: medyan mesafe 3.53 (88 / 8800 örnek kabul)
+
+Voynich'ten 2 birimden fazla sapan feature sayısı: 7
+
+| tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
+|---|---|---|---|
+| wlen_skew | +8.0 | 0.025 | 0.842 |
+| jsd_first | +7.0 | 0.385 | 0.660 |
+| first_entropy_ratio | -5.1 | 0.817 | 0.730 |
+| char_double_rate | -4.4 | 0.066 | 0.000 |
+| wlen_frac1 | -3.2 | 0.033 | 0.000 |
+| jsd_last | -2.8 | 0.712 | 0.586 |
+
+| kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
+|---|---|---|---|
+| p_alphabet | 20 | 17 [16, 19.2] | 23 |
+| l_allo_per_glyph | 0.229 | 0 [0, 0.56] | 25 |
+| l_allo_rate | 0.0114 | 0 [0, 0.0371] | 25 |
+| l_final_forms_share | 0.101 | 0 [0, 0.256] | 25 |
 
 ### selfcite: medyan mesafe 3.94 (88 / 8800 örnek kabul)
 
@@ -720,6 +799,25 @@ Voynich'ten 2 birimden fazla sapan feature sayısı: 11
 | p_same_line | 0.149 | 0.0555 [0.0208, 0.104] | 19 |
 | l_allo_per_glyph | 0.211 | 0 [0, 1.17] | 25 |
 | l_allo_rate | 0.0105 | 0 [0, 0.0603] | 25 |
+
+### automaton: medyan mesafe 3.19 (88 / 8800 örnek kabul)
+
+Voynich'ten 2 birimden fazla sapan feature sayısı: 10
+
+| tutmayan feature | sapma (Voynich birimi) | Voynich | kabul edilenler |
+|---|---|---|---|
+| jsd_first | +6.6 | 0.351 | 0.657 |
+| wlen_skew | +5.3 | 0.154 | 0.690 |
+| first_entropy_ratio | -5.2 | 0.875 | 0.744 |
+| char_double_rate | -4.8 | 0.076 | 0.000 |
+| wlen_frac1 | -3.1 | 0.033 | 0.000 |
+| wlen_autocorr1 | -2.4 | 0.102 | 0.006 |
+
+| kayan ayar | önsel medyan | kabul edilen medyan [çeyrekler] | önseldeki yüzdelik |
+|---|---|---|---|
+| l_allo_per_glyph | 0.229 | 0 [0, 0.6] | 25 |
+| l_allo_rate | 0.0114 | 0 [0, 0.0435] | 25 |
+| l_final_forms_share | 0.101 | 0 [0, 0.346] | 25 |
 
 ### abjad: medyan mesafe 3.61 (76 / 7600 örnek kabul)
 
