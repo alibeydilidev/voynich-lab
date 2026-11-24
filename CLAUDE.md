@@ -75,7 +75,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 
 Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bir glif. Çok harfli glifler Unicode özel kullanım alanındaki tek karaktere eşlenir.
 
-Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu: önek, gövde, sonek heceleri; sütunların glif kümeleri ayrık ya da örtüşük), `selfcite` (Timm ve Schinner kendinden kopyalama; yeni kelimeler yuva yapısından), `slotcite` (melez: kelimeler grille gibi hece üçlüsü, metin selfcite gibi kopyalayıp bir heceyi değiştirerek ilerler), `slotgram` (çok yuvalı kelime grameri: 3 ila 8 sıralı seçmeli yuva, isteğe bağlı yerel kopyalama).
+Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu: önek, gövde, sonek heceleri; sütunların glif kümeleri ayrık ya da örtüşük), `selfcite` (Timm ve Schinner kendinden kopyalama; yeni kelimeler yuva yapısından), `slotcite` (melez: kelimeler grille gibi hece üçlüsü, metin selfcite gibi kopyalayıp bir heceyi değiştirerek ilerler), `slotgram` (çok yuvalı kelime grameri: 3 ila 8 sıralı seçmeli yuva, isteğe bağlı yerel kopyalama), `codebook` (kelime kelime kodlama: her kelime türü, sıra numarasının yuvalara basamak olarak yazıldığı tek bir kod kelimesi).
 
 Yeni süreç eklemek: fonksiyonu `generators.py` içine yaz, ayarları `Knobs.get` ile çek (böylece hem kaydedilir hem dışarıdan sabitlenebilir), sınırlarını `PROCESS_PRIOR` tablosuna yaz, sonunda `lay_out(kelimeler, rng, layout, rec)` çağır, ilgili sözlüğe ekle. `test_priors_cover_what_is_drawn` tablo ile çekimin tutarlılığını denetler.
 
@@ -216,7 +216,7 @@ Tarihçe (`00d487a`). Sonundaki bileşim hipotezi v0.9'da sınandı ve tutmadı.
 
 ## v0.9 bulguları: seslisiz yazım + şifre bileşimi sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
 
-Güncel durum budur. Rapor: `results/manuscripts.md`.
+Tarihçe (`ba025a9`). Sonundaki kod defteri hipotezi v0.10'da sınandı ve tutmadı. Rapor: `results/manuscripts.md`.
 
 Eklenen: `verbose` için iki ayar, `p_drop_vowels` (şifrelemeden önce sesliler atılır) ve `p_short` (kodların kısalığı). Ayarlar duruyor, çünkü dil tarafının hipotez uzayını genişletiyorlar.
 
@@ -224,6 +224,20 @@ Eklenen: `verbose` için iki ayar, `p_drop_vowels` (şifrelemeden önce sesliler
 - **Arka arkaya üç öngörü tutmadı (melez, çok yuva, bileşim).** Üçü de var olan mekanizmaları yeniden birleştiriyordu. Ortak ders: iki ölçüt aynı anda ancak şu üçü birlikte sağlanırsa tutar ve şu ana kadarki hiçbir üreteçte üçü birden yok: (1) açık dağarcık (doğal dil ya da sınırsız çeşitleme), (2) sıkı kelime biçimi (yuva yapısı), (3) kelime türleri arasında yoğun "bir harf farklı" komşuluk. Tablo (2) ve (3)'ü verir, (1)'i vermez. Doğal dil (1)'i verir, (2)'yi vermez. Seslisiz yazım (1) ve (3)'ü verir, (2)'yi vermez. Harf harf şifre (2)'yi verir, (3)'ü bozar.
 - **Ortak ölçütte sıralama (büyümeye uyanlar içinde en iyi T):** `slotcite` 5.1 ila 12.5, `slotgram` 5.5 ila 9.8, `grille` 6.5 ila 22.7, `verbose` 6.8 ila 13.3, `abjad` 7.2 ila 13.6, `plain` 7.3 ila 11.9, `selfcite` 11.8 ila 30.4. Referans 1.5. Net bir kazanan yok.
 - **Yeni hipotez (sınanmadı):** kelime kelime kodlama (kod defteri). Düz metnin her kelime türü, yuva yapılı bir kod kelimesine bire bir eşlenir; kod, kelimenin sıra numarasının yuvalara "basamak" olarak yazılmasıdır. Bu, yukarıdaki üç koşulu yapısı gereği sağlar: dağarcık büyümesi doğal dilinkiyle aynıdır (1), her kod yuva yapısına uyar (2), kod uzayı sık dolu olduğu için komşuluk yoğundur (3). Sıra numarası ilk geçiş sırasına göre verilirse, yakında ilk kez geçen kelimeler ardışık numara alır ve komşu kelimeler birbirine benzer. Öngörü: `codebook` sınıfında büyümeye uyan el yazması sayısı yüzlerle ölçülür ve uyanlar içinde en iyi T, beş görünümün çoğunda 5'in altına iner. İnmezse, üç koşul gerekli ama yeterli değil demektir.
+
+## v0.10 bulguları: kod defteri sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
+
+Güncel durum budur. Rapor: `results/manuscripts.md` (sekiz sınıf, sınıf başına 2000 el yazması).
+
+Eklenen: `codebook` sınıfı (dil tabanlı).
+
+- **Öngörü tutmadı.** 2000 `codebook` el yazmasından büyüme profiline uyan yok (beş görünümde de 0). Tür/kelime ve hapax tutuyor (önsel medyanı 0.25 ve 0.63; Voynich 0.25 ila 0.30 ve 0.68 ila 0.72), ama ed1 oranı 0.99 (Voynich 0.86 ila 0.89). Numara sırasıyla dizilen kodlar kod uzayını boşluksuz dolduruyor; neredeyse her kelimenin "bir harf farklı" komşusu var. Numaranın neye göre verildiği, boş basamak ve yuva sayısı bunu değiştirmiyor (hepsinde 0.99 ila 1.00).
+- **Pencere profili de uzak.** Doğrulama T medyanı 7.3 ila 9.4 (`grille` 5.2 ila 6.7). En büyük açık kelime uzunluğunun yayılımı (`wlen_std` -10 ila -27): kodlar neredeyse eşit uzunlukta.
+- **v0.9'daki üç koşul yanlış kurulmuştu.** "Yoğun komşuluk" demiştim; doğrusu "yoğun ama doymamış komşuluk". Voynich'in ed1 oranı (0.86 ila 0.89) iki ucun arasında dar bir bantta: tablo ve kod defteri 0.97 ila 1.00, düz doğal dil 0.41 ila 0.62. Bu banda denenen sekiz sınıftan yalnız seslisiz yazılmış doğal dil (`abjad`, önsel medyanı 0.86) ve zaten seslisiz yazılan diller (İbranice 0.89) kendiliğinden düşüyor.
+- **Arka arkaya dört öngörü tutmadı** (melez, çok yuva, bileşim, kod defteri). Dördü de bir zincir koşusuna (yaklaşık 30 dakika) mal oldu ve dördünde de sonucu belirleyen şey tek bir büyüme ölçüsüydü. Ders (v0.7'deki dersin sertleşmiş hâli): yeni bir mekanizma, üreteç sınıfı olarak yazılıp zincire sokulmadan önce, üç büyüme ölçüsünü ve birkaç pencere feature'ını tek el yazmasında, saniyeler içinde ölçen bir ön sınamadan geçmeli. Ön sınamada bandı tutturamayan mekanizma için zincir koşulmaz.
+- **Ortak ölçütte sıralama değişmedi** (büyümeye uyanlar içinde en iyi T): `slotcite` 5.1 ila 12.6, `slotgram` 5.5 ila 9.8, `grille` 6.5 ila 22.9, `verbose` 6.8 ila 13.5, `abjad` 7.2 ila 13.6, `plain` 7.3 ila 11.9, `selfcite` 11.8 ila 30.6, `codebook` uyan yok. Referans 1.5.
+- **Elde kalan en sağlam veri bulgusu (hipotezden bağımsız):** Voynich'in dağarcık büyüme profili (16 bin kelimede tür/kelime 0.25 ila 0.30, hapax 0.68 ila 0.72, ed1 0.86 ila 0.89; iki yarı 0.03 içinde tutarlı; beş görünümde aynı) seslisiz yazılmış çekimli bir doğal dilinkiyle örtüşüyor ve kapalı tablo üreteçlerininkiyle örtüşmüyor. Pencere profili ise tam tersini söylüyor. Hiçbir hipotez ikisini birleştiremiyor.
+- **Sıradaki aday (yazıldı, sınanmadı, önce ön sınama):** komşuluğu koruyan genişletme. `abjad` büyüme profilini veriyor ama kelimeleri kısa ve `h2`'si yüksek. Harf harf şifre kelimeyi uzatıp `h2`'yi düşürüyor ama bir harflik farkı çok glifli farka çevirip komşuluğu bozuyor. İkisini uzlaştırabilecek tek tür kodlama, her ünsüzü tek glifle yazıp aralara konuma bağlı, öngörülebilir dolgu glifleri koyandır: bir ünsüzü farklı iki kelime yine tek glifle ayrışır (komşuluk korunur), kelime uzar, dolgu öngörülebilir olduğu için `h2` düşer, dolgunun yeri sabit olduğu için konum yapısı güçlenir.
 
 ## Yol haritası (öncelik sırasıyla)
 
@@ -233,7 +247,7 @@ Eklenen: `verbose` için iki ayar, `p_drop_vowels` (şifrelemeden önce sesliler
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). **Sıradaki:** (a) kelime kelime kodlama (`codebook`, v0.9'daki hipotez); (b) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). **Sıradaki:** (a) hızlı ön sınama aracı (tek el yazmasında büyüme ölçüleri ve birkaç pencere feature'ı, zincir koşmadan); (b) komşuluğu koruyan genişletme (v0.10'daki aday), önce ön sınamayla; (c) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
 3. **Dönem metinleri.** İncil çevirileri modern. 15. yüzyıl Latince, İtalyanca, Almanca, İbranice, Osmanlıca öncesi Türkçe tıbbi ve botanik metinler ekle. `corpus.py` düz kelime listesi bekliyor, yeni yükleyici yazmak yeterli.
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.

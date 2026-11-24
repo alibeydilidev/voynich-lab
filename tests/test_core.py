@@ -286,7 +286,9 @@ def test_params_are_recorded_without_changing_output():
         a = proc(list(TEXT), np.random.default_rng(3), rec=rec)
         assert a == proc(list(TEXT), np.random.default_rng(3))
         assert "l_line_final_p" in rec, name
-    assert "p_split" in rec  # son süreç verbose
+    rec = {}
+    LANGUAGE_PROCESSES["verbose"](list(TEXT), np.random.default_rng(3), rec=rec)
+    assert "p_split" in rec
 
 
 def test_abc_finds_matching_class_and_its_parameters():
@@ -341,10 +343,11 @@ def test_priors_cover_what_is_drawn():
             proc(120, np.random.default_rng(i), rec=rec)
             for key, v in rec.items():
                 seen.setdefault(name, {}).setdefault(key, []).append(float(v))
-        rec = {}
-        LANGUAGE_PROCESSES["verbose"](TEXT[:300], np.random.default_rng(i), rec=rec)
-        for key, v in rec.items():
-            seen.setdefault("verbose", {}).setdefault(key, []).append(float(v))
+        for name in ("verbose", "codebook"):
+            rec = {}
+            LANGUAGE_PROCESSES[name](TEXT[:300], np.random.default_rng(i), rec=rec)
+            for key, v in rec.items():
+                seen.setdefault(name, {}).setdefault(key, []).append(float(v))
     for name, cols in seen.items():
         prior = prior_for(name)
         drawn = {k for k in cols if k != "p_code_len_mean"}
@@ -487,4 +490,18 @@ def test_manuscript_analysis_reports_growth_fit():
     g = r["classes"]["grille"]["growth"]
     assert g["n_fitting"] == n // 2 and g["best_t_among_fitting"] is not None
     assert r["growth_reference"]["first_half"]["hapax"] == 0.61
+
+
+def test_codebook_is_one_to_one_on_word_types():
+    """Kod defteri kelime türlerini bire bir eşler: dağarcık ölçüleri düz metinle aynı kalır."""
+    for seed in range(8):
+        lines = LANGUAGE_PROCESSES["codebook"](list(TEXT), np.random.default_rng(seed), Layout())
+        coded = [w for ln in lines for w in ln]
+        assert len(coded) == len(TEXT)
+        mapping: dict[str, str] = {}
+        for plain_word, code in zip(TEXT, coded):
+            assert mapping.setdefault(plain_word, code) == code  # aynı kelime hep aynı kod
+        assert len(set(mapping.values())) == len(mapping)  # farklı kelime farklı kod
+        a, b = extract_features(_lines()), extract_features(lines)
+        assert b["ttr"] == a["ttr"] and b["hapax_ratio"] == a["hapax_ratio"]
 

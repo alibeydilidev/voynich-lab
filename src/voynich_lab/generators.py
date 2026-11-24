@@ -5,6 +5,8 @@ Dil tabanlı süreçler gerçek bir metni dönüştürür:
              bununla aynıdır (feature'lar sembol adına bakmaz), ayrı sınıf değil.
   abjad    : sesli harfler atılmış yazım
   verbose  : her harf 1-3 sembollük bir gruba açılır (verbose şifre)
+  codebook : kelime kelime kodlama. Her kelime türü, sıra numarasının yuvalara
+             basamak olarak yazılmasıyla kurulan bir kod kelimesine eşlenir
 
 Anlamsız metin üreteçleri gerçek metne ihtiyaç duymaz:
   grille   : Rugg tarzı tablo + ızgara (önek/orta/sonek hücreleri)
@@ -197,6 +199,14 @@ PROCESS_PRIOR: dict[str, dict[str, tuple[float, float, str]]] = {
         "p_short": (0.3, 1.0, "f"),
         "p_by_syllable": (0, 1, "b"),
         "p_split": (0.05, 0.7, "m"),
+    },
+    "codebook": {
+        "p_alphabet": (15, 25, "i"),
+        "p_n_slots": (3, 6, "i"),
+        "p_slot_overlap": (0, 1, "f"),
+        "p_len_max": (1, 2, "i"),
+        "p_zero_empty": (0, 1, "b"),
+        "p_order": (0, 2, "i"),
     },
     "grille": {
         "p_alphabet": (15, 25, "i"),
@@ -591,6 +601,87 @@ def verbose(
         if cur:
             out.append(cur)
     return lay_out(out, rng, layout, rec)
+
+
+def codebook(
+    words: list[str],
+    rng: np.random.Generator,
+    layout: Layout | None = None,
+    rec: dict | None = None,
+    fixed: dict | None = None,
+) -> Lines:
+    """Kelime kelime kodlama (kod defteri): her kelime türü tek bir kod kelimesi olur.
+
+    v0.9'dan doğan hipotez. Kod, kelimenin sıra numarasının karışık tabanlı bir
+    sayı gibi yuvalara yazılmasıdır: her yuvanın kendi hece envanteri vardır,
+    numaranın her basamağı o yuvadan bir hece seçer, kod kelimesi hecelerin
+    yuva sırasıyla yan yana gelmesidir. Böylece dağarcık düz metninkiyle bire
+    bir aynıdır, her kod yuva yapısına uyar ve kod uzayı sık dolu olduğu için
+    türler arasında "bir hece farklı" komşu çoktur.
+
+    Örnek başına rastgele: yuva sayısı, yuva alfabelerinin örtüşmesi, hecelerin
+    en çok kaç glif olduğu, 0 basamağının boş yuva sayılıp sayılmadığı (sayılırsa
+    küçük numaralı kelimeler kısa olur) ve numaranın neye göre verildiği:
+    sıklık sırası (sık kelimeler küçük numara alır), ilk geçiş sırası (yakında
+    ilk kez geçen kelimeler ardışık numara alır) ya da rastgele.
+    """
+    k = Knobs(fixed, rec)
+    alphabet = _symbols(int(k.get("p_alphabet", lambda: int(rng.integers(15, 26)))))
+    n_slots = int(k.get("p_n_slots", lambda: int(rng.integers(3, 7))))
+    overlap = float(k.get("p_slot_overlap", lambda: float(rng.uniform(0, 1))))
+    slot_alphabets = _slot_alphabets(alphabet, n_slots, overlap, rng)
+    len_max = int(k.get("p_len_max", lambda: int(rng.integers(1, 3))))
+    zero_empty = bool(k.get("p_zero_empty", lambda: float(rng.random() < 0.5)))
+    order = int(k.get("p_order", lambda: int(rng.integers(0, 3))))
+
+    counts = Counter(words)
+    if order == 0:
+        ranked = [w for w, _ in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))]
+    elif order == 1:
+        ranked = list(dict.fromkeys(words))
+    else:
+        pool = sorted(counts)
+        ranked = [pool[int(i)] for i in rng.permutation(len(pool))]
+
+    # Yuva envanterleri: kısa heceler önce. Kod uzayı dağarcığa yetmezse heceler uzar.
+    length = len_max
+    while True:
+        invs: list[list[str]] = []
+        for A in slot_alphabets:
+            syl: list[str] = []
+            cur = [""]
+            for _ in range(length):
+                cur = [x + a for x in cur for a in A][:400]
+                syl += [cur[int(i)] for i in rng.permutation(len(cur))]
+            invs.append(syl[:400])
+        radices = [len(v) + (1 if zero_empty else 0) for v in invs]
+        if float(np.prod([float(r) for r in radices])) >= 2 * len(ranked) + 2 or length >= 4:
+            break
+        length += 1
+    significance = [int(j) for j in rng.permutation(n_slots)]  # hangi yuva en hızlı değişir
+
+    def spell(number: int) -> str:
+        parts = [""] * n_slots
+        for j in significance:
+            number, digit = divmod(number, radices[j])
+            if zero_empty:
+                parts[j] = "" if digit == 0 else invs[j][digit - 1]
+            else:
+                parts[j] = invs[j][digit]
+        return "".join(parts)
+
+    code: dict[str, str] = {}
+    used: set[str] = set()
+    number = 0
+    for w in ranked:
+        while True:
+            c = spell(number)
+            number += 1
+            if c and c not in used:
+                break
+        used.add(c)
+        code[w] = c
+    return lay_out([code[w] for w in words], rng, layout, rec)
 
 
 # ------------------------------------------------------------------- anlamsız
@@ -990,6 +1081,7 @@ LANGUAGE_PROCESSES: dict[str, Callable[..., Lines]] = {
     "plain": plain,
     "abjad": abjad,
     "verbose": verbose,
+    "codebook": codebook,
 }
 GIBBERISH_PROCESSES: dict[str, Callable[..., Lines]] = {
     "grille": grille,
