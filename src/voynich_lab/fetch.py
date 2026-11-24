@@ -20,6 +20,20 @@ TRANSLITERATIONS = {
     "zl_ivtff.txt": "https://www.voynich.nu/data/ZL3b-n.txt",
 }
 
+# Denetim metinleri: bilinen bir yöntemle üretilmiş, Voynich'e benzetilmiş metinler.
+# Naibbe: Greshko 2025 (Cryptologia, doi 10.1080/01611194.2025.2566408), gerçek Latince
+# metni (Plinius) EVA görünümlü şifreli metne çeviren, elle uygulanabilir şifre. Depo
+# değiştirilmiş MIT lisanslı; kullanan yayın makaleyi kaynak göstermek zorunda.
+# Sürüm commit ile sabit.
+CONTROLS = {
+    "naibbe_plinius.txt": f"{_RAW}/greshko/naibbe-cipher/"
+    "5145f526b52741a6dca14201147f687e62c7162e/encrypted/nathist_output_ciphertext.txt",
+    # Aynı metnin anahtarla geri okunmuş hâli: her şifreli kelimenin yerinde karşılığı olan
+    # bir ya da iki harflik düz metin parçası durur (satır ve kelime sayısı birebir aynı).
+    "naibbe_plinius_cozum.txt": f"{_RAW}/greshko/naibbe-cipher/"
+    "5145f526b52741a6dca14201147f687e62c7162e/decrypted/nathist_output_ciphertext_decrypted.txt",
+}
+
 BIBLE_LANGUAGES = [
     "Latin", "Italian", "Spanish", "French", "Portuguese", "Romanian",
     "German", "English", "Dutch", "Swedish",
@@ -146,4 +160,7 @@ def fetch_all(raw_dir: str | Path) -> None:
         _download(url, raw_dir / name)
     for lang in BIBLE_LANGUAGES:
         _download(_BIBLE_URL.format(lang=lang), raw_dir / "bible" / f"{lang}.xml")
+    (raw_dir / "controls").mkdir(parents=True, exist_ok=True)
+    for name, url in CONTROLS.items():
+        _download(url, raw_dir / "controls" / name)
     fetch_period(raw_dir)

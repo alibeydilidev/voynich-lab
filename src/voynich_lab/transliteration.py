@@ -76,6 +76,27 @@ def load_takahashi(
     return out
 
 
+def load_eva_plain(path: str | Path, glyph_mode: str = "basic") -> list[list[str]]:
+    """Etiketsiz düz EVA metnini okur: her satır bir satır, kelimeler boşlukla ayrılı.
+
+    Voynich'e benzetilmiş denetim metinleri (ör. Naibbe şifreli metni) bu biçimde
+    dağıtılıyor. Yalnız harften oluşmayan kelimeler atılır; "raw" kipinde hiçbir kelime
+    atılmaz ve birleştirme yapılmaz (çözülmüş metin gibi EVA olmayan dosyalar için).
+    """
+    if glyph_mode not in ("basic", "glyph", "raw"):
+        raise ValueError(f"glyph_mode 'basic', 'glyph' ya da 'raw' olmalı: {glyph_mode}")
+    out: list[list[str]] = []
+    for raw in Path(path).read_text(encoding="utf-8").splitlines():
+        words = raw.lower().split()
+        if glyph_mode != "raw":
+            words = [w for w in words if w.isalpha()]
+        if glyph_mode == "glyph":
+            words = [_merge_eva_ligatures(w) for w in words]
+        if words:
+            out.append(words)
+    return out
+
+
 def load_v101(path: str | Path, comma_is_space: bool = True) -> list[FolioLine]:
     """Claston v101 dosyasını okur. Yalnızca düz numaralı (paragraf) satırlar alınır.
 

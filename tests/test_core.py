@@ -633,3 +633,35 @@ def test_degradation_scan_reports_joint_fit():
     tight = degradation_experiment({"Yapay": words}, bands | {"ttr": (0.9, 1.0)}, half=400)
     assert not any(row["fits_growth"] for row in tight["rows"])
 
+
+
+def test_load_eva_plain(tmp_path):
+    from voynich_lab.transliteration import load_eva_plain
+
+    path = tmp_path / "control.txt"
+    path.write_text("chedy  qokeedy\n\n\nsh3 daiin\n", encoding="utf-8")
+    assert load_eva_plain(path) == [["chedy", "qokeedy"], ["daiin"]]
+    glyph = load_eva_plain(path, "glyph")
+    assert len(glyph[0][0]) == 4  # "ch" tek glif
+    assert load_eva_plain(path, "raw") == [["chedy", "qokeedy"], ["sh3", "daiin"]]
+    with pytest.raises(ValueError):
+        load_eva_plain(path, "v101")
+
+
+def test_control_experiment_reports_each_text_and_skips_short_halves():
+    from voynich_lab.checks import control_experiment
+
+    rng = np.random.default_rng(3)
+    lexicon = ["".join(rng.choice(list("abcdefgh"), size=rng.integers(3, 7))) for _ in range(300)]
+    weights = 1.0 / np.arange(1, len(lexicon) + 1)
+    words = list(rng.choice(lexicon, size=3300, p=weights / weights.sum()))
+    lines = [words[i : i + 10] for i in range(0, len(words), 10)]
+    a = control_experiment({"bağımsız çekim": lines}, halves=(1500, 5000))
+    b = control_experiment({"bağımsız çekim": lines}, halves=(1500, 5000))
+    assert a == b  # tohum sabit
+    row = a["texts"]["bağımsız çekim"]
+    assert list(row) == ["1500"]  # 5000'lik yarı için metin kısa
+    r = row["1500"]
+    assert abs(r["order"]) < 0.05  # bağımsız çekilen kelimelerde sıra bilgisi yok
+    assert r["type_ratio_k2"] > 1.5  # 300 kelimelik kapalı sözlük: vekil çok daha fazla tür üretir
+    assert 0 < r["ttr"] < 1 and 0 <= r["hapax"] <= 1 and 0 <= r["ed1"] <= 1

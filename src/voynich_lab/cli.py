@@ -273,11 +273,13 @@ def cmd_manuscripts(args: argparse.Namespace) -> None:
 def cmd_checks(args: argparse.Namespace) -> None:
     from .abc import voynich_features
     from .checks import (
+        control_experiment,
         evaize_experiment,
         degradation_experiment,
         homogeneity_experiment,
         lexicon_experiment,
         order_experiment,
+        render_control,
         render_degradation,
         render_homogeneity,
         render_lexicon,
@@ -287,7 +289,7 @@ def cmd_checks(args: argparse.Namespace) -> None:
     from .manuscripts import voynich_growth
     from .corpus import load_period
     from .search import _corpora
-    from .transliteration import ivtff_page_variables, load_ivtff, load_v101, load_views
+    from .transliteration import ivtff_page_variables, load_eva_plain, load_ivtff, load_v101, load_views
 
     out = Path(args.results)
     df = pd.read_csv(out / "synthetic.csv")
@@ -355,6 +357,18 @@ def cmd_checks(args: argparse.Namespace) -> None:
     }
     degradation = degradation_experiment(corpora, bands)
     degradation["bands"]["order"][0] = None  # alt sınır yok; JSON'da sonsuz yazılmaz
+    # Denetim: yayımlanmış Naibbe şifreli metni, Voynich'in iki EVA görünümüyle yan yana.
+    control_texts: dict[str, list[list[str]]] = {}
+    naibbe = Path(args.raw) / "controls" / "naibbe_plinius.txt"
+    if naibbe.exists():
+        for mode in ("basic", "glyph"):
+            control_texts[f"Naibbe, Plinius (eva_{mode})"] = load_eva_plain(naibbe, mode)
+    solved = Path(args.raw) / "controls" / "naibbe_plinius_cozum.txt"
+    if solved.exists():
+        control_texts["Naibbe, Plinius, anahtarla çözülmüş parçalar"] = load_eva_plain(solved, "raw")
+    for v in ("eva_basic", "eva_glyph"):
+        control_texts[f"Voynich ({v})"] = [ln.words for ln in views[v]]
+    control = control_experiment(control_texts)
     (out / "checks.json").write_text(
         json.dumps(
             {
@@ -363,6 +377,7 @@ def cmd_checks(args: argparse.Namespace) -> None:
                 "lexicon": lexicon,
                 "order": order,
                 "degradation": degradation,
+                "control": control,
             },
             indent=2,
             ensure_ascii=False,
@@ -379,6 +394,8 @@ def cmd_checks(args: argparse.Namespace) -> None:
         + render_order(order)
         + "\n"
         + render_degradation(degradation)
+        + "\n"
+        + render_control(control)
     )
     (out / "checks.md").write_text(md, encoding="utf-8")
     print(md)

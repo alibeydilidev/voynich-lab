@@ -1,6 +1,6 @@
 # voynich-lab
 
-Uzun vadeli amaç Voynich el yazmasının kanıtlanabilir tercümesi. Bugünkü kod bunun ilk basamağı: metne anlam atamaz, onu üreten sürecin türünü simüle edilmiş hipotezlerle karşılaştırarak sınıflandırır. Anlam atayan kod, `CLAUDE.md` içindeki çözme kapısı açılmadan yazılmaz.
+Amaç: Voynich el yazmasının (Beinecke MS 408) metninin ne tür bir süreçten çıktığını ve bir doğal dili doğrudan yazıp yazmadığını, tek komutla yeniden üretilebilen ölçümlerle göstermek. Kod metne anlam atamaz: metni simüle edilmiş hipotezlerle ve gerçek dil metinleriyle karşılaştırır. Tercüme denemesi `CLAUDE.md` içindeki çözme kapısının arkasındadır; kapı açılmadan anlam atayan kod yazılmaz.
 
 ```bash
 uv sync --extra dev --locked   # sürümler uv.lock ile sabit

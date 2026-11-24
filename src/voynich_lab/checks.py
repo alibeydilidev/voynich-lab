@@ -39,6 +39,12 @@ hangi bozulma altında Voynich gibi görünür sorusuna uygulanır (yazım
 çeşitlemesi, eşsesli yazım; sesli ve seslisiz). Üç ölçütü birden tutturan
 düzenlerde, kelime türleri "bir harf farklı" ailelerine toplandıktan sonra
 sıra bilgisinin geri gelip gelmediğine de bakılır.
+
+denetim deneyi: yayımlanmış bir şifreyle (Naibbe, Greshko 2025) yazılmış gerçek
+Latince metin aynı üç ölçümden geçirilir; hem şifreli hâli hem anahtarla geri
+okunmuş hâli. İçinde dil olan bir metnin bu ölçümlerde Voynich gibi görünüp
+görünemeyeceğini ve doğru anahtarın sıra bilgisini geri getirip getirmediğini
+gösterir.
 """
 
 from __future__ import annotations
@@ -549,6 +555,63 @@ def degradation_experiment(
                     row["family_order"] = f["order"]
                 rows.append(row)
     return {"bands": {k: list(v) for k, v in bands.items()}, "rows": rows}
+
+
+def control_experiment(texts: dict[str, Lines], seed: int = 19, halves: tuple[int, ...] = (16000, 8000)) -> dict:
+    """Bilinen yöntemle üretilmiş denetim metinlerini Voynich ile aynı üç ölçümden geçirir.
+
+    Her metin ve her yarı boyu için: sözlük ölçüleri (k = 2), kelime sırası bilgisi ve
+    ilk yarının büyüme ölçüleri. Metin 2 * half kelimeden kısaysa o boy atlanır.
+    """
+    from .manuscripts import growth_profile
+
+    rows: dict[str, dict[str, dict[str, float]]] = {}
+    for name, lines in texts.items():
+        words = [w for ln in lines for w in ln]
+        for half in halves:
+            lex = lexicon_stats(words, np.random.default_rng(seed), half=half, orders=(2,))
+            order = order_stats(lines, half, np.random.default_rng(seed + 1))
+            if lex is None or order is None:
+                continue
+            ttr, hapax, ed1 = growth_profile(words[:half])
+            rows.setdefault(name, {})[str(half)] = {
+                "n": float(len(words)),
+                "mean_len": lex["mean_len"],
+                "type_ratio_k2": lex["type_ratio_k2"],
+                "new_ratio_k2": lex["new_ratio_k2"],
+                "real_new": lex["real_new"],
+                "order": order["order"],
+                "ttr": ttr,
+                "hapax": hapax,
+                "ed1": ed1,
+            }
+    return {"seed": seed, "halves": list(halves), "texts": rows}
+
+
+def render_control(result: dict) -> str:
+    md = [
+        "# Sınama: yayımlanmış bir şifre aynı ölçümlerde nasıl görünüyor",
+        "",
+        "Naibbe şifresi (Greshko 2025, Cryptologia) gerçek Latince metni, her harfi ya da harf "
+        "çiftini birkaç eşsesli glif dizisinden biriyle yazarak EVA görünümlü metne çevirir; "
+        "anahtarı bilen metni geri okur. Yazarın yayımladığı örnek şifreli metin (Plinius) burada "
+        "Voynich ile aynı üç ölçümden geçiriliyor. Soru: içinde gerçek dil olan bir metin bu "
+        "ölçümlerde Voynich gibi görünebilir mi. \"Anahtarla çözülmüş parçalar\" satırı aynı metnin, "
+        "her şifreli kelimenin yerine karşılığı olan bir ya da iki harflik düz metin parçası konmuş "
+        "hâlidir: doğru anahtar eldeyse sıra bilgisinin geri gelip gelmediğini gösterir (bu satırda "
+        "sözlük ve büyüme sütunları parçalar çok kısa olduğu için yorumlanmaz).",
+        "",
+        "| metin | yarı | ort. kelime uzunluğu | tür oranı k=2 | yeni kelime oranı k=2 | görülmemiş yarıda yeni kelime payı | sıra (bit/kelime) | tür/kelime | hapax/tür | ed1 |",
+        "|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for name, by_half in result["texts"].items():
+        for half, r in by_half.items():
+            md.append(
+                f"| {name} | {half} | {r['mean_len']:.2f} | {r['type_ratio_k2']:.2f} | "
+                f"{r['new_ratio_k2']:.2f} | {r['real_new']:.3f} | {r['order']:+.3f} | "
+                f"{r['ttr']:.3f} | {r['hapax']:.3f} | {r['ed1']:.3f} |"
+            )
+    return "\n".join(md) + "\n"
 
 
 def render_order(result: dict) -> str:

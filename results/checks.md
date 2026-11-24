@@ -171,3 +171,20 @@ Her metnin ilk 16000 kelimesinden kelime ikilisi modeli öğrenildi; görülmemi
 | Spanish | evet | yazım çeşitlemesi | 0.9 | 0.92 | +0.000 | +0.000 | 0.32 | 0.75 | 0.90 | 2.5 |
 | Swedish | evet | yazım çeşitlemesi | 0.6 | 1.05 | +0.008 | -0.000 | 0.27 | 0.69 | 0.92 | 2.7 |
 | Swedish | evet | yazım çeşitlemesi | 0.9 | 0.97 | +0.000 | +0.000 | 0.33 | 0.71 | 0.90 | 2.7 |
+
+# Sınama: yayımlanmış bir şifre aynı ölçümlerde nasıl görünüyor
+
+Naibbe şifresi (Greshko 2025, Cryptologia) gerçek Latince metni, her harfi ya da harf çiftini birkaç eşsesli glif dizisinden biriyle yazarak EVA görünümlü metne çevirir; anahtarı bilen metni geri okur. Yazarın yayımladığı örnek şifreli metin (Plinius) burada Voynich ile aynı üç ölçümden geçiriliyor. Soru: içinde gerçek dil olan bir metin bu ölçümlerde Voynich gibi görünebilir mi. "Anahtarla çözülmüş parçalar" satırı aynı metnin, her şifreli kelimenin yerine karşılığı olan bir ya da iki harflik düz metin parçası konmuş hâlidir: doğru anahtar eldeyse sıra bilgisinin geri gelip gelmediğini gösterir (bu satırda sözlük ve büyüme sütunları parçalar çok kısa olduğu için yorumlanmaz).
+
+| metin | yarı | ort. kelime uzunluğu | tür oranı k=2 | yeni kelime oranı k=2 | görülmemiş yarıda yeni kelime payı | sıra (bit/kelime) | tür/kelime | hapax/tür | ed1 |
+|---|---|---|---|---|---|---|---|---|---|
+| Naibbe, Plinius (eva_basic) | 16000 | 5.23 | 1.16 | 1.99 | 0.127 | +0.009 | 0.241 | 0.506 | 0.986 |
+| Naibbe, Plinius (eva_basic) | 8000 | 5.23 | 1.08 | 1.60 | 0.205 | +0.003 | 0.323 | 0.605 | 0.970 |
+| Naibbe, Plinius (eva_glyph) | 16000 | 4.80 | 1.13 | 1.89 | 0.127 | +0.009 | 0.241 | 0.506 | 0.991 |
+| Naibbe, Plinius (eva_glyph) | 8000 | 4.79 | 1.06 | 1.53 | 0.205 | +0.003 | 0.323 | 0.605 | 0.979 |
+| Naibbe, Plinius, anahtarla çözülmüş parçalar | 16000 | 1.55 | 1.12 | 3.70 | 0.004 | +0.396 | 0.025 | 0.142 | 0.970 |
+| Naibbe, Plinius, anahtarla çözülmüş parçalar | 8000 | 1.56 | 1.05 | 1.35 | 0.012 | +0.259 | 0.043 | 0.173 | 0.962 |
+| Voynich (eva_basic) | 16000 | 4.89 | 1.07 | 0.95 | 0.215 | -0.007 | 0.249 | 0.681 | 0.861 |
+| Voynich (eva_basic) | 8000 | 4.78 | 1.03 | 0.97 | 0.248 | +0.009 | 0.311 | 0.688 | 0.856 |
+| Voynich (eva_glyph) | 16000 | 4.30 | 1.03 | 0.86 | 0.215 | -0.007 | 0.249 | 0.681 | 0.884 |
+| Voynich (eva_glyph) | 8000 | 4.12 | 0.99 | 0.86 | 0.248 | +0.009 | 0.311 | 0.688 | 0.879 |
