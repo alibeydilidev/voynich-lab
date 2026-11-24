@@ -10,6 +10,8 @@ Deney durakta (Ali, 2026-11-24 akşam). Ölçüm aşaması paylaşılabilir bir 
 
 Kapanmayanlar: 1. basamak geçilmedi (dokuz üretecin hiçbiri Voynich'i üretmiyor) ve tercüme için elde yol yok. Yeniden başlanırsa sıradaki işler "Yol haritası" bölümünde ve v0.18 bölümünün sonunda.
 
+Yayından önce depo geçmişi bir kez yeniden yazıldı (2026-11-24; yalnız kayıtlardaki e-posta adresi değişti, dosya içerikleri aynı). Bu yüzden kayıt kimlikleri değişti; bu dosyadaki kimlikler yenileridir.
+
 Aşağıdaki bölümler çalışma sırasında yazılmış defter kayıtlarıdır; tutmayan öngörüler ve sonradan düzeltilen hükümler bilerek silinmedi. Güncel hüküm: v0.15 "Düzeltilmiş hüküm", v0.16, v0.17 ve v0.18.
 
 ## Amaç ve hedef merdiveni (Ali kararı, 2026-11-23; yeniden çerçeveleme 2026-11-24)
@@ -101,7 +103,7 @@ Yazıcı katmanının kuralı: parametreleri (`sample_layout`) bütün sınıfla
 
 ## v0 bulguları (2026-11-23, seed 7, pencere 2000)
 
-Tarihçe. Güncel durum bir alttaki v0.1 bölümünde; `results/report.md` artık v0.1 raporudur. v0 raporu git geçmişinde (`dcb7aba`).
+Tarihçe. Güncel durum bir alttaki v0.1 bölümünde; `results/report.md` artık v0.1 raporudur. v0 raporu git geçmişinde (`56e86d9`).
 
 - **Sentetik veride CV doğruluğu 0.995.** Bu iyi haber değil: sınıflar fazla kolay ayrışıyor, yani üreteçler birbirinden karikatür düzeyinde farklı.
 - **Voynich üç görünümde de dağılım dışı.** En yakın sınıfa mesafesi, o sınıfın kendi medyanının 8 ila 9 katı, yüzdelik 100. Dolayısıyla sınıf olasılıkları (`eva_basic`'te `verbose` 0.50, `eva_glyph`'te `plain` 0.35, v101'de `plain` 0.40 önde) şu an bulgu değil, "en az kötü eşleşme".
@@ -117,7 +119,7 @@ Yani v0'ın gerçek çıktısı şu: **beş basit hipotezin hiçbiri Voynich'i �
 
 ## v0.1 bulguları: satır farkındalığı (2026-11-23, seed 7, pencere 2000)
 
-Tarihçe; rapor git geçmişinde (`d0d51d5`). İki değişiklik: Takahashi ayrıştırıcısında hata düzeltmesi ve üreteçlere ortak yazıcı katmanı.
+Tarihçe; rapor git geçmişinde (`d9d3960`). İki değişiklik: Takahashi ayrıştırıcısında hata düzeltmesi ve üreteçlere ortak yazıcı katmanı.
 
 - **Ayrıştırıcı hatası.** Takahashi dosyasında satır ortasındaki `-` (çizimin metni böldüğü yer) glif sayılıyordu: 752 tire, 671 yapışık kelime. Artık kelime sınırı. En çok kelime uzunluğu dağılımını etkiledi: `wlen_skew` 0.79 -> 0.07, `wlen_std` 1.92 -> 1.69 (`eva_basic`). v0'da `eva_basic` tahminini en çok etkileyen feature `wlen_std` idi, yani o tahmin kısmen bu hatanın ürünüydü.
 - **Satır etkisi gerçek, ölçüm yanılgısı değil.** Kelimeler pencere içinde karıştırılınca `jsd_line_initial` 0.22 -> 0.013, `jsd_line_final` 0.11 -> 0.012 (`eva_basic`). Paragraf ilk satırları çıkarılınca etki sürüyor (0.21): yalnız paragraf başı süs harfi değil.
@@ -132,7 +134,7 @@ Tarihçe; rapor git geçmişinde (`d0d51d5`). İki değişiklik: Takahashi ayrı
 
 ## v0.2 bulguları: kelime içi yapı (2026-11-23, seed 7, pencere 2000)
 
-Tarihçe; rapor git geçmişinde (`7afdba9`). **Bu bölümdeki "doğal dil tabanlı sınıfların toplamı 0.02'nin altında" sonucu v0.3'te geri alındı**, aşağıya bak. Eklenenler: yazıcı katmanına konuma özgü harf biçimleri (`Forms`) ve nadir harf çeşitlemeleri (`Allographs`); `grille` için ayrık sütun alfabeleri, büyük tablo ve büyük hece envanteri; `selfcite` için yuva yapılı yeni kelimeler ve geniş kopyalama ayarları.
+Tarihçe; rapor git geçmişinde (`a7c8ca1`). **Bu bölümdeki "doğal dil tabanlı sınıfların toplamı 0.02'nin altında" sonucu v0.3'te geri alındı**, aşağıya bak. Eklenenler: yazıcı katmanına konuma özgü harf biçimleri (`Forms`) ve nadir harf çeşitlemeleri (`Allographs`); `grille` için ayrık sütun alfabeleri, büyük tablo ve büyük hece envanteri; `selfcite` için yuva yapılı yeni kelimeler ve geniş kopyalama ayarları.
 
 - **Voynich'te glifin kelimedeki yeri aşırı sabit (EVA).** `n` %99 ve `m` %96 kelime sonunda, `q` %99 kelime başında, `y` %88 sonda; `e`, `h`, `i` neredeyse hiç uçta değil. `jsd_last` 0.72 bunun ölçüsü.
 - **Artık hiçbir feature sentetik aralığın dışında değil** (üç görünümde de). v0'da altı feature dışarıdaydı.
@@ -147,7 +149,7 @@ Tarihçe; rapor git geçmişinde (`7afdba9`). **Bu bölümdeki "doğal dil taban
 
 ## v0.3 bulguları: ABC, üçüncü transliterasyon, adil şifre hipotezi (2026-11-23, seed 7, pencere 2000)
 
-Tarihçe; raporlar git geçmişinde (`c0c69d1`). Buradaki sıralama ("beş görünümde en yakın `grille`") v0.4'te taze örnek ölçütüyle zayıfladı, aşağıya bak. Raporlar: `results/report.md` (sınıflandırıcı) ve `results/abc.md` (ABC, 42800 sentetik örnek, sınıf başına en yakın %1 kabul).
+Tarihçe; raporlar git geçmişinde (`4543edf`). Buradaki sıralama ("beş görünümde en yakın `grille`") v0.4'te taze örnek ölçütüyle zayıfladı, aşağıya bak. Raporlar: `results/report.md` (sınıflandırıcı) ve `results/abc.md` (ABC, 42800 sentetik örnek, sınıf başına en yakın %1 kabul).
 
 Eklenenler: `abc.py` ve `cli abc`; Zandbergen-Landini transliterasyonu (`zl_basic`, `zl_glyph`); `verbose` için hece hece yazma ve sürekli boşluk ekleme; üreteçlerin çektiği ayarların kaydı.
 
@@ -165,7 +167,7 @@ Eklenenler: `abc.py` ve `cli abc`; Zandbergen-Landini transliterasyonu (`zl_basi
 
 ## v0.4 bulguları: yönlendirilmiş arama ve taze örnek ölçütü (2026-11-24, seed 7, pencere 2000)
 
-Tarihçe (`9e9cc52`). Buradaki "karşılaştırma birimi yanlıştı" teşhisi v0.5'te giderildi; pencere düzeyindeki sıralamalar yerine v0.5 tablosu okunur. Raporlar: `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`.
+Tarihçe (`0352ead`). Buradaki "karşılaştırma birimi yanlıştı" teşhisi v0.5'te giderildi; pencere düzeyindeki sıralamalar yerine v0.5 tablosu okunur. Raporlar: `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`.
 
 Eklenenler: üreteçler ayarları dışarıdan alabiliyor (`Knobs`, `PROCESS_PRIOR`, `layout_from_params`); `search.py` ve `cli search`; `grille` için hece uzunluğu ve boş hücre payı ayarları; `checks` içine homojenlik deneyi.
 
@@ -180,7 +182,7 @@ Eklenenler: üreteçler ayarları dışarıdan alabiliyor (`Knobs`, `PROCESS_PRI
 
 ## v0.5 bulguları: el yazması düzeyinde karşılaştırma (2026-11-24, seed 7, pencere 2000)
 
-Tarihçe (`143fd50`); beş hipotezli tablo. Sonundaki melez hipotezi v0.6'da sınandı ve tutmadı. Rapor: `results/manuscripts.md` (sınıf başına 2000 el yazması, her biri 16 pencere; sınıf başına seçim yarısına göre en yakın 20 aday, sayılar doğrulama yarısından).
+Tarihçe (`ff4a23e`); beş hipotezli tablo. Sonundaki melez hipotezi v0.6'da sınandı ve tutmadı. Rapor: `results/manuscripts.md` (sınıf başına 2000 el yazması, her biri 16 pencere; sınıf başına seçim yarısına göre en yakın 20 aday, sayılar doğrulama yarısından).
 
 - **Ölçü artık kararlı.** Seçim yarısı ile doğrulama yarısı aynı değeri veriyor (ör. `eva_basic` `grille` 6.5 ve 6.5). Pencere düzeyindeki seçim iyimserliği burada yok: bir tablonun profili kendi metni boyunca sabit.
 - **Referans.** Voynich'in kendi yarıları birbirine karşı T: rastgele bölmede medyan 0.9, %95'lik 1.5; ardışık bölmede (ilk yarı ile son yarı) 1.4 ila 1.7.
@@ -194,7 +196,7 @@ Tarihçe (`143fd50`); beş hipotezli tablo. Sonundaki melez hipotezi v0.6'da sı
 
 ## v0.6 bulguları: melez üreteç sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
 
-Tarihçe (`a4a6dd7`). Sonundaki çok yuvalı gramer hipotezi v0.7'de sınandı ve tutmadı. Raporlar: `results/manuscripts.md` (asıl hüküm; altı sınıf, sınıf başına 2000 el yazması), `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`.
+Tarihçe (`8c34a0f`). Sonundaki çok yuvalı gramer hipotezi v0.7'de sınandı ve tutmadı. Raporlar: `results/manuscripts.md` (asıl hüküm; altı sınıf, sınıf başına 2000 el yazması), `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`.
 
 Eklenen: `slotcite` sınıfı. Hipotez sınanmadan önce v0.5 bölümüne yazılmıştı; ölçüt, el yazması düzeyinde doğrulama T'sinin `grille`'den belirgin düşük çıkmasıydı.
 
@@ -208,7 +210,7 @@ Eklenen: `slotcite` sınıfı. Hipotez sınanmadan önce v0.5 bölümüne yazıl
 
 ## v0.7 bulguları: çok yuvalı gramer sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
 
-Tarihçe (`321bae9`). Buradaki T sıralaması geçerli ama tek başına okunmamalı; v0.8 büyüme profilini ekledi ve sıralamanın anlamını değiştirdi. Raporlar: `results/manuscripts.md` (asıl hüküm; yedi sınıf, sınıf başına 2000 el yazması) ve yardımcı raporlar.
+Tarihçe (`b730316`). Buradaki T sıralaması geçerli ama tek başına okunmamalı; v0.8 büyüme profilini ekledi ve sıralamanın anlamını değiştirdi. Raporlar: `results/manuscripts.md` (asıl hüküm; yedi sınıf, sınıf başına 2000 el yazması) ve yardımcı raporlar.
 
 Eklenen: `slotgram` sınıfı; kopyalama döngüsü `_cite_text` yardımcısına taşındı (`slotcite` çıktısı bayt bayt aynı kaldı). Tohumlar artık sınıf ve görünüm adına bağlı (`_stable_id`), bu yüzden v0.6'ya göre bütün sayılar birkaç ondalık oynadı; bundan sonra yeni sınıf eklemek eskilerin sayılarını değiştirmez.
 
@@ -221,7 +223,7 @@ Eklenen: `slotgram` sınıfı; kopyalama döngüsü `_cite_text` yardımcısına
 
 ## v0.8 bulguları: büyüme profili (2026-11-24, seed 7, pencere 2000)
 
-Tarihçe (`00d487a`). Sonundaki bileşim hipotezi v0.9'da sınandı ve tutmadı. Rapor: `results/manuscripts.md` bölüm 5 ve 6. Üreteçler değişmedi; T değerleri v0.7 ile aynı (doğrulandı), yalnız ölçüme büyüme profili eklendi.
+Tarihçe (`28e19ea`). Sonundaki bileşim hipotezi v0.9'da sınandı ve tutmadı. Rapor: `results/manuscripts.md` bölüm 5 ve 6. Üreteçler değişmedi; T değerleri v0.7 ile aynı (doğrulandı), yalnız ölçüme büyüme profili eklendi.
 
 - **Voynich'in dağarcığı doymuyor.** 16 bin kelimelik yarıda: tür/kelime 0.25 ila 0.30, hapax/tür 0.68 ila 0.72, "bir harf farklı" komşusu olan tür oranı 0.86 ila 0.89. İki yarı birbirini 0.03 içinde tutuyor. 32 bin kelimede 6700 ila 7700 farklı kelime var ve hapax oranı 500 kelimeden 32 bin kelimeye yalnız 0.79'dan 0.68'e düşüyor.
 - **Tablo üreteçlerinin dağarcığı doyuyor.** `grille` önselinde tür/kelime medyanı 0.10, hapax 0.37, ed1 0.99. 2000 kelimelik pencerede Voynich kadar çeşitli görünen tablo, 16 bin kelimede kendini tekrar ediyor. Pencere düzeyi feature'lar bunu göremiyordu.
@@ -234,7 +236,7 @@ Tarihçe (`00d487a`). Sonundaki bileşim hipotezi v0.9'da sınandı ve tutmadı.
 
 ## v0.9 bulguları: seslisiz yazım + şifre bileşimi sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
 
-Tarihçe (`ba025a9`). Sonundaki kod defteri hipotezi v0.10'da sınandı ve tutmadı. Rapor: `results/manuscripts.md`.
+Tarihçe (`56d808a`). Sonundaki kod defteri hipotezi v0.10'da sınandı ve tutmadı. Rapor: `results/manuscripts.md`.
 
 Eklenen: `verbose` için iki ayar, `p_drop_vowels` (şifrelemeden önce sesliler atılır) ve `p_short` (kodların kısalığı). Ayarlar duruyor, çünkü dil tarafının hipotez uzayını genişletiyorlar.
 
@@ -245,7 +247,7 @@ Eklenen: `verbose` için iki ayar, `p_drop_vowels` (şifrelemeden önce sesliler
 
 ## v0.10 bulguları: kod defteri sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
 
-Tarihçe (`9b92a97`). El yazması tablosu ve sıralamalar hâlâ geçerli (üreteçler v0.11'de değişmedi). Sonundaki aday v0.11'de ön sınamada elendi. Rapor: `results/manuscripts.md` (sekiz sınıf, sınıf başına 2000 el yazması).
+Tarihçe (`df9c296`). El yazması tablosu ve sıralamalar hâlâ geçerli (üreteçler v0.11'de değişmedi). Sonundaki aday v0.11'de ön sınamada elendi. Rapor: `results/manuscripts.md` (sekiz sınıf, sınıf başına 2000 el yazması).
 
 Eklenen: `codebook` sınıfı (dil tabanlı).
 
@@ -259,7 +261,7 @@ Eklenen: `codebook` sınıfı (dil tabanlı).
 
 ## v0.11 bulguları: ön sınama aracı ve sözlük sınaması (2026-11-24, seed 7)
 
-Tarihçe (`e53aecc`). Sözlük sınamasının sayıları v0.12'de dönem metinleri, bölümler ve daha çok örnekle yenilendi; buradaki "harf harf şifre elenir" cümlesi v0.12'de düzeltildi. Üreteçler değişmedi; `results/manuscripts.md` v0.10 ile aynı. Yeni rapor: `results/checks.md` üçüncü bölüm.
+Tarihçe (`6c42fdc`). Sözlük sınamasının sayıları v0.12'de dönem metinleri, bölümler ve daha çok örnekle yenilendi; buradaki "harf harf şifre elenir" cümlesi v0.12'de düzeltildi. Üreteçler değişmedi; `results/manuscripts.md` v0.10 ile aynı. Yeni rapor: `results/checks.md` üçüncü bölüm.
 
 - **Ön sınama aracı (`probe`) yazıldı, ilke 8 oldu.** Var olan bir sınıfı 12 el yazmasında 9 saniyede ölçüyor.
 - **v0.10'daki aday ön sınamada elendi.** "Ünsüz başına tek glif + konuma bağlı dolgu" altı dilde ve beş ayarda denendi (30 düzen, 18 saniye): büyüme bandına giren el yazması yok. ed1 oranı 0.51 ila 0.76 çıktı, yalın seslisiz yazımın (0.86) altında. Neden: seslisiz yazımdaki komşulukların çoğu harf ekleme ya da silmeyle oluşuyor; dolgu konuma bağlı olunca bir harf eklemek öbür harflerin dolgusunu da değiştiriyor. Sınıf yazılmadı, zincir koşulmadı.
@@ -276,7 +278,7 @@ Tarihçe (`e53aecc`). Sözlük sınamasının sayıları v0.12'de dönem metinle
 
 ## v0.12 bulguları: sözlük sınamasının sınırları (2026-11-24, seed 7)
 
-Tarihçe (`2468f9f`). Sonundaki otomat öngörüsü v0.13'te sınandı. Rapor: `results/checks.md` üçüncü bölüm.
+Tarihçe (`6174abb`). Sonundaki otomat öngörüsü v0.13'te sınandı. Rapor: `results/checks.md` üçüncü bölüm.
 
 Eklenen: dönem metinleri (`fetch_period`, `load_period`), ZL sayfa değişkenleri (`ivtff_page_variables`), sözlük sınamasında dönem metni grubu, Voynich bölümleri ve sınıf başına 30 örnek.
 
@@ -292,7 +294,7 @@ VL-012'de yazılan dört sınırın durumu:
 
 ## v0.13 bulguları: rastgele glif otomatı sınandı, öngörünün yarısı tuttu (2026-11-24, seed 7, pencere 2000)
 
-Tarihçe (`7a86eab`); el yazması tablosu hâlâ geçerli. Rapor: `results/manuscripts.md` (dokuz sınıf, sınıf başına 2000 el yazması). Eklenen: `automaton` sınıfı. Ön sınama ve öngörü v0.12 bölümünde, zincirden önce yazıldı.
+Tarihçe (`7062118`); el yazması tablosu hâlâ geçerli. Rapor: `results/manuscripts.md` (dokuz sınıf, sınıf başına 2000 el yazması). Eklenen: `automaton` sınıfı. Ön sınama ve öngörü v0.12 bölümünde, zincirden önce yazıldı.
 
 - **Tutan yarı:** büyüme profiline uyan `automaton` el yazması sayısı 88 ila 112 (2000'de); `slotgram` 29 ila 35, `slotcite` 16 ila 36, `grille` 2 ila 15. Anlamsız metin üreteçleri içinde en yükseği; yalnız `abjad` daha yüksek (105 ila 335).
 - **Tutmayan yarı:** uyanlar içinde en iyi doğrulama T'si 6.1 ila 8.9; hiçbir görünümde 5'in altına inmedi. Yalnız pencere profiline göre seçilenlerde T medyanı 6.9 ila 8.5 (`grille` 5.2 ila 6.7). Otomat da iki ölçütü birleştiremiyor.
@@ -303,7 +305,7 @@ Tarihçe (`7a86eab`); el yazması tablosu hâlâ geçerli. Rapor: `results/manus
 
 ## v0.14 bulguları: kelime sırası, bozulma taraması ve hedef hakkında hüküm (2026-11-24, seed 7)
 
-Tarihçe (`aa5e142`). Ölçümler geçerli. "Hedef açısından sonuç" paragrafındaki bir cümle yanlıştı ve v0.15'te düzeltildi; literatür notunun yerini v0.15'teki okuma aldı. Rapor: `results/checks.md` (dördüncü ve beşinci bölüm). Üreteçler değişmedi; `results/manuscripts.md` ve `results/report.md` v0.13 ile aynı.
+Tarihçe (`8abcbdc`). Ölçümler geçerli. "Hedef açısından sonuç" paragrafındaki bir cümle yanlıştı ve v0.15'te düzeltildi; literatür notunun yerini v0.15'teki okuma aldı. Rapor: `results/checks.md` (dördüncü ve beşinci bölüm). Üreteçler değişmedi; `results/manuscripts.md` ve `results/report.md` v0.13 ile aynı.
 
 Eklenen: `checks` içine sıra deneyi (`order_stats`), kelime aileleri (`word_families`), bozulma taraması (`degradation_experiment`); tür denetimi metinleri; Wikisource üst bilgisi temizliği.
 
@@ -433,7 +435,7 @@ Eklenen: `checks` içine kelime ucu deneyi (`edge_reduce`, `edge_stats`, `edge_e
 
 ## v0.17 bulguları: bağlı otomat sınandı (2026-11-24, seed 7, pencere 2000)
 
-Tarihçe (`a951b97`); sayılar 32 feature ile. v0.18 aynı zinciri 33 feature ile yeniden koştu, sonuç değişmedi. Raporlar git geçmişinde.
+Tarihçe (`9ee88d9`); sayılar 32 feature ile. v0.18 aynı zinciri 33 feature ile yeniden koştu, sonuç değişmedi. Raporlar git geçmişinde.
 
 Eklenen: `automaton` için `p_link` ayarı. 0 ise kelimeler bağımsız (eski otomat); 0'dan büyükse kelimenin ilk glifi, önceki kelimenin son glifine özgü bir dağılım ile genel başlangıç dağılımının karışımından çekilir. Önsel: yarı yarıya kapalı ya da 0.1 ila 1 arasında.
 
