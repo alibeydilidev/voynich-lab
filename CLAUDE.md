@@ -85,7 +85,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 
 Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bir glif. Çok harfli glifler Unicode özel kullanım alanındaki tek karaktere eşlenir.
 
-Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu: önek, gövde, sonek heceleri; sütunların glif kümeleri ayrık ya da örtüşük), `selfcite` (Timm ve Schinner kendinden kopyalama; yeni kelimeler yuva yapısından), `slotcite` (melez: kelimeler grille gibi hece üçlüsü, metin selfcite gibi kopyalayıp bir heceyi değiştirerek ilerler), `slotgram` (çok yuvalı kelime grameri: 3 ila 8 sıralı seçmeli yuva, isteğe bağlı yerel kopyalama), `codebook` (kelime kelime kodlama: her kelime türü, sıra numarasının yuvalara basamak olarak yazıldığı tek bir kod kelimesi), `automaton` (rastgele kurulmuş katmanlı glif otomatı: her kelime gliften glife bağımsız bir yürüyüş, sözlük yok).
+Sınıflar: `plain` (doğal dil, tek alfabeli ikame dahil), `abjad` (seslisiz yazım), `verbose` (harf başına 1-3 sembol), `grille` (Rugg tablosu: önek, gövde, sonek heceleri; sütunların glif kümeleri ayrık ya da örtüşük), `selfcite` (Timm ve Schinner kendinden kopyalama; yeni kelimeler yuva yapısından), `slotcite` (melez: kelimeler grille gibi hece üçlüsü, metin selfcite gibi kopyalayıp bir heceyi değiştirerek ilerler), `slotgram` (çok yuvalı kelime grameri: 3 ila 8 sıralı seçmeli yuva, isteğe bağlı yerel kopyalama), `codebook` (kelime kelime kodlama: her kelime türü, sıra numarasının yuvalara basamak olarak yazıldığı tek bir kod kelimesi), `automaton` (rastgele kurulmuş katmanlı glif otomatı: her kelime gliften glife bir yürüyüş, sözlük yok; isteğe bağlı olarak kelimenin ilk glifi önceki kelimenin son glifine bağlanır).
 
 Yeni süreç eklemek: fonksiyonu `generators.py` içine yaz, ayarları `Knobs.get` ile çek (böylece hem kaydedilir hem dışarıdan sabitlenebilir), sınırlarını `PROCESS_PRIOR` tablosuna yaz, sonunda `lay_out(kelimeler, rng, layout, rec)` çağır, ilgili sözlüğe ekle. `test_priors_cover_what_is_drawn` tablo ile çekimin tutarlılığını denetler.
 
@@ -338,7 +338,7 @@ Sınamaların eleyemediği iki ihtimal kalıyor:
 
 ## v0.15 bulguları: literatür okuması, Naibbe denetimi ve hükmün düzeltilmesi (2026-11-24, seed 7)
 
-Hüküm bölümü güncel; v0.16 buna kelime ucu bağını ekledi. Rapor: `results/checks.md` (altıncı bölüm). Üreteçler değişmedi; `results/manuscripts.md` ve `results/report.md` v0.13 ile aynı.
+Hüküm bölümü güncel; v0.16 buna kelime ucu bağını ekledi, v0.17 üreteç tarafını değiştirdi. Rapor: `results/checks.md` (altıncı bölüm). Bu sürümde üreteçler değişmemişti.
 
 Eklenen: `fetch` iki denetim dosyası indirir (`data/raw/controls/`: Naibbe örnek şifreli metni ve aynı metnin anahtarla geri okunmuş hâli); `load_eva_plain`; `checks` içine denetim deneyi (`control_experiment`).
 
@@ -398,7 +398,7 @@ Bundan çıkan sınanabilir soru (VL-015, yapılmadı): Voynich kelime türlerin
 
 ## v0.16 bulguları: kelime ucu bağı (2026-11-24, seed 7)
 
-Güncel durum budur (hüküm için v0.15 "Düzeltilmiş hüküm" ile birlikte okunur). Rapor: `results/checks.md` (yedinci bölüm). Üreteçler değişmedi.
+Ölçüm güncel; üreteç tarafı v0.17'de değişti. Rapor: `results/checks.md` (yedinci bölüm).
 
 Eklenen: `checks` içine kelime ucu deneyi (`edge_reduce`, `edge_stats`, `edge_experiment`). Bu, Rozanova ve Temerev 2026'nın bulgusunun (sıra bilgisi kelime kimliğinde değil kelime uçlarında) bizim kestiriciyle, görülmemiş yarıda ve beş görünümde doğrulamasıdır; yeni bir bulgu değildir. Öngörü ölçümden önce yazıldı (VL-014) ve tuttu.
 
@@ -411,16 +411,35 @@ Eklenen: `checks` içine kelime ucu deneyi (`edge_reduce`, `edge_stats`, `edge_e
 | dönem ve tür metinleri (5) | +0.181 ila +0.832 | +0.013 ila +0.101 | +0.013 ila +0.071 |
 | Naibbe, şifreli | +0.009 | +0.004 | 0.000 |
 | Naibbe, anahtarla çözülmüş | +0.395 | +0.489 | +0.121 |
-| `selfcite` (6 örnek) | 0.000 ila +0.006 | -0.088 ila +0.040 | medyan +0.055 |
-| `slotcite`, `slotgram`, `automaton` (6'şar örnek) | sıfıra yakın | -0.006 ila +0.020 | sıfıra yakın |
+| `selfcite` (20 örnek) | -0.003 ila +0.107 | -0.039 ila +0.057 | medyan +0.024 |
+| `slotcite`, `slotgram` (20'şer örnek) | en çok +0.079 | -0.008 ila +0.038 | sıfıra yakın |
+| `automaton`, bağsız (v0.16'da 6 örnek) | sıfıra yakın | -0.001 ila +0.014 | sıfıra yakın |
 
-- **Voynich'te kelimeler birbirinden bağımsız değil: bağ birleşme yerinde.** Kelime kimliği sonraki kelimeyi öngörmüyor, ama bir kelimenin son glifi sonrakinin ilk glifini 22 dilin hepsinden daha iyi öngörüyor (en yüksek dil +0.161; Voynich en az +0.166). Tek başına bu sayı dillerden keskin ayrılmıyor; ayırıcı olan ikisinin birlikteliği: ham sıra sıfır, uç bağı büyük. Bu bileşimi 22 dilin, 5 dönem metninin, Naibbe örneğinin ve 54 üreteç örneğinin hiçbiri vermiyor ("Voynich bandında" sütunu hep 0).
+- **Voynich'te kelimeler birbirinden bağımsız değil: bağ birleşme yerinde.** Kelime kimliği sonraki kelimeyi öngörmüyor, ama bir kelimenin son glifi sonrakinin ilk glifini 22 dilin hepsinden daha iyi öngörüyor (en yüksek dil +0.161; Voynich en az +0.166). Tek başına bu sayı dillerden keskin ayrılmıyor; ayırıcı olan ikisinin birlikteliği: ham sıra sıfır, uç bağı büyük. Bu bileşimi 22 dilin, 5 dönem metninin ve Naibbe örneğinin hiçbiri vermiyor; v0.16'daki üreteçlerin de hiçbiri vermiyordu. v0.17'de `automaton` sınıfına eklenen bağ ayarı açıkken veriyor (tablodaki sayılar v0.17 koşusundan, sınıf başına 20 örnek).
 - **Satır kenarı alışkanlığı değil.** Yalnız satır içi komşular sayılıyor; ayrı denemede satırların ilk ve son kelimesi yerinde bırakılarak karıştırınca da aynı (+0.145 ila +0.208). İlk yazdığım ölçü satır sonu ile sonraki satır başı arasındaki çiftleri de sayıyordu ve üreteçlerde yazıcı katmanının satır kenarı işaretlerini "bağ" gibi gösteriyordu (`automaton` en çok +0.102); düzeltildi (şimdi en çok +0.014).
 - **Kopyalama bunu üretmiyor.** `selfcite` komşu kelimeleri birbirine benzetiyor (ilk glif -> ilk glif +0.055), ama birleşme yerinde bağ üretmiyor. Rozanova-Temerev de Timm-Schinner üreteci için aynısını bildiriyor.
 - **Naibbe de üretmiyor** (+0.004; onların ölçümü 0.006 bit). Şifrede kelime sınırı ilgisiz düz metin parçalarının arasına düşüyor.
 - **1. basamak için yeni ölçüt.** Bir üreteç ya da şifre adayı artık dört şeyi birlikte tutturmalı: pencere profili, büyüme profili, sıfır kelime sırası ve +0.17 dolayında uç bağı. Kelimeleri birbirinden bağımsız çeken hiçbir mekanizma dördüncüyü veremez; kelime, bir öncekinin bittiği glife bakarak başlamalı.
 
 **Akış vekili denemesi (ayrı deneme, depoda kalıcı sınaması yok; öngörü yarım tuttu).** Soru: Voynich'in sıra yapısı, boşluğu da bir işaret sayan kısa hafızalı bir glif zinciriyle açıklanıyor mu. Metnin ilk yarısından k. derece zincir öğrenildi, aynı boyda metin üretildi. k = 3 ile: ham kelime sırası sıfıra yakın (öngörü tuttu), tür sayısı gerçeğin 0.86 ila 0.92'si (sınırda), ama uç bağı (ilk ve son glife indirgenmiş kelimelerle ölçü) gerçeğin yalnız %46 ila %82'si (`eva_glyph` +0.042 ve +0.091; `v101` +0.058 ve +0.071; `zl_glyph` +0.065 ve +0.103); öngörü "0.03 yakınında" idi, üç görünümün ikisinde tutmadı. k = 4'te uç bağı tutuyor ama zincir eğitim metnini ezberlemeye başlıyor (ham sıra +0.04 ila +0.20). Aynı zincir Latince ve İtalyancada k = 3'e kadar kelime sırasının yirmide birinden azını geri getiriyor. Yani Voynich'in sıra yapısının çoğu yerel glif istatistiği, ama hepsi değil; kalan kısım için üç gliften uzun bir bağlam gerekiyor.
+
+## v0.17 bulguları: bağlı otomat sınandı (2026-11-24, seed 7, pencere 2000)
+
+Güncel durum budur (hüküm için v0.15 "Düzeltilmiş hüküm" ve v0.16 ile birlikte okunur). Raporlar: `results/manuscripts.md` (dokuz sınıf, sınıf başına 2000 el yazması; `automaton` yeni ayarla), `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`. Bütün zincir yeniden koşuldu.
+
+Eklenen: `automaton` için `p_link` ayarı. 0 ise kelimeler bağımsız (eski otomat); 0'dan büyükse kelimenin ilk glifi, önceki kelimenin son glifine özgü bir dağılım ile genel başlangıç dağılımının karışımından çekilir. Önsel: yarı yarıya kapalı ya da 0.1 ila 1 arasında.
+
+Ön sınama ve öngörü zincirden önce yazıldı (VL-010; ilke 8).
+
+- **Ön sınama (aynı tohumla 40'ar el yazması, bağ gücü 0, 0.3, 0.6, 0.9): öngörünün üç maddesi de tuttu.** Son glif -> sonraki ilk glif ölçüsü bağ gücüyle büyüyor: medyan +0.002, +0.066, +0.205, +0.396 (Voynich +0.166 ila +0.252). Ham kelime sırası medyanı 0.000 kalıyor. Büyüme bandına giren el yazması sayısı değişmiyor (40'ta 3, 2, 2, 3). Sözlük sınamasında tür oranı medyanı 0.98, değişmiyor.
+- **Zincir: pencere profili düzelmedi.** Doğrulama T medyanı `automaton` için 6.7 ila 8.3 (v0.13'te 6.9 ila 8.5); en iyi tek aday 5.7 ila 7.0; büyümeye uyan el yazması sayısı 83 ila 118 (v0.13'te 88 ila 112), bunların en iyi T'si 5.7 ila 7.5 (v0.13'te 6.1 ila 8.9). Referans 1.5. Farklar tohum akışının değişmesiyle açıklanacak kadar küçük. Beklenen buydu: 32 pencere feature'ı arasında birleşme yerindeki bağı gören bir ölçü yok.
+- **Seçilen adaylar bağı biraz tercih ediyor.** Pencere profiline göre seçilen 20 adayda bağ gücünün medyanı 0.28 ila 0.41 (önsel medyanı 0.11). Kayma küçük ve T'ye yansımıyor.
+- **Kelime ucu sınamasında (`checks`, sınıf başına 20 örnek) Voynich bandına giren tek üreteç örneği bağlı bir otomat** (20'de 1; öteki sınıflarda 0). Bağ açık örneklerde ölçü bağ gücüne göre +0.06 ile +0.64 arasında değişiyor; band dar olduğu için çoğu dışarıda kalıyor.
+- **Sıralama değişmedi** (büyümeye uyanlar içinde en iyi T): `slotcite` 5.1 ila 12.7, `slotgram` 5.5 ila 9.9, `automaton` 5.7 ila 7.5, `grille` 6.5 ila 23.1, `verbose` 6.8 ila 13.7, `abjad` 7.2 ila 13.6, `plain` 7.3 ila 11.9, `selfcite` 11.8 ila 30.6, `codebook` uyan yok. Dokuz hipotezin hiçbiri Voynich'i üretemiyor.
+
+**Ne öğrenildi.** Kelime ucu bağı ucuz bir mekanizmayla üretilebiliyor ve öbür üç ölçütü bozmuyor; yani v0.16'daki dördüncü ölçüt "anlamsız üretim" ihtimalini zorlaştırmıyor. Asıl açık yerinde duruyor: pencere profili (T 6 dolayında, hedef 1.5). Otomatın v0.13'te yazılan açıkları (kelime başı fazla kısıtlı, çift glif az, kelime uzunluğu çarpık, komşu kelime uzunluk benzerliği yok) bu ayarla kapanmıyor.
+
+**Sıradaki soru.** Pencere feature'larına birleşme yerindeki bağı ölçen bir feature eklenmeli mi. Eklenirse 32 feature 33 olur ve bütün raporlar değişir; karşılığında el yazması düzeyindeki hüküm dördüncü ölçütü de görür. Yapılmadı; ayrı iş (VL-010).
 
 ## Yol haritası (öncelik sırasıyla)
 
@@ -430,7 +449,7 @@ Eklenen: `checks` içine kelime ucu deneyi (`edge_reduce`, `edge_stats`, `edge_e
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). Sözlük sınaması genişletildi (v0.12); rastgele glif otomatı sınandı, yarısı tuttu (v0.13). Kelime sırası sınaması ve bozulma taraması yapıldı (v0.14). Literatür okundu, Naibbe denetimi eklendi, hüküm düzeltildi (v0.15). **Sıradaki:** (a) sınıf arama sınaması ve güç denetimi (VL-015); (b) kelime ucu bağı ölçüldü (v0.16); sıradaki, bunu üretebilen mekanizmayı `probe` ile aramak (kelime, bir öncekinin son glifine bakarak başlar); (c) uzak mesafeli bağlar için kalıcı sınama (VL-014); (d) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (e) kalan okumalar (VL-013): Timm ve Schinner 2020, Greshko 2025, forum.
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). Sözlük sınaması genişletildi (v0.12); rastgele glif otomatı sınandı, yarısı tuttu (v0.13). Kelime sırası sınaması ve bozulma taraması yapıldı (v0.14). Literatür okundu, Naibbe denetimi eklendi, hüküm düzeltildi (v0.15). **Sıradaki:** (a) sınıf arama sınaması ve güç denetimi (VL-015); (b) kelime ucu bağı ölçüldü (v0.16) ve bağlı otomatla üretildi (v0.17); sıradaki, bu bağı gören bir pencere feature'ı ve otomatın pencere profili açıkları; (c) uzak mesafeli bağlar için kalıcı sınama (VL-014); (d) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (e) kalan okumalar (VL-013): Timm ve Schinner 2020, Greshko 2025, forum.
 3. **Dönem metinleri.** Üç metin eklendi (v0.12: Latince, İtalyanca, İspanyolca; yalnız sözlük sınamasında kullanılıyor). Eksik: Almanca, İbranice, tıbbi ve botanik tür; dönem metinlerinin üreteçlere kaynak olarak bağlanması (`corpus.load_all` yalnız İncil okuyor).
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.

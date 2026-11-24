@@ -200,6 +200,7 @@ PROCESS_PRIOR: dict[str, dict[str, tuple[float, float, str]]] = {
         "p_concentration": (0.2, 3.0, "f"),
         "p_stay": (0, 1, "f"),
         "p_end_from": (1, 3, "i"),
+        "p_link": (0.1, 1.0, "m"),
     },
     "plain": {},
     "abjad": {},
@@ -1107,7 +1108,12 @@ def automaton(
     Örnek başına rastgele: glif ve katman sayısı, glif başına çıkış sayısı,
     geçiş ağırlıklarının yoğunlaşması (küçükse birkaç geçiş baskın), aynı
     katmanda kalmaya izin verilen kenar payı, kelimenin bitebildiği ilk katman.
-    Komşu kelimeler arasında bağ yoktur.
+
+    Kelimeler arası bağ (`p_link`, v0.17): 0 ise her kelime bağımsızdır. 0'dan
+    büyükse kelimenin ilk glifi, bir önceki kelimenin son glifine özgü bir
+    dağılım ile genel başlangıç dağılımının karışımından çekilir (karışım payı
+    `p_link`). Kelime kimliği yine taşınmaz; yalnız birleşme yerindeki iki glif
+    bağlanır. Voynich'te ölçülen kelime ucu bağının (v0.16) en yalın modeli.
     """
     k = Knobs(fixed, rec)
     n_glyphs = int(k.get("p_alphabet", lambda: int(rng.integers(15, 26))))
@@ -1117,6 +1123,10 @@ def automaton(
     p_stay = float(k.get("p_stay", lambda: float(rng.uniform(0, 1))))
     end_from = min(
         int(k.get("p_end_from", lambda: int(rng.integers(1, 4)))), n_levels - 1
+    )
+
+    link = float(
+        k.get("p_link", lambda: float(rng.uniform(0.1, 1.0)) if rng.random() < 0.5 else 0.0)
     )
 
     glyphs = _symbols(n_glyphs)
@@ -1138,6 +1148,15 @@ def automaton(
         opts = cand + ([-1] if level[i] >= end_from or not cand else [])  # -1: kelime biter
         trans.append((opts, np.cumsum(rng.dirichlet(np.full(len(opts), conc)))))
 
+    # Bağ: her son glif için ayrı bir başlangıç dağılımı, genel dağılımla karışık.
+    start_after: list[np.ndarray] | None = None
+    if link > 0:
+        base = np.diff(start_cum, prepend=0.0)
+        start_after = [
+            np.cumsum((1 - link) * base + link * rng.dirichlet(np.full(len(starts), 0.5)))
+            for _ in range(n_glyphs)
+        ]
+
     block = 8192
     uniforms = iter(())
 
@@ -1150,15 +1169,19 @@ def automaton(
         return v
 
     words: list[str] = []
+    last = -1  # önceki kelimenin son glifi; ilk kelimede yok
     while len(words) < n_words:
-        i = starts[min(int(np.searchsorted(start_cum, u(), side="right")), len(starts) - 1)]
+        first_cum = start_cum if start_after is None or last < 0 else start_after[last]
+        i = starts[min(int(np.searchsorted(first_cum, u(), side="right")), len(starts) - 1)]
         w = glyphs[i]
         while len(w) < 12:
             opts, cum = trans[i]
-            i = opts[min(int(np.searchsorted(cum, u(), side="right")), len(opts) - 1)]
-            if i < 0:
+            j = opts[min(int(np.searchsorted(cum, u(), side="right")), len(opts) - 1)]
+            if j < 0:
                 break
+            i = j
             w += glyphs[i]
+        last = i
         words.append(w)
     return lay_out(words, rng, layout, rec)
 

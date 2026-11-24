@@ -693,3 +693,18 @@ def test_edge_stats_finds_coupling_that_lives_at_word_edges():
     assert c["last_first"] > 2.5 and abs(c["first_first"]) < 0.1  # bağ birleşme yerinde, benzerlikte değil
     assert abs(f["last_first"]) < 0.05
     assert edge_stats(lines(free)[:100], 3000, np.random.default_rng(1)) is None
+
+
+def test_automaton_link_couples_word_edges_without_word_order():
+    from voynich_lab.checks import edge_stats
+    from voynich_lab.generators import automaton
+
+    gains = {}
+    for link in (0.0, 0.8):
+        fixed = {"p_alphabet": 22, "p_levels": 6, "p_out_degree": 5, "p_concentration": 1.0,
+                 "p_stay": 0.5, "p_end_from": 2, "p_link": link}  # fmt: skip
+        lines = automaton(7000, np.random.default_rng(12), fixed=fixed)
+        gains[link] = edge_stats(lines, 3000, np.random.default_rng(1))
+    assert abs(gains[0.0]["last_first"]) < 0.05
+    assert gains[0.8]["last_first"] > gains[0.0]["last_first"] + 0.1
+    assert abs(gains[0.8]["order"]) < 0.1  # kelime kimliği düzeyinde sıra bilgisi yok

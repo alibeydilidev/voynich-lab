@@ -376,6 +376,7 @@ def cmd_checks(args: argparse.Namespace) -> None:
         corpora,
         period=period,
         controls={k: v for k, v in control_texts.items() if k.startswith("Naibbe") and "glyph" not in k},
+        n_per_class=20,  # bağlı otomat örneklerin yarısında kapalı; az örnekle bant sayımı şansa kalır
     )
     (out / "checks.json").write_text(
         json.dumps(

@@ -4,16 +4,16 @@ Her süreçten 300 anlamsız metin örneği üretildi. Her örnek iki kez sını
 
 | süreç | yazım | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
 |---|---|---|---|---|---|---|---|---|---|---|
-| grille | özgün | 1 | 2 | 2 | 278 | 0 | 0 | 5 | 11 | 1 |
-| grille | EVA'laştırılmış | 0 | 8 | 0 | 181 | 1 | 0 | 1 | 16 | 93 |
-| selfcite | özgün | 0 | 0 | 0 | 0 | 0 | 281 | 15 | 4 | 0 |
-| selfcite | EVA'laştırılmış | 0 | 0 | 0 | 0 | 0 | 88 | 82 | 83 | 47 |
-| slotcite | özgün | 0 | 0 | 0 | 14 | 0 | 8 | 266 | 11 | 1 |
-| slotcite | EVA'laştırılmış | 0 | 5 | 0 | 5 | 0 | 0 | 234 | 23 | 33 |
-| slotgram | özgün | 5 | 12 | 3 | 13 | 0 | 10 | 23 | 234 | 0 |
-| slotgram | EVA'laştırılmış | 0 | 22 | 0 | 9 | 0 | 1 | 32 | 178 | 58 |
-| automaton | özgün | 0 | 299 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| automaton | EVA'laştırılmış | 0 | 264 | 0 | 6 | 0 | 0 | 0 | 3 | 27 |
+| grille | özgün | 1 | 2 | 2 | 276 | 0 | 0 | 6 | 12 | 1 |
+| grille | EVA'laştırılmış | 0 | 6 | 0 | 176 | 1 | 0 | 2 | 14 | 101 |
+| selfcite | özgün | 0 | 0 | 0 | 0 | 0 | 278 | 18 | 4 | 0 |
+| selfcite | EVA'laştırılmış | 0 | 0 | 0 | 0 | 0 | 88 | 88 | 77 | 47 |
+| slotcite | özgün | 0 | 0 | 0 | 13 | 0 | 7 | 266 | 13 | 1 |
+| slotcite | EVA'laştırılmış | 0 | 4 | 0 | 5 | 0 | 0 | 232 | 19 | 40 |
+| slotgram | özgün | 3 | 11 | 2 | 14 | 0 | 7 | 26 | 237 | 0 |
+| slotgram | EVA'laştırılmış | 0 | 22 | 0 | 10 | 0 | 2 | 29 | 179 | 58 |
+| automaton | özgün | 0 | 297 | 0 | 1 | 0 | 0 | 0 | 0 | 2 |
+| automaton | EVA'laştırılmış | 0 | 256 | 0 | 10 | 0 | 0 | 0 | 4 | 30 |
 
 # Sınama: tek bir tablo Voynich kadar değişken metin üretiyor mu
 
@@ -21,11 +21,11 @@ Her süreçten 12 el yazması üretildi; her biri tek tablo ve tek ayar kümesiy
 
 | görünüm | Voynich iç | grille iç | grille arası | selfcite iç | selfcite arası | slotcite iç | slotcite arası | slotgram iç | slotgram arası | automaton iç | automaton arası |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| eva_basic | 0.92 | 0.33 | 6.21 | 1.69 | 6.88 | 0.82 | 7.58 | 0.75 | 11.53 | 0.50 | 8.88 |
-| eva_glyph | 0.93 | 0.31 | 5.49 | 1.37 | 5.91 | 0.72 | 6.69 | 0.70 | 9.98 | 0.49 | 8.08 |
-| v101 | 0.94 | 0.28 | 4.58 | 1.62 | 6.48 | 0.85 | 6.82 | 0.82 | 11.70 | 0.50 | 8.87 |
-| zl_basic | 0.95 | 0.27 | 4.58 | 1.56 | 5.84 | 0.78 | 6.64 | 0.75 | 10.76 | 0.48 | 8.31 |
-| zl_glyph | 0.95 | 0.26 | 3.78 | 1.26 | 4.88 | 0.68 | 5.65 | 0.69 | 9.39 | 0.47 | 7.56 |
+| eva_basic | 0.92 | 0.33 | 6.21 | 1.69 | 6.88 | 0.82 | 7.59 | 0.75 | 11.53 | 0.43 | 7.49 |
+| eva_glyph | 0.93 | 0.31 | 5.49 | 1.37 | 5.91 | 0.72 | 6.68 | 0.70 | 9.98 | 0.41 | 6.73 |
+| v101 | 0.94 | 0.28 | 4.58 | 1.62 | 6.48 | 0.85 | 6.82 | 0.82 | 11.70 | 0.45 | 6.86 |
+| zl_basic | 0.95 | 0.27 | 4.58 | 1.56 | 5.84 | 0.78 | 6.64 | 0.75 | 10.76 | 0.41 | 6.86 |
+| zl_glyph | 0.95 | 0.26 | 3.78 | 1.26 | 4.88 | 0.68 | 5.65 | 0.69 | 9.39 | 0.40 | 6.07 |
 
 # Sınama: kelimeler bir sözlükten mi geliyor
 
@@ -49,7 +49,7 @@ Her metnin ilk 16000 kelimesinden kelime içi glif zinciri öğrenildi (k = 1 ve
 | selfcite (medyan [en az, en çok]) | 30 | 4.3 | 1.47 [0.95, 2.75] | 1.36 [0.96, 2.56] | 0.83 [0.72, 0.98] | 0.77 [0.50, 0.91] |
 | slotcite (medyan [en az, en çok]) | 30 | 3.8 | 2.35 [0.97, 9.03] | 1.13 [0.90, 3.02] | 6.97 [1.49, 374812500.00] | 1.65 [0.35, 46687500.00] |
 | slotgram (medyan [en az, en çok]) | 30 | 3.2 | 1.25 [0.78, 7.67] | 0.97 [0.81, 1.35] | 1.43 [0.79, 132.83] | 0.84 [0.00, 1.71] |
-| automaton (medyan [en az, en çok]) | 30 | 4.8 | 1.00 [0.89, 1.74] | 0.98 [0.92, 1.60] | 1.02 [0.87, 8.19] | 0.96 [0.53, 7.05] |
+| automaton (medyan [en az, en çok]) | 30 | 4.6 | 1.00 [0.89, 1.30] | 0.98 [0.83, 1.04] | 1.03 [0.85, 11.14] | 0.96 [0.08, 1.39] |
 
 ## Voynich bölüm bölüm (yarı boyu 5000 kelime)
 
@@ -90,7 +90,7 @@ Her metnin ilk 16000 kelimesinden kelime ikilisi modeli öğrenildi; görülmemi
 | selfcite (medyan [en az, en çok]) | 20 | +0.005 [-0.001, +0.027] | +0.005 [-0.001, +0.037] | +0.000 [-0.001, +0.019] |
 | slotcite (medyan [en az, en çok]) | 20 | +0.013 [+0.000, +0.070] | +0.013 [+0.000, +0.108] | +0.000 [-0.001, +0.074] |
 | slotgram (medyan [en az, en çok]) | 20 | +0.000 [+0.000, +0.036] | +0.000 [+0.000, +0.077] | +0.000 [+0.000, +0.042] |
-| automaton (medyan [en az, en çok]) | 20 | +0.000 [-0.001, +0.009] | +0.000 [-0.001, +0.009] | +0.000 [-0.001, +0.000] |
+| automaton (medyan [en az, en çok]) | 20 | +0.000 [+0.000, +0.071] | +0.000 [+0.000, +0.071] | +0.000 [-0.001, +0.000] |
 | italian_alberti_1440 | 1 | +0.295 | +0.294 | -0.001 |
 | italian_cennini_tarif_1400 | 1 | +0.833 | +0.840 | +0.007 |
 | latin_kempis_1420 | 1 | +0.181 | +0.180 | -0.001 |
@@ -103,30 +103,30 @@ Her metnin ilk 16000 kelimesinden kelime ikilisi modeli öğrenildi; görülmemi
 |---|---|
 | Voynich eva_basic | +0.000 |
 | Voynich eva_glyph | +0.000 |
-| Voynich v101 | +0.009 |
-| Voynich zl_basic | +0.009 |
-| Voynich zl_glyph | +0.008 |
-| Voynich v101, belirsiz boşluk birleşik | +0.003 |
+| Voynich v101 | +0.011 |
+| Voynich zl_basic | +0.005 |
+| Voynich zl_glyph | +0.005 |
+| Voynich v101, belirsiz boşluk birleşik | +0.005 |
 | Voynich zl_glyph, belirsiz boşluk birleşik | +0.001 |
 | Voynich Currier A (zl_glyph) | +0.005 |
 | Voynich Currier B (zl_glyph) | +0.000 |
 | Voynich çizim türü A (zl_glyph) | metin kısa |
 | Voynich çizim türü B (zl_glyph) | metin kısa |
 | Voynich çizim türü C (zl_glyph) | metin kısa |
-| Voynich çizim türü H (zl_glyph) | +0.006 |
+| Voynich çizim türü H (zl_glyph) | +0.004 |
 | Voynich çizim türü P (zl_glyph) | metin kısa |
 | Voynich çizim türü S (zl_glyph) | +0.005 |
 | Voynich çizim türü T (zl_glyph) | metin kısa |
-| doğal dil, düz, 22 dil (medyan [en az, en çok]) | +0.316 [+0.131, +0.643] |
+| doğal dil, düz, 22 dil (medyan [en az, en çok]) | +0.316 [+0.131, +0.642] |
 | italian_alberti_1440 | +0.162 |
-| italian_cennini_tarif_1400 | +0.500 |
-| latin_apicius_tarif | +0.629 |
-| latin_cato_tarim | +0.076 |
-| latin_celsus_ilac | +0.805 |
+| italian_cennini_tarif_1400 | +0.499 |
+| latin_apicius_tarif | +0.620 |
+| latin_cato_tarim | +0.074 |
+| latin_celsus_ilac | +0.811 |
 | latin_kempis_1420 | +0.054 |
-| latin_macer_bitki | +0.322 |
-| latin_pliny_bitki | +0.162 |
-| spanish_celestina_1499 | +0.097 |
+| latin_macer_bitki | +0.325 |
+| latin_pliny_bitki | +0.163 |
+| spanish_celestina_1499 | +0.096 |
 
 # Tarama: gerçek dil hangi bozulma altında Voynich gibi görünür
 
@@ -217,11 +217,11 @@ Son üç sütun uç bağını ayrıştırır: önceki kelimenin son glifi sonrak
 | grup | n | ham sıra (en az, medyan, en çok) | uç bağı (en az, medyan, en çok) | uç bağı / ham sıra (medyan) | son -> ilk (en az, medyan, en çok) | ilk -> ilk (medyan) | Voynich bandında |
 |---|---|---|---|---|---|---|---|
 | doğal dil, düz | 22 | +0.165, +0.522, +0.960 | +0.072, +0.274, +0.622 | 0.53 | +0.004, +0.059, +0.161 | +0.052 | 0 |
-| abjad | 6 | +0.100, +0.412, +0.616 | +0.040, +0.201, +0.355 | 0.55 | +0.010, +0.055, +0.148 | +0.027 | 0 |
-| verbose | 6 | +0.269, +0.806, +1.464 | +0.185, +0.275, +0.670 | 0.49 | +0.046, +0.132, +0.240 | +0.076 | 0 |
-| codebook | 6 | +0.068, +0.297, +0.525 | +0.003, +0.036, +0.162 | 0.23 | -0.000, +0.015, +0.020 | +0.005 | 0 |
-| grille | 6 | +1.374, +2.312, +5.692 | +0.163, +0.719, +1.091 | 0.30 | +0.006, +0.041, +0.158 | +0.072 | 0 |
-| selfcite | 6 | +0.000, +0.000, +0.006 | +0.019, +0.086, +0.170 | ham sıra sıfıra yakın | -0.088, -0.005, +0.040 | +0.055 | 0 |
-| slotcite | 6 | +0.000, +0.007, +0.057 | -0.001, +0.010, +0.174 | ham sıra sıfıra yakın | -0.006, +0.001, +0.020 | +0.007 | 0 |
-| slotgram | 6 | +0.000, +0.000, +0.073 | -0.001, +0.002, +0.135 | ham sıra sıfıra yakın | +0.001, +0.001, +0.006 | -0.001 | 0 |
-| automaton | 6 | +0.000, +0.000, +0.001 | -0.000, +0.001, +0.017 | ham sıra sıfıra yakın | -0.001, +0.002, +0.014 | -0.001 | 0 |
+| abjad | 20 | +0.100, +0.265, +0.616 | +0.032, +0.150, +0.355 | 0.57 | +0.010, +0.052, +0.148 | +0.046 | 0 |
+| verbose | 20 | +0.041, +0.200, +1.490 | +0.009, +0.090, +0.476 | 0.37 | +0.004, +0.059, +0.177 | +0.023 | 0 |
+| codebook | 20 | +0.075, +0.317, +0.937 | -0.043, +0.022, +0.159 | 0.07 | -0.012, +0.001, +0.063 | +0.003 | 0 |
+| grille | 20 | +0.000, +2.249, +5.522 | +0.018, +0.342, +1.855 | 0.23 | +0.002, +0.030, +0.250 | +0.045 | 0 |
+| selfcite | 20 | -0.003, +0.000, +0.107 | -0.003, +0.079, +0.323 | ham sıra sıfıra yakın | -0.039, +0.000, +0.057 | +0.024 | 0 |
+| slotcite | 20 | +0.000, +0.006, +0.053 | +0.000, +0.021, +0.233 | ham sıra sıfıra yakın | -0.008, +0.002, +0.038 | +0.018 | 0 |
+| slotgram | 20 | -0.001, +0.000, +0.079 | -0.001, +0.001, +0.129 | ham sıra sıfıra yakın | -0.006, +0.000, +0.024 | +0.002 | 0 |
+| automaton | 20 | -0.001, +0.000, +0.189 | -0.000, +0.008, +0.422 | ham sıra sıfıra yakın | -0.003, +0.007, +0.644 | +0.002 | 1 |
