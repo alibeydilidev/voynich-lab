@@ -38,17 +38,18 @@ Her metnin ilk 16000 kelimesinden kelime içi glif zinciri öğrenildi (k = 1 ve
 | Voynich v101 | 1 | 3.8 | 1.14 | 0.96 | 1.35 | 0.92 |
 | Voynich zl_basic | 1 | 4.8 | 1.39 | 1.06 | 1.62 | 0.95 |
 | Voynich zl_glyph | 1 | 4.2 | 1.31 | 1.00 | 1.40 | 0.85 |
-| doğal dil, düz (medyan [en az, en çok]) | 22 | 4.4 | 2.79 [1.86, 4.91] | 2.26 [1.55, 3.24] | 3.92 [2.35, 7.92] | 2.88 [1.89, 5.18] |
-| doğal dil, seslisiz (medyan [en az, en çok]) | 19 | 2.6 | 2.16 [1.73, 3.07] | 1.53 [1.37, 1.80] | 2.40 [1.30, 4.64] | 1.58 [0.96, 2.66] |
-| dönem metni (15. yy), düz (medyan [en az, en çok]) | 5 | 4.7 | 2.09 [1.89, 3.03] | 1.78 [1.76, 2.35] | 3.76 [3.09, 6.04] | 3.19 [2.93, 4.50] |
-| dönem metni (15. yy), seslisiz (medyan [en az, en çok]) | 5 | 2.5 | 1.66 [1.52, 2.41] | 1.41 [1.25, 1.72] | 2.54 [2.15, 4.43] | 1.96 [1.82, 2.93] |
-| verbose (medyan [en az, en çok]) | 30 | 4.6 | 1.70 [1.04, 6.60] | 1.31 [0.98, 4.80] | 3.14 [1.63, 17.91] | 1.73 [0.90, 5.63] |
-| codebook (medyan [en az, en çok]) | 30 | 4.0 | 1.34 [1.06, 5.56] | 0.98 [0.78, 1.68] | 1.99 [0.81, 6.89] | 0.76 [0.04, 2.97] |
-| grille (medyan [en az, en çok]) | 30 | 4.0 | 2.62 [1.29, 17.82] | 1.36 [1.02, 9.53] | 13.44 [2.43, 392250000.00] | 4.09 [1.30, 111812500.00] |
-| selfcite (medyan [en az, en çok]) | 30 | 4.3 | 1.47 [1.14, 3.30] | 1.38 [1.14, 2.87] | 0.82 [0.73, 0.96] | 0.80 [0.58, 0.92] |
-| slotcite (medyan [en az, en çok]) | 30 | 4.1 | 2.48 [1.37, 8.88] | 1.36 [0.94, 2.74] | 6.61 [1.91, 62687500.00] | 2.04 [0.00, 23.75] |
-| slotgram (medyan [en az, en çok]) | 30 | 4.2 | 1.12 [0.73, 2.83] | 1.00 [0.87, 1.15] | 1.43 [0.78, 137000000.00] | 0.89 [0.00, 1.95] |
-| automaton (medyan [en az, en çok]) | 30 | 4.2 | 1.01 [0.93, 1.48] | 0.96 [0.91, 1.01] | 1.06 [0.84, 8.05] | 0.94 [0.38, 1.12] |
+| Voynich v101, belirsiz boşluk birleşik | 1 | 4.0 | 1.15 | 0.97 | 1.24 | 0.84 |
+| doğal dil, düz (medyan [en az, en çok]) | 22 | 4.4 | 2.80 [1.85, 4.91] | 2.24 [1.56, 3.34] | 3.91 [2.34, 7.97] | 2.92 [1.92, 5.29] |
+| doğal dil, seslisiz (medyan [en az, en çok]) | 19 | 2.6 | 2.16 [1.72, 3.02] | 1.56 [1.39, 1.79] | 2.39 [1.32, 4.64] | 1.60 [0.97, 2.59] |
+| dönem metni (15. yy), düz (medyan [en az, en çok]) | 5 | 4.7 | 2.12 [1.90, 3.08] | 1.81 [1.74, 2.36] | 3.79 [3.09, 6.07] | 3.22 [2.93, 4.53] |
+| dönem metni (15. yy), seslisiz (medyan [en az, en çok]) | 5 | 2.5 | 1.61 [1.53, 2.33] | 1.40 [1.23, 1.70] | 2.59 [2.11, 4.31] | 1.95 [1.80, 2.93] |
+| verbose (medyan [en az, en çok]) | 30 | 4.0 | 1.80 [1.02, 4.29] | 1.25 [0.98, 2.66] | 3.47 [1.45, 21.75] | 1.78 [1.06, 5.77] |
+| codebook (medyan [en az, en çok]) | 30 | 4.4 | 1.32 [1.02, 2.89] | 0.98 [0.77, 1.83] | 2.26 [0.33, 5.29] | 0.72 [0.02, 2.67] |
+| grille (medyan [en az, en çok]) | 30 | 4.6 | 3.10 [1.24, 14.14] | 1.47 [0.93, 3.72] | 19.76 [2.09, 349.19] | 5.59 [0.96, 176.66] |
+| selfcite (medyan [en az, en çok]) | 30 | 4.3 | 1.47 [0.95, 2.75] | 1.36 [0.96, 2.56] | 0.83 [0.72, 0.98] | 0.77 [0.50, 0.91] |
+| slotcite (medyan [en az, en çok]) | 30 | 3.8 | 2.35 [0.97, 9.03] | 1.13 [0.90, 3.02] | 6.97 [1.49, 374812500.00] | 1.65 [0.35, 46687500.00] |
+| slotgram (medyan [en az, en çok]) | 30 | 3.2 | 1.25 [0.78, 7.67] | 0.97 [0.81, 1.35] | 1.43 [0.79, 132.83] | 0.84 [0.00, 1.71] |
+| automaton (medyan [en az, en çok]) | 30 | 4.8 | 1.00 [0.89, 1.74] | 0.98 [0.92, 1.60] | 1.02 [0.87, 8.19] | 0.96 [0.53, 7.05] |
 
 ## Voynich bölüm bölüm (yarı boyu 5000 kelime)
 
@@ -56,16 +57,18 @@ Bölümler kısa olduğu için daha küçük yarı boyuyla ölçüldü; doğal d
 
 | metin | ort. kelime uzunluğu | tür oranı k=1 | tür oranı k=2 | yeni kelime oranı k=1 | yeni kelime oranı k=2 |
 |---|---|---|---|---|---|
-| Voynich Currier A (zl_glyph) | 3.9 | 1.11 | 0.96 | 0.95 | 0.63 |
-| Voynich Currier B (zl_glyph) | 4.4 | 1.14 | 1.00 | 1.70 | 1.19 |
+| Voynich Currier A (zl_glyph) | 3.9 | 1.14 | 0.93 | 0.98 | 0.61 |
+| Voynich Currier B (zl_glyph) | 4.4 | 1.18 | 0.99 | 1.79 | 1.19 |
+| Voynich v101, belirsiz boşluk birleşik | 3.8 | 1.00 | 0.93 | 0.92 | 0.71 |
+| Voynich zl_glyph, belirsiz boşluk birleşik | 4.3 | 1.07 | 0.96 | 1.03 | 0.73 |
 | Voynich çizim türü A (zl_glyph) | metin kısa | | | | |
 | Voynich çizim türü B (zl_glyph) | metin kısa | | | | |
 | Voynich çizim türü C (zl_glyph) | metin kısa | | | | |
-| Voynich çizim türü H (zl_glyph) | 4.0 | 1.10 | 0.94 | 1.08 | 0.71 |
+| Voynich çizim türü H (zl_glyph) | 4.0 | 1.07 | 0.95 | 1.07 | 0.71 |
 | Voynich çizim türü P (zl_glyph) | metin kısa | | | | |
-| Voynich çizim türü S (zl_glyph) | 4.7 | 1.10 | 0.97 | 1.49 | 1.06 |
+| Voynich çizim türü S (zl_glyph) | 4.7 | 1.11 | 0.99 | 1.54 | 1.10 |
 | Voynich çizim türü T (zl_glyph) | metin kısa | | | | |
-| doğal dil, düz, 22 dil (medyan [en az, en çok]) | 4.4 | 2.20 [1.54, 3.60] | 1.83 [1.29, 2.62] | 3.21 [2.02, 4.86] | 2.36 [1.40, 3.59] |
+| doğal dil, düz, 22 dil (medyan [en az, en çok]) | 4.4 | 2.21 [1.52, 3.51] | 1.84 [1.32, 2.66] | 3.19 [2.01, 4.84] | 2.36 [1.41, 3.52] |
 
 # Sınama: kelimelerin sırası bilgi taşıyor mu
 
@@ -78,20 +81,21 @@ Her metnin ilk 16000 kelimesinden kelime ikilisi modeli öğrenildi; görülmemi
 | Voynich v101 (aile düzeyinde: +0.025) | 1 | +0.020 | +0.016 | -0.003 |
 | Voynich zl_basic (aile düzeyinde: +0.024) | 1 | +0.010 | +0.002 | -0.008 |
 | Voynich zl_glyph (aile düzeyinde: +0.019) | 1 | +0.005 | +0.002 | -0.003 |
-| doğal dil, düz (medyan [en az, en çok]) | 22 | +0.522 [+0.165, +0.963] | +0.525 [+0.164, +0.983] | +0.003 [-0.003, +0.035] |
-| dönem ve tür metinleri (medyan [en az, en çok]) | 5 | +0.253 [+0.180, +0.832] | +0.253 [+0.180, +0.840] | +0.000 [-0.000, +0.008] |
-| verbose (medyan [en az, en çok]) | 20 | +0.204 [+0.029, +1.631] | +0.204 [+0.029, +1.641] | +0.000 [-0.004, +0.012] |
-| codebook (medyan [en az, en çok]) | 20 | +0.251 [+0.014, +0.950] | +0.255 [+0.006, +0.957] | +0.000 [-0.008, +0.014] |
-| grille (medyan [en az, en çok]) | 20 | +1.330 [+0.000, +3.721] | +1.517 [+0.000, +5.362] | +0.062 [-0.000, +1.641] |
-| selfcite (medyan [en az, en çok]) | 20 | +0.003 [-0.003, +0.210] | +0.003 [-0.003, +0.507] | +0.000 [-0.002, +0.297] |
-| slotcite (medyan [en az, en çok]) | 20 | +0.006 [-0.001, +0.071] | +0.008 [-0.001, +0.149] | +0.001 [+0.000, +0.090] |
-| slotgram (medyan [en az, en çok]) | 20 | +0.000 [+0.000, +0.047] | +0.000 [+0.000, +0.071] | +0.000 [+0.000, +0.024] |
-| automaton (medyan [en az, en çok]) | 20 | +0.000 [-0.001, +0.002] | +0.000 [-0.001, +0.002] | +0.000 [+0.000, +0.000] |
-| italian_alberti_1440 | 1 | +0.294 | +0.294 | +0.000 |
-| italian_cennini_tarif_1400 | 1 | +0.832 | +0.840 | +0.008 |
-| latin_kempis_1420 | 1 | +0.180 | +0.180 | +0.000 |
+| Voynich v101, belirsiz boşluk birleşik (aile düzeyinde: +0.010) | 1 | +0.009 | +0.003 | -0.006 |
+| doğal dil, düz (medyan [en az, en çok]) | 22 | +0.522 [+0.164, +0.961] | +0.525 [+0.164, +0.983] | +0.003 [-0.004, +0.031] |
+| dönem ve tür metinleri (medyan [en az, en çok]) | 5 | +0.254 [+0.181, +0.833] | +0.253 [+0.180, +0.840] | -0.001 [-0.001, +0.007] |
+| verbose (medyan [en az, en çok]) | 20 | +0.458 [+0.020, +1.486] | +0.457 [+0.020, +1.568] | +0.000 [-0.001, +0.082] |
+| codebook (medyan [en az, en çok]) | 20 | +0.255 [+0.013, +0.984] | +0.265 [+0.013, +0.985] | +0.002 [-0.004, +0.029] |
+| grille (medyan [en az, en çok]) | 20 | +2.611 [+0.068, +5.590] | +2.915 [+0.068, +6.434] | +0.113 [+0.000, +1.145] |
+| selfcite (medyan [en az, en çok]) | 20 | +0.005 [-0.001, +0.027] | +0.005 [-0.001, +0.037] | +0.000 [-0.001, +0.019] |
+| slotcite (medyan [en az, en çok]) | 20 | +0.013 [+0.000, +0.070] | +0.013 [+0.000, +0.108] | +0.000 [-0.001, +0.074] |
+| slotgram (medyan [en az, en çok]) | 20 | +0.000 [+0.000, +0.036] | +0.000 [+0.000, +0.077] | +0.000 [+0.000, +0.042] |
+| automaton (medyan [en az, en çok]) | 20 | +0.000 [-0.001, +0.009] | +0.000 [-0.001, +0.009] | +0.000 [-0.001, +0.000] |
+| italian_alberti_1440 | 1 | +0.295 | +0.294 | -0.001 |
+| italian_cennini_tarif_1400 | 1 | +0.833 | +0.840 | +0.007 |
+| latin_kempis_1420 | 1 | +0.181 | +0.180 | -0.001 |
 | latin_pliny_bitki | 1 | +0.221 | +0.221 | +0.000 |
-| spanish_celestina_1499 | 1 | +0.253 | +0.253 | -0.000 |
+| spanish_celestina_1499 | 1 | +0.254 | +0.253 | -0.001 |
 
 ## Kısa metinler ve Voynich bölümleri (yarı boyu 3500 kelime)
 
@@ -99,28 +103,30 @@ Her metnin ilk 16000 kelimesinden kelime ikilisi modeli öğrenildi; görülmemi
 |---|---|
 | Voynich eva_basic | +0.000 |
 | Voynich eva_glyph | +0.000 |
-| Voynich v101 | +0.011 |
-| Voynich zl_basic | +0.007 |
-| Voynich zl_glyph | +0.007 |
+| Voynich v101 | +0.009 |
+| Voynich zl_basic | +0.009 |
+| Voynich zl_glyph | +0.008 |
+| Voynich v101, belirsiz boşluk birleşik | +0.003 |
+| Voynich zl_glyph, belirsiz boşluk birleşik | +0.001 |
 | Voynich Currier A (zl_glyph) | +0.005 |
 | Voynich Currier B (zl_glyph) | +0.000 |
 | Voynich çizim türü A (zl_glyph) | metin kısa |
 | Voynich çizim türü B (zl_glyph) | metin kısa |
 | Voynich çizim türü C (zl_glyph) | metin kısa |
-| Voynich çizim türü H (zl_glyph) | +0.004 |
+| Voynich çizim türü H (zl_glyph) | +0.006 |
 | Voynich çizim türü P (zl_glyph) | metin kısa |
 | Voynich çizim türü S (zl_glyph) | +0.005 |
 | Voynich çizim türü T (zl_glyph) | metin kısa |
-| doğal dil, düz, 22 dil (medyan [en az, en çok]) | +0.316 [+0.132, +0.647] |
-| italian_alberti_1440 | +0.164 |
-| italian_cennini_tarif_1400 | +0.501 |
-| latin_apicius_tarif | +0.615 |
-| latin_cato_tarim | +0.074 |
-| latin_celsus_ilac | +0.806 |
-| latin_kempis_1420 | +0.057 |
-| latin_macer_bitki | +0.326 |
-| latin_pliny_bitki | +0.163 |
-| spanish_celestina_1499 | +0.096 |
+| doğal dil, düz, 22 dil (medyan [en az, en çok]) | +0.316 [+0.131, +0.643] |
+| italian_alberti_1440 | +0.162 |
+| italian_cennini_tarif_1400 | +0.500 |
+| latin_apicius_tarif | +0.629 |
+| latin_cato_tarim | +0.076 |
+| latin_celsus_ilac | +0.805 |
+| latin_kempis_1420 | +0.054 |
+| latin_macer_bitki | +0.322 |
+| latin_pliny_bitki | +0.162 |
+| spanish_celestina_1499 | +0.097 |
 
 # Tarama: gerçek dil hangi bozulma altında Voynich gibi görünür
 

@@ -287,7 +287,7 @@ def cmd_checks(args: argparse.Namespace) -> None:
     from .manuscripts import voynich_growth
     from .corpus import load_period
     from .search import _corpora
-    from .transliteration import ivtff_page_variables, load_ivtff, load_views
+    from .transliteration import ivtff_page_variables, load_ivtff, load_v101, load_views
 
     out = Path(args.results)
     df = pd.read_csv(out / "synthetic.csv")
@@ -311,17 +311,32 @@ def cmd_checks(args: argparse.Namespace) -> None:
             for name in names:
                 sections.setdefault(name, []).extend(ln.words)
                 section_lines.setdefault(name, []).append(ln.words)
+    # Belirsiz boşluk duyarlılığı: virgül kelime sınırı sayılmazsa sonuç değişiyor mu?
+    merged: dict[str, list[list[str]]] = {}
+    v101_path = Path(args.raw) / "claston_v101.txt"
+    if v101_path.exists():
+        merged["v101, belirsiz boşluk birleşik"] = [
+            ln.words for ln in load_v101(v101_path, comma_is_space=False)
+        ]
+    if zl.exists():
+        merged["zl_glyph, belirsiz boşluk birleşik"] = [
+            ln.words for ln in load_ivtff(zl, "glyph", comma_is_space=False)
+        ]
+    for name, lines_ in merged.items():
+        sections[name] = [w for ln in lines_ for w in ln]
+        section_lines[name] = lines_
     period_dir = Path(args.raw) / "period"
     period = load_period(period_dir) if period_dir.exists() else None
     corpora = _corpora(args.raw)
     lexicon = lexicon_experiment(
-        {name: [w for ln in lines for w in ln.words] for name, lines in views.items()},
+        {name: [w for ln in lines for w in ln.words] for name, lines in views.items()}
+        | {name: [w for ln in lines_ for w in ln] for name, lines_ in merged.items()},
         corpora,
         period=period,
         sections=dict(sorted(sections.items())),
     )
     order = order_experiment(
-        {name: [ln.words for ln in lines] for name, lines in views.items()},
+        {name: [ln.words for ln in lines] for name, lines in views.items()} | merged,
         corpora,
         period=period,
         sections=dict(sorted(section_lines.items())),
@@ -329,8 +344,8 @@ def cmd_checks(args: argparse.Namespace) -> None:
     # Voynich bantları: beş görünümün ölçülen aralığı, küçük bir payla.
     half = args.ms_windows // 2
     growth = [g for lines in views.values() for g in voynich_growth(lines, args.window, half)]
-    ratios = [r["type_ratio_k2"] for r in lexicon["voynich"].values()]
-    orders = [r["order"] for r in order["voynich"].values() if r is not None]
+    ratios = [lexicon["voynich"][v]["type_ratio_k2"] for v in views]  # yalnız beş ana görünüm
+    orders = [order["voynich"][v]["order"] for v in views]
     bands = {
         "type_ratio": (min(ratios) - 0.06, max(ratios) + 0.06),
         "order": (float("-inf"), max(orders) + 0.02),

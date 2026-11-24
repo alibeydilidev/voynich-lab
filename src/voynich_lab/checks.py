@@ -662,6 +662,8 @@ def render_lexicon(result: dict) -> str:
         "|---|---|---|---|---|---|---|",
     ]
     for view, r in result["voynich"].items():
+        if r is None:  # bu boy için kısa; bölüm tablosunda küçük boyla ölçülür
+            continue
         md.append(
             f"| Voynich {view} | 1 | {r['mean_len']:.1f} | "
             + " | ".join(f"{r[c]:.2f}" for c in cols) + " |"
