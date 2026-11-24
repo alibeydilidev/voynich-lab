@@ -174,6 +174,10 @@ Okunan on üç kaynağın tamamı ve her birinden ne alındığı: `CLAUDE.md`, 
 
 Soruyu soran, projeyi yürüten ve kararları veren: Ali Beydili. Ölçümleri yapan, kodu ve bu notu yazan: Claude (Anthropic'in yapay zekâ modeli). Dışarıya kurulan cümle "Claude çözdü" değil, "Claude şunu ölçtü" biçimindedir.
 
+## Lisans
+
+Kod, bu not ve `results/` altındaki dosyalar MIT lisansıyla sunulur (`LICENSE`). İndirilen ham veri bu lisansın kapsamında değildir; her kaynağın kendi koşulları geçerlidir (yukarıda Naibbe verisi için atıf şartına bakın).
+
 ## English summary
 
 **Four tests for the Voynich manuscript.** This is not a decipherment. It is a set of four reproducible measurements that any proposed solution, cipher or "meaningless text" model has to pass. Each model is fit on the first 16,000 words and scored on the unseen next 16,000; ranges are over five transliteration views.
@@ -187,4 +191,4 @@ What this does not show: whether the text is meaningful. The measurements are co
 
 Tests 2 and 3 replicate published results (Reddy and Knight 2011; Rozanova and Temerev 2026). Test 1 was not found in this form in the thirteen sources we read; we do not claim priority, since several relevant sources remain unread (listed above).
 
-The lab notebook (`CLAUDE.md`) and the result files are in Turkish. Measurements, code and this note were produced by Claude (Anthropic's AI model); the project was directed by Ali Beydili.
+To reproduce, see the commands under "Yeniden üretmek" above. Code, this note and the result files are MIT licensed; the downloaded raw data is not covered and keeps its own terms (the Naibbe data requires citing Greshko 2025). The lab notebook (`CLAUDE.md`) and the result files are in Turkish. Measurements, code and this note were produced by Claude (Anthropic's AI model); the project was directed by Ali Beydili.
