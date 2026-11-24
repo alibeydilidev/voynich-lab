@@ -457,6 +457,15 @@ Eklenen: `edge_mi` feature'ı. Aynı satırdaki komşu kelimelerde önceki kelim
 
 **Ne öğrenildi.** Hüküm tablosu artık dördüncü ölçütü görüyor, ama tablo değişmedi: uzaklığın kaynağı tek bir eksik özellik değil, 33 ölçünün çoğuna yayılmış 5 ila 10 standart hatalık açıklar. `automaton` için en büyükleri aynı: kelime başı fazla kısıtlı (`jsd_first` +13 ila +17), kelime uzunluğu çarpık (`wlen_skew` +6 ila +21), çift glif yok (`char_double_rate` -6 ila -12). Bir sonraki mekanizma tek özelliği değil bu üçünü birlikte hedeflemeli; ya da aramanın kendisi el yazması düzeyine taşınmalı (seçilen adaylar önselden rastgele çekilenlerin en iyileri, yönlendirilmiş arama pencere düzeyinde kaldı).
 
+**Otomat v2 ön sınaması (2026-11-24, ayrı deneme; sınıfa eklenmedi).** Öngörü ve ölçüt önceden yazıldı (VL-010), taban aynı koşuda ölçüldü. Mekanizma: kelime ilk iki katman yerine ilk s katmandan birinde başlayabilir ve gliflerin bir bölümü kendini tekrar edebilir. Aynı tohumlarla 150'şer el yazması, ilk 8 pencerenin Voynich'e karşı T'si (`eva_glyph`, `v101`, `zl_glyph`):
+
+| | büyüme bandında | en iyi %5'lik T | en iyi T | `jsd_first` sapması | `wlen_skew` sapması | `char_double_rate` sapması |
+|---|---|---|---|---|---|---|
+| eski otomat | 14 | 11.2, 8.9, 9.5 | 8.5, 7.9, 7.1 | 23.4 | 10.6 | 11.0 |
+| otomat v2 | 25 | 9.8, 8.2, 8.0 | 6.7, 5.6, 4.9 | 15.1 | 13.4 | 9.6 |
+
+Kesinleşen: serbest başlangıç katmanı büyüme bandına girişi artırıyor (14'ten 25'e) ve en iyi adayları belirgin yaklaştırıyor (150 rastgele çekimde en iyi T 4.9; zincirde 2000 çekimin en iyisi 5.7 idi). Ölçüte göre sonuç: (1) "en iyi %5'lik en az 1.0 düşer" üç görünümün ikisinde tuttu (`v101`'de 0.7); (2) "üç hedef sapma yarıya iner" tutmadı (`jsd_first` üçte bir azaldı, `wlen_skew` kötüleşti); (3) büyüme payı düşmedi, arttı. Ölçüt (1) tam tutmadığı için sınıfa eklenmedi. Sıradaki sürüm kelime uzunluğu çarpıklığını ayrıca hedeflemeli (kelimenin bitme olasılığı katmanla artan bir yürüyüş).
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
