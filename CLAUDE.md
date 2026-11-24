@@ -79,7 +79,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | `abc.py` | Rejection ABC: her sınıf Voynich'e en fazla ne kadar yaklaşıyor, neyi tutturamıyor, hangi ayarlarla. Mesafe birimi Voynich'in kendi pencereleri arası değişkenlik |
 | `search.py` | Yönlendirilmiş arama: ABC'nin en yakın örneklerinin ayarlarından başlar, önsel sınırları içinde oynatır, sonucu taze örneklerle ölçer. Sonsal dağılım vermez; "bu hipotezin Voynich'ten ayırt edilemeyen bir ayar bölgesi var mı" sorusunu yanıtlar |
 | `manuscripts.py` | El yazması düzeyinde karşılaştırma: aday = ayarlar + tohum, tek tablodan 16 pencere, 8'i seçim 8'i doğrulama. İstatistik T (standart hataya bölünmüş ortalama farkı; Voynich'in kendi yarıları için yaklaşık 1), yayılım oranı (iç değişkenlik) ve büyüme profili (yarı başına 16 bin kelimede tür/kelime, hapax/tür, ed1 oranı). Asıl hüküm buradan verilir |
-| `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor), homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) sözlük sınaması (kelimeler sınırlı bir sözlükten mi geliyor), sıra sınaması (kelimelerin sırası görülmemiş metinde bilgi taşıyor mu) bozulma taraması (gerçek dil hangi bozulma altında Voynich gibi görünür) ve denetim deneyi (yayımlanmış Naibbe şifresiyle yazılmış gerçek Latince, şifreli ve anahtarla çözülmüş hâliyle, aynı ölçümlerde nasıl görünüyor). Son dördü üretece ve önsele dayanmaz |
+| `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor), homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) sözlük sınaması (kelimeler sınırlı bir sözlükten mi geliyor), sıra sınaması (kelimelerin sırası görülmemiş metinde bilgi taşıyor mu) bozulma taraması (gerçek dil hangi bozulma altında Voynich gibi görünür) ve denetim deneyi (yayımlanmış Naibbe şifresiyle yazılmış gerçek Latince, şifreli ve anahtarla çözülmüş hâliyle, aynı ölçümlerde nasıl görünüyor) ve kelime ucu deneyi (bir kelimenin son glifi sonrakinin ilk glifini ne kadar öngörüyor). Son beşi üretece ve önsele dayanmaz |
 | `probe.py` | Ön sınama (bekçi): bir mekanizmayı birkaç el yazmasında saniyeler içinde ölçer (büyüme ölçüleri ve seçilmiş pencere feature'ları), Voynich ile yan yana koyar. Eleme aracıdır, hüküm aracı değildir |
 | `cli.py`, `fetch.py` | Komut satırı ve indirme. `fetch` dönem metinlerini de indirir; Wikisource hız sınırı koyduğu için istekler arası 4 sn bekler ve 429 gelirse söylenen süre kadar bekleyip yeniden dener (ilk indirme ~3 dk) |
 
@@ -338,7 +338,7 @@ Sınamaların eleyemediği iki ihtimal kalıyor:
 
 ## v0.15 bulguları: literatür okuması, Naibbe denetimi ve hükmün düzeltilmesi (2026-11-24, seed 7)
 
-Güncel durum budur. Rapor: `results/checks.md` (altıncı bölüm). Üreteçler değişmedi; `results/manuscripts.md` ve `results/report.md` v0.13 ile aynı.
+Hüküm bölümü güncel; v0.16 buna kelime ucu bağını ekledi. Rapor: `results/checks.md` (altıncı bölüm). Üreteçler değişmedi; `results/manuscripts.md` ve `results/report.md` v0.13 ile aynı.
 
 Eklenen: `fetch` iki denetim dosyası indirir (`data/raw/controls/`: Naibbe örnek şifreli metni ve aynı metnin anahtarla geri okunmuş hâli); `load_eva_plain`; `checks` içine denetim deneyi (`control_experiment`).
 
@@ -396,6 +396,32 @@ Bundan çıkan sınanabilir soru (VL-015, yapılmadı): Voynich kelime türlerin
 
 **Süreç notu.** v0.14'teki yanlış cümle, kendi bozulma taramamın sonucunu (rastgele bozulma) literatürü okumadan genellememden çıktı ve Ali'ye sabah raporunda öyle söylendi; Ali amaç değişikliğini o raporla onayladı. Düzeltme aynı gün Ali'ye söylendi. Ayrıca v0.14 ve hafıza kayıtlarına tarih 2026-11-25 diye yazılmıştı; commit saatleri 2026-11-24 gösteriyor, tarihler düzeltildi (saate bakmadan yazılmıştı).
 
+## v0.16 bulguları: kelime ucu bağı (2026-11-24, seed 7)
+
+Güncel durum budur (hüküm için v0.15 "Düzeltilmiş hüküm" ile birlikte okunur). Rapor: `results/checks.md` (yedinci bölüm). Üreteçler değişmedi.
+
+Eklenen: `checks` içine kelime ucu deneyi (`edge_reduce`, `edge_stats`, `edge_experiment`). Bu, Rozanova ve Temerev 2026'nın bulgusunun (sıra bilgisi kelime kimliğinde değil kelime uçlarında) bizim kestiriciyle, görülmemiş yarıda ve beş görünümde doğrulamasıdır; yeni bir bulgu değildir. Öngörü ölçümden önce yazıldı (VL-014) ve tuttu.
+
+Ölçü: önceki kelimenin son glifi sonraki kelimenin ilk glifini görülmemiş yarıda ne kadar öngörüyor (bit/çift; satır içi karıştırmaya göre; yalnız aynı satırdaki komşular).
+
+| metin | ham kelime sırası | son glif -> sonraki ilk glif | ilk glif -> ilk glif |
+|---|---|---|---|
+| Voynich, beş görünüm | -0.008 ila +0.018 | +0.166 ila +0.252 | +0.036 ila +0.073 |
+| 22 doğal dil | +0.165 ila +0.960 | +0.004 ila +0.161 (medyan +0.059) | medyan +0.052 |
+| dönem ve tür metinleri (5) | +0.181 ila +0.832 | +0.013 ila +0.101 | +0.013 ila +0.071 |
+| Naibbe, şifreli | +0.009 | +0.004 | 0.000 |
+| Naibbe, anahtarla çözülmüş | +0.395 | +0.489 | +0.121 |
+| `selfcite` (6 örnek) | 0.000 ila +0.006 | -0.088 ila +0.040 | medyan +0.055 |
+| `slotcite`, `slotgram`, `automaton` (6'şar örnek) | sıfıra yakın | -0.006 ila +0.020 | sıfıra yakın |
+
+- **Voynich'te kelimeler birbirinden bağımsız değil: bağ birleşme yerinde.** Kelime kimliği sonraki kelimeyi öngörmüyor, ama bir kelimenin son glifi sonrakinin ilk glifini 22 dilin hepsinden daha iyi öngörüyor (en yüksek dil +0.161; Voynich en az +0.166). Tek başına bu sayı dillerden keskin ayrılmıyor; ayırıcı olan ikisinin birlikteliği: ham sıra sıfır, uç bağı büyük. Bu bileşimi 22 dilin, 5 dönem metninin, Naibbe örneğinin ve 54 üreteç örneğinin hiçbiri vermiyor ("Voynich bandında" sütunu hep 0).
+- **Satır kenarı alışkanlığı değil.** Yalnız satır içi komşular sayılıyor; ayrı denemede satırların ilk ve son kelimesi yerinde bırakılarak karıştırınca da aynı (+0.145 ila +0.208). İlk yazdığım ölçü satır sonu ile sonraki satır başı arasındaki çiftleri de sayıyordu ve üreteçlerde yazıcı katmanının satır kenarı işaretlerini "bağ" gibi gösteriyordu (`automaton` en çok +0.102); düzeltildi (şimdi en çok +0.014).
+- **Kopyalama bunu üretmiyor.** `selfcite` komşu kelimeleri birbirine benzetiyor (ilk glif -> ilk glif +0.055), ama birleşme yerinde bağ üretmiyor. Rozanova-Temerev de Timm-Schinner üreteci için aynısını bildiriyor.
+- **Naibbe de üretmiyor** (+0.004; onların ölçümü 0.006 bit). Şifrede kelime sınırı ilgisiz düz metin parçalarının arasına düşüyor.
+- **1. basamak için yeni ölçüt.** Bir üreteç ya da şifre adayı artık dört şeyi birlikte tutturmalı: pencere profili, büyüme profili, sıfır kelime sırası ve +0.17 dolayında uç bağı. Kelimeleri birbirinden bağımsız çeken hiçbir mekanizma dördüncüyü veremez; kelime, bir öncekinin bittiği glife bakarak başlamalı.
+
+**Akış vekili denemesi (ayrı deneme, depoda kalıcı sınaması yok; öngörü yarım tuttu).** Soru: Voynich'in sıra yapısı, boşluğu da bir işaret sayan kısa hafızalı bir glif zinciriyle açıklanıyor mu. Metnin ilk yarısından k. derece zincir öğrenildi, aynı boyda metin üretildi. k = 3 ile: ham kelime sırası sıfıra yakın (öngörü tuttu), tür sayısı gerçeğin 0.86 ila 0.92'si (sınırda), ama uç bağı (ilk ve son glife indirgenmiş kelimelerle ölçü) gerçeğin yalnız %46 ila %82'si (`eva_glyph` +0.042 ve +0.091; `v101` +0.058 ve +0.071; `zl_glyph` +0.065 ve +0.103); öngörü "0.03 yakınında" idi, üç görünümün ikisinde tutmadı. k = 4'te uç bağı tutuyor ama zincir eğitim metnini ezberlemeye başlıyor (ham sıra +0.04 ila +0.20). Aynı zincir Latince ve İtalyancada k = 3'e kadar kelime sırasının yirmide birinden azını geri getiriyor. Yani Voynich'in sıra yapısının çoğu yerel glif istatistiği, ama hepsi değil; kalan kısım için üç gliften uzun bir bağlam gerekiyor.
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
@@ -404,7 +430,7 @@ Bundan çıkan sınanabilir soru (VL-015, yapılmadı): Voynich kelime türlerin
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). Sözlük sınaması genişletildi (v0.12); rastgele glif otomatı sınandı, yarısı tuttu (v0.13). Kelime sırası sınaması ve bozulma taraması yapıldı (v0.14). Literatür okundu, Naibbe denetimi eklendi, hüküm düzeltildi (v0.15). **Sıradaki:** (a) sınıf arama sınaması ve güç denetimi (VL-015); (b) kelime ucu glif bağını ölçen kalıcı sınama ve bunu üretebilen üreteç (kelimeleri bağımsız çekenler üretemez); (c) uzak mesafeli bağlar için kalıcı sınama (VL-014); (d) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (e) kalan okumalar (VL-013): Timm ve Schinner 2020, Greshko 2025, forum.
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). Sözlük sınaması genişletildi (v0.12); rastgele glif otomatı sınandı, yarısı tuttu (v0.13). Kelime sırası sınaması ve bozulma taraması yapıldı (v0.14). Literatür okundu, Naibbe denetimi eklendi, hüküm düzeltildi (v0.15). **Sıradaki:** (a) sınıf arama sınaması ve güç denetimi (VL-015); (b) kelime ucu bağı ölçüldü (v0.16); sıradaki, bunu üretebilen mekanizmayı `probe` ile aramak (kelime, bir öncekinin son glifine bakarak başlar); (c) uzak mesafeli bağlar için kalıcı sınama (VL-014); (d) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (e) kalan okumalar (VL-013): Timm ve Schinner 2020, Greshko 2025, forum.
 3. **Dönem metinleri.** Üç metin eklendi (v0.12: Latince, İtalyanca, İspanyolca; yalnız sözlük sınamasında kullanılıyor). Eksik: Almanca, İbranice, tıbbi ve botanik tür; dönem metinlerinin üreteçlere kaynak olarak bağlanması (`corpus.load_all` yalnız İncil okuyor).
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.

@@ -665,3 +665,31 @@ def test_control_experiment_reports_each_text_and_skips_short_halves():
     assert abs(r["order"]) < 0.05  # bağımsız çekilen kelimelerde sıra bilgisi yok
     assert r["type_ratio_k2"] > 1.5  # 300 kelimelik kapalı sözlük: vekil çok daha fazla tür üretir
     assert 0 < r["ttr"] < 1 and 0 <= r["hapax"] <= 1 and 0 <= r["ed1"] <= 1
+
+
+def test_edge_stats_finds_coupling_that_lives_at_word_edges():
+    from voynich_lab.checks import edge_reduce, edge_stats
+
+    assert edge_reduce([["abc", "d"]]) == [["a\x00c", "d\x00d"]]
+    rng = np.random.default_rng(4)
+    alphabet = list("abcdefgh")
+
+    def middle() -> str:
+        return "".join(rng.choice(alphabet, size=3))
+
+    # Bağlı metin: her kelimenin ilk glifi, önceki kelimenin son glifine eşit; gövde rastgele.
+    coupled, last = [], "a"
+    for _ in range(6200):
+        w = last + middle() + str(rng.choice(alphabet))
+        coupled.append(w)
+        last = w[-1]
+    free = [str(rng.choice(alphabet)) + middle() + str(rng.choice(alphabet)) for _ in range(6200)]
+    lines = lambda ws: [ws[i : i + 10] for i in range(0, len(ws), 10)]
+    c = edge_stats(lines(coupled), 3000, np.random.default_rng(1))
+    f = edge_stats(lines(free), 3000, np.random.default_rng(1))
+    assert c["edge"] > 1.0 and c["edge_inner"] > 1.0  # uçlar arasında tam bağ: 3 bit
+    assert abs(c["order"]) < 0.1  # ham kelimeler neredeyse hep yeni, kimlik düzeyinde bağ görünmez
+    assert abs(f["edge"]) < 0.05 and abs(f["order"]) < 0.05
+    assert c["last_first"] > 2.5 and abs(c["first_first"]) < 0.1  # bağ birleşme yerinde, benzerlikte değil
+    assert abs(f["last_first"]) < 0.05
+    assert edge_stats(lines(free)[:100], 3000, np.random.default_rng(1)) is None

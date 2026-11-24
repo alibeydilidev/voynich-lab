@@ -188,3 +188,40 @@ Naibbe şifresi (Greshko 2025, Cryptologia) gerçek Latince metni, her harfi ya 
 | Voynich (eva_basic) | 8000 | 4.78 | 1.03 | 0.97 | 0.248 | +0.009 | 0.311 | 0.688 | 0.856 |
 | Voynich (eva_glyph) | 16000 | 4.30 | 1.03 | 0.86 | 0.215 | -0.007 | 0.249 | 0.681 | 0.884 |
 | Voynich (eva_glyph) | 8000 | 4.12 | 0.99 | 0.86 | 0.248 | +0.009 | 0.311 | 0.688 | 0.879 |
+
+# Sınama: sıra bilgisi kelime uçlarında mı duruyor
+
+Her kelime ilk ve son glifine indirgendi ve sıra sınaması (16000 kelimelik yarılarla) indirgenmiş dizide yeniden koşuldu. Doğal dilde indirgeme bilgi kaybettirir (uç bağı ham sıranın altında kalır). "Uçlar yerinde" sütununda karşılaştırma metninde satırların ilk ve son kelimesi yerinde bırakıldı: uç bağı ile yakınsa bağ satır başı ve sonu alışkanlıklarından gelmiyor demektir. Voynich bandı: ham sıra en çok +0.038, uç bağı en az +0.056 ve son -> ilk en az +0.146.
+
+Son üç sütun uç bağını ayrıştırır: önceki kelimenin son glifi sonrakinin ilk glifini, ilk glifi ilk glifini, son glifi son glifini ne kadar öngörüyor. İlk -> ilk ve son -> son, komşu kelimeler birbirine benzediğinde (kopyalama) yükselir; son -> ilk iki kelimenin birleşme yerindeki bağdır. Bu üç sütunda yalnız aynı satırdaki komşular sayılır (satır sonu ile sonraki satır başı arası dışarıda).
+
+| metin | ham sıra | uç bağı | uç bağı, uçlar yerinde | son -> ilk | ilk -> ilk | son -> son |
+|---|---|---|---|---|---|---|
+| Voynich (eva_basic) | -0.008 | +0.095 | +0.089 | +0.166 | +0.036 | +0.012 |
+| Voynich (eva_glyph) | -0.006 | +0.087 | +0.083 | +0.175 | +0.057 | +0.006 |
+| Voynich (v101) | +0.018 | +0.076 | +0.071 | +0.252 | +0.073 | +0.011 |
+| Voynich (zl_basic) | +0.005 | +0.078 | +0.075 | +0.190 | +0.037 | +0.007 |
+| Voynich (zl_glyph) | +0.005 | +0.103 | +0.097 | +0.190 | +0.058 | +0.011 |
+| Naibbe, Plinius (eva_basic) | +0.009 | +0.001 | +0.001 | +0.004 | -0.000 | -0.001 |
+| Naibbe, Plinius, anahtarla çözülmüş parçalar | +0.395 | +0.398 | +0.398 | +0.489 | +0.121 | +0.127 |
+| italian_alberti_1440 | +0.294 | +0.147 | +0.145 | +0.057 | +0.025 | +0.042 |
+| italian_cennini_tarif_1400 | +0.832 | +0.410 | +0.400 | +0.101 | +0.071 | +0.103 |
+| latin_apicius_tarif | kısa | | | | | |
+| latin_cato_tarim | kısa | | | | | |
+| latin_celsus_ilac | kısa | | | | | |
+| latin_kempis_1420 | +0.181 | +0.073 | +0.071 | +0.024 | +0.018 | +0.040 |
+| latin_macer_bitki | kısa | | | | | |
+| latin_pliny_bitki | +0.221 | +0.065 | +0.070 | +0.013 | +0.013 | +0.043 |
+| spanish_celestina_1499 | +0.253 | +0.160 | +0.157 | +0.034 | +0.031 | +0.069 |
+
+| grup | n | ham sıra (en az, medyan, en çok) | uç bağı (en az, medyan, en çok) | uç bağı / ham sıra (medyan) | son -> ilk (en az, medyan, en çok) | ilk -> ilk (medyan) | Voynich bandında |
+|---|---|---|---|---|---|---|---|
+| doğal dil, düz | 22 | +0.165, +0.522, +0.960 | +0.072, +0.274, +0.622 | 0.53 | +0.004, +0.059, +0.161 | +0.052 | 0 |
+| abjad | 6 | +0.100, +0.412, +0.616 | +0.040, +0.201, +0.355 | 0.55 | +0.010, +0.055, +0.148 | +0.027 | 0 |
+| verbose | 6 | +0.269, +0.806, +1.464 | +0.185, +0.275, +0.670 | 0.49 | +0.046, +0.132, +0.240 | +0.076 | 0 |
+| codebook | 6 | +0.068, +0.297, +0.525 | +0.003, +0.036, +0.162 | 0.23 | -0.000, +0.015, +0.020 | +0.005 | 0 |
+| grille | 6 | +1.374, +2.312, +5.692 | +0.163, +0.719, +1.091 | 0.30 | +0.006, +0.041, +0.158 | +0.072 | 0 |
+| selfcite | 6 | +0.000, +0.000, +0.006 | +0.019, +0.086, +0.170 | ham sıra sıfıra yakın | -0.088, -0.005, +0.040 | +0.055 | 0 |
+| slotcite | 6 | +0.000, +0.007, +0.057 | -0.001, +0.010, +0.174 | ham sıra sıfıra yakın | -0.006, +0.001, +0.020 | +0.007 | 0 |
+| slotgram | 6 | +0.000, +0.000, +0.073 | -0.001, +0.002, +0.135 | ham sıra sıfıra yakın | +0.001, +0.001, +0.006 | -0.001 | 0 |
+| automaton | 6 | +0.000, +0.000, +0.001 | -0.000, +0.001, +0.017 | ham sıra sıfıra yakın | -0.001, +0.002, +0.014 | -0.001 | 0 |

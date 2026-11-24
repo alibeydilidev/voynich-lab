@@ -40,6 +40,11 @@ hangi bozulma altında Voynich gibi görünür sorusuna uygulanır (yazım
 düzenlerde, kelime türleri "bir harf farklı" ailelerine toplandıktan sonra
 sıra bilgisinin geri gelip gelmediğine de bakılır.
 
+kelime ucu deneyi: kelimeler ilk ve son gliflerine indirgenir ve sıra sınaması
+indirgenmiş dizide koşulur. Doğal dilde indirgeme bilgi kaybettirir; Voynich'te
+ham kelime sırası sıfıra yakınken uç glifler arasında bağ vardır (Rozanova ve
+Temerev 2026'nın bulgusunun görülmemiş yarıyla doğrulaması).
+
 denetim deneyi: yayımlanmış bir şifreyle (Naibbe, Greshko 2025) yazılmış gerçek
 Latince metin aynı üç ölçümden geçirilir; hem şifreli hâli hem anahtarla geri
 okunmuş hâli. İçinde dil olan bir metnin bu ölçümlerde Voynich gibi görünüp
@@ -555,6 +560,183 @@ def degradation_experiment(
                     row["family_order"] = f["order"]
                 rows.append(row)
     return {"bands": {k: list(v) for k, v in bands.items()}, "rows": rows}
+
+
+def edge_reduce(lines: Lines) -> Lines:
+    """Her kelimeyi ilk ve son glifine indirger (tek glifli kelimede ikisi aynıdır)."""
+    return [[w[0] + "\x00" + w[-1] for w in ln if w] for ln in lines]
+
+
+def _pair_gain(train: list[tuple[str, str]], test: list[tuple[str, str]], alpha: float = 5.0) -> float:
+    """Görülmemiş çiftlerde, hedefi kaynağa bakarak tahmin etmenin kazancı (bit/çift)."""
+    uni = Counter(d for _, d in train)
+    n, v = sum(uni.values()), len(uni) + 1
+    joint, src = Counter(train), Counter(s for s, _ in train)
+    total = 0.0
+    for s_, d in test:
+        p = (uni[d] + 0.5) / (n + 0.5 * v)
+        total += log2((joint[(s_, d)] + alpha * p) / (src[s_] + alpha)) - log2(p)
+    return total / max(len(test), 1)
+
+
+def edge_stats(lines: Lines, half: int, rng: np.random.Generator, n_shuffles: int = 2) -> dict[str, float] | None:
+    """Kelime ucu bağı: kelimeler uç gliflerine indirgenince sıra bilgisi ne kadar.
+
+    order      : ham kelimelerle sıra bilgisi (`order_stats` ile aynı ölçü).
+    edge       : uç gliflere indirgenmiş kelimelerle sıra bilgisi.
+    edge_inner : aynı ölçü, ama karşılaştırma metninde her satırın ilk ve son kelimesi
+                 yerinde bırakılıp yalnız aradakiler karıştırılır. edge ile yakınsa bağ
+                 satır başı ve satır sonu alışkanlıklarından gelmiyor demektir.
+    last_first : önceki kelimenin son glifi sonraki kelimenin ilk glifini ne kadar
+                 öngörüyor (bit/çift, görülmemiş yarıda, satır içi karıştırmaya göre;
+                 yalnız aynı satırdaki komşular sayılır).
+    first_first, last_last : aynı ölçü, ilk glif -> ilk glif ve son glif -> son glif için.
+                 Komşu kelimeler birbirine benziyorsa (kopyalama) bunlar yükselir;
+                 last_first ise iki farklı kelimenin birleşme yerindeki bağdır.
+    Metin 2 * half kelimeden kısaysa None.
+    """
+    raw = order_stats(lines, half, rng, n_shuffles)
+    if raw is None:
+        return None
+    reduced = edge_reduce(lines)
+    edge = order_stats(reduced, half, rng, n_shuffles)
+
+    def split(ls: Lines) -> tuple[list[str], list[str]]:
+        words = [w for ln in ls for w in ln]
+        return words[:half], words[half : 2 * half]
+
+    def interior(ln: list[str]) -> list[str]:
+        if len(ln) <= 3:
+            return ln
+        return [ln[0]] + [ln[1 + int(i)] for i in rng.permutation(len(ln) - 2)] + [ln[-1]]
+
+    real = order_gain(*split(reduced))[1]
+    inner = float(np.mean([order_gain(*split([interior(ln) for ln in reduced]))[1] for _ in range(n_shuffles)]))
+    out = {"order": raw["order"], "edge": edge["order"], "edge_inner": real - inner}
+
+    def pair_gain(ls: Lines, a: int, b: int) -> float:
+        # Yalnız aynı satırdaki komşular: satır sonu ile sonraki satır başı arasındaki çift
+        # yazıcının satır kenarı alışkanlığını ölçer, kelimeler arası bağı değil.
+        train: list[tuple[str, str]] = []
+        test: list[tuple[str, str]] = []
+        count = 0
+        for ln in ls:
+            ws = [w for w in ln if w]
+            if count < 2 * half:
+                (train if count < half else test).extend((x[a], y[b]) for x, y in zip(ws, ws[1:]))
+            count += len(ws)
+        return _pair_gain(train, test)
+
+    shuffles = [[[ln[int(i)] for i in rng.permutation(len(ln))] for ln in lines] for _ in range(n_shuffles)]
+    for name, a, b in (("last_first", -1, 0), ("first_first", 0, 0), ("last_last", -1, -1)):
+        out[name] = pair_gain(lines, a, b) - float(np.mean([pair_gain(sh, a, b) for sh in shuffles]))
+    return out
+
+
+def edge_experiment(
+    voynich: dict[str, Lines],
+    corpora: dict[str, list[str]],
+    period: dict[str, list[str]] | None = None,
+    controls: dict[str, Lines] | None = None,
+    n_per_class: int = 6,
+    seed: int = 23,
+    half: int = 16000,
+) -> dict:
+    """Kelime ucu bağı: Voynich, denetim metinleri, doğal diller, dönem metinleri ve üreteçler."""
+    from .generators import LANGUAGE_PROCESSES
+
+    rng = np.random.default_rng(seed)
+    need = 2 * half + 200
+    groups: dict[str, dict] = {
+        "voynich": {view: edge_stats(lines, half, rng) for view, lines in voynich.items()},
+        "denetim": {name: edge_stats(lines, half, rng) for name, lines in (controls or {}).items()},
+        "doğal dil, düz": {
+            lang: edge_stats(_chunk(corpora[lang][20000 : 20000 + need]), half, rng) for lang in sorted(corpora)
+        },
+    }
+    if period:
+        groups["dönem ve tür metinleri"] = {
+            name: edge_stats(_chunk(words[500 : 500 + need]), half, rng) for name, words in period.items()
+        }
+    languages = sorted(corpora)
+    for name in ("abjad", "verbose", "codebook"):
+        rows = {}
+        for i in range(n_per_class):
+            lang = languages[int(rng.integers(len(languages)))]
+            start = int(rng.integers(0, len(corpora[lang]) - need - 2000))
+            lines = LANGUAGE_PROCESSES[name](corpora[lang][start : start + need + 2000], rng)
+            rows[f"{name} {i} ({lang})"] = edge_stats(lines, half, rng, 1)
+        groups[name] = rows
+    for name, proc in GIBBERISH_PROCESSES.items():
+        groups[name] = {f"{name} {i}": edge_stats(proc(need + 2000, rng), half, rng, 1) for i in range(n_per_class)}
+    v = [r for r in groups["voynich"].values() if r is not None]
+    band = {
+        "order_max": max(r["order"] for r in v) + 0.02,
+        "edge_min": min(r["edge"] for r in v) - 0.02,
+        "last_first_min": min(r["last_first"] for r in v) - 0.02,
+    }
+    return {"half": half, "seed": seed, "band": band, "groups": groups}
+
+
+def render_edge(result: dict) -> str:
+    band = result["band"]
+    md = [
+        "# Sınama: sıra bilgisi kelime uçlarında mı duruyor",
+        "",
+        f"Her kelime ilk ve son glifine indirgendi ve sıra sınaması ({result['half']} kelimelik yarılarla) "
+        "indirgenmiş dizide yeniden koşuldu. Doğal dilde indirgeme bilgi kaybettirir (uç bağı ham sıranın "
+        "altında kalır). \"Uçlar yerinde\" sütununda karşılaştırma metninde satırların ilk ve son kelimesi "
+        "yerinde bırakıldı: uç bağı ile yakınsa bağ satır başı ve sonu alışkanlıklarından gelmiyor demektir. "
+        f"Voynich bandı: ham sıra en çok {band['order_max']:+.3f}, uç bağı en az {band['edge_min']:+.3f} "
+        f"ve son -> ilk en az {band['last_first_min']:+.3f}.",
+        "",
+        "Son üç sütun uç bağını ayrıştırır: önceki kelimenin son glifi sonrakinin ilk glifini, ilk glifi "
+        "ilk glifini, son glifi son glifini ne kadar öngörüyor. İlk -> ilk ve son -> son, komşu kelimeler "
+        "birbirine benzediğinde (kopyalama) yükselir; son -> ilk iki kelimenin birleşme yerindeki bağdır. "
+        "Bu üç sütunda yalnız aynı satırdaki komşular sayılır (satır sonu ile sonraki satır başı arası dışarıda).",
+        "",
+        "| metin | ham sıra | uç bağı | uç bağı, uçlar yerinde | son -> ilk | ilk -> ilk | son -> son |",
+        "|---|---|---|---|---|---|---|",
+    ]
+
+    def fmt(name: str, r: dict | None) -> str:
+        if r is None:
+            return f"| {name} | kısa | | | | | |"
+        return (
+            f"| {name} | {r['order']:+.3f} | {r['edge']:+.3f} | {r['edge_inner']:+.3f} | "
+            f"{r['last_first']:+.3f} | {r['first_first']:+.3f} | {r['last_last']:+.3f} |"
+        )
+
+    groups = result["groups"]
+    for name, r in groups["voynich"].items():
+        md.append(fmt(f"Voynich ({name})", r))
+    for group in ("denetim", "dönem ve tür metinleri"):
+        for name, r in groups.get(group, {}).items():
+            md.append(fmt(name, r))
+    md += [
+        "",
+        "| grup | n | ham sıra (en az, medyan, en çok) | uç bağı (en az, medyan, en çok) | uç bağı / ham sıra (medyan) | son -> ilk (en az, medyan, en çok) | ilk -> ilk (medyan) | Voynich bandında |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    for group, rows in groups.items():
+        if group in ("voynich", "denetim", "dönem ve tür metinleri"):
+            continue
+        rs = [r for r in rows.values() if r is not None]
+        if not rs:
+            continue
+        o = np.array([r["order"] for r in rs])
+        e = np.array([r["edge"] for r in rs])
+        lf = np.array([r["last_first"] for r in rs])
+        ff = np.array([r["first_first"] for r in rs])
+        inside = int(np.sum((o <= band["order_max"]) & (e >= band["edge_min"]) & (lf >= band["last_first_min"])))
+        ratio = float(np.median(e / np.maximum(o, 1e-3)))
+        ratio_txt = f"{ratio:.2f}" if np.median(o) > 0.02 else "ham sıra sıfıra yakın"
+        md.append(
+            f"| {group} | {len(rs)} | {o.min():+.3f}, {np.median(o):+.3f}, {o.max():+.3f} | "
+            f"{e.min():+.3f}, {np.median(e):+.3f}, {e.max():+.3f} | {ratio_txt} | "
+            f"{lf.min():+.3f}, {np.median(lf):+.3f}, {lf.max():+.3f} | {np.median(ff):+.3f} | {inside} |"
+        )
+    return "\n".join(md) + "\n"
 
 
 def control_experiment(texts: dict[str, Lines], seed: int = 19, halves: tuple[int, ...] = (16000, 8000)) -> dict:

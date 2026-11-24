@@ -274,6 +274,7 @@ def cmd_checks(args: argparse.Namespace) -> None:
     from .abc import voynich_features
     from .checks import (
         control_experiment,
+        edge_experiment,
         evaize_experiment,
         degradation_experiment,
         homogeneity_experiment,
@@ -281,6 +282,7 @@ def cmd_checks(args: argparse.Namespace) -> None:
         order_experiment,
         render_control,
         render_degradation,
+        render_edge,
         render_homogeneity,
         render_lexicon,
         render_markdown,
@@ -369,6 +371,12 @@ def cmd_checks(args: argparse.Namespace) -> None:
     for v in ("eva_basic", "eva_glyph"):
         control_texts[f"Voynich ({v})"] = [ln.words for ln in views[v]]
     control = control_experiment(control_texts)
+    edge = edge_experiment(
+        {name: [ln.words for ln in lines] for name, lines in views.items()},
+        corpora,
+        period=period,
+        controls={k: v for k, v in control_texts.items() if k.startswith("Naibbe") and "glyph" not in k},
+    )
     (out / "checks.json").write_text(
         json.dumps(
             {
@@ -378,6 +386,7 @@ def cmd_checks(args: argparse.Namespace) -> None:
                 "order": order,
                 "degradation": degradation,
                 "control": control,
+                "edge": edge,
             },
             indent=2,
             ensure_ascii=False,
@@ -396,6 +405,8 @@ def cmd_checks(args: argparse.Namespace) -> None:
         + render_degradation(degradation)
         + "\n"
         + render_control(control)
+        + "\n"
+        + render_edge(edge)
     )
     (out / "checks.md").write_text(md, encoding="utf-8")
     print(md)
