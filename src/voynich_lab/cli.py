@@ -1,4 +1,4 @@
-"""Komut satırı: python -m voynich_lab.cli {fetch,build,report,all,abc,search,manuscripts,checks}
+"""Komut satırı: python -m voynich_lab.cli {fetch,build,report,all,abc,search,manuscripts,checks,probe}
 
   fetch  : ham veriyi data/raw altına indirir
   build  : sentetik feature tablosunu üretir (results/synthetic.csv)
@@ -11,6 +11,8 @@
   manuscripts : el yazması düzeyinde karşılaştırma (tek tablo, uzun metin; bir
            yarıda seç, öbür yarıda doğrula), results/manuscripts.md yazar
   checks : hattın kendi sonuçlarını sınayan deneyler, results/checks.md yazar
+  probe  : ön sınama. Bir sınıfı (isteğe bağlı sabitlenmiş ayarlarla) birkaç el
+           yazmasında saniyeler içinde ölçer; yeni mekanizma zincirden önce buradan geçer
 """
 
 from __future__ import annotations
@@ -273,29 +275,80 @@ def cmd_checks(args: argparse.Namespace) -> None:
     from .checks import (
         evaize_experiment,
         homogeneity_experiment,
+        lexicon_experiment,
         render_homogeneity,
+        render_lexicon,
         render_markdown,
     )
+    from .search import _corpora
     from .transliteration import load_views
 
     out = Path(args.results)
     df = pd.read_csv(out / "synthetic.csv")
     evaized = evaize_experiment(df, args.window, model_seed=args.seed)
-    voynich = {
-        name: voynich_features(lines, args.window) for name, lines in load_views(args.raw).items()
-    }
+    views = load_views(args.raw)
+    voynich = {name: voynich_features(lines, args.window) for name, lines in views.items()}
     homogeneity = homogeneity_experiment(df, voynich, args.window)
-    (out / "checks.json").write_text(
-        json.dumps({"evaize": evaized, "homogeneity": homogeneity}, indent=2), encoding="utf-8"
+    lexicon = lexicon_experiment(
+        {name: [w for ln in lines for w in ln.words] for name, lines in views.items()},
+        _corpora(args.raw),
     )
-    md = render_markdown(evaized) + "\n" + render_homogeneity(homogeneity)
+    (out / "checks.json").write_text(
+        json.dumps(
+            {"evaize": evaized, "homogeneity": homogeneity, "lexicon": lexicon},
+            indent=2,
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    md = (
+        render_markdown(evaized)
+        + "\n"
+        + render_homogeneity(homogeneity)
+        + "\n"
+        + render_lexicon(lexicon)
+    )
     (out / "checks.md").write_text(md, encoding="utf-8")
     print(md)
 
 
+def cmd_probe(args: argparse.Namespace) -> None:
+    from .generators import GIBBERISH_PROCESSES, LANGUAGE_PROCESSES, layout_from_params
+    from .manuscripts import _languages
+    from .probe import render, run, summarize, voynich_target
+    from .search import LANGUAGE_KEY, _corpora
+    from .transliteration import load_views
+
+    fixed: dict = {}
+    for item in args.set or []:
+        key, _, value = item.partition("=")
+        fixed[key] = value if key == LANGUAGE_KEY else float(value)
+    half = args.ms_windows // 2
+    need = (half + 1) * args.window
+
+    def make(rng):
+        layout = layout_from_params(fixed, rng)
+        if args.label in LANGUAGE_PROCESSES:
+            corpora = _corpora(args.raw)
+            language = fixed.get(LANGUAGE_KEY) or str(rng.choice(sorted(_languages(args.label, args.raw))))
+            words = corpora[language]
+            start = int(rng.integers(0, len(words) - need))
+            return LANGUAGE_PROCESSES[args.label](
+                words[start : start + need], rng, layout=layout, fixed=fixed
+            )
+        return GIBBERISH_PROCESSES[args.label](need, rng, layout=layout, fixed=fixed)
+
+    targets = {
+        view: voynich_target(lines, args.window, half)
+        for view, lines in load_views(args.raw).items()
+    }
+    print(f"sınıf: {args.label}; sabitlenen ayarlar: {fixed or 'yok (önsel)'}")
+    print(render(summarize(run(make, args.probe_n, args.seed, args.window, half), targets)))
+
+
 def main() -> None:
     p = argparse.ArgumentParser(prog="voynich_lab")
-    p.add_argument("command", choices=["fetch", "build", "report", "all", "abc", "search", "manuscripts", "checks"])
+    p.add_argument("command", choices=["fetch", "build", "report", "all", "abc", "search", "manuscripts", "checks", "probe"])
     p.add_argument("--raw", default="data/raw")
     p.add_argument("--results", default="results")
     p.add_argument("--window", type=int, default=2000, help="pencere boyutu (kelime)")
@@ -315,6 +368,9 @@ def main() -> None:
     p.add_argument("--ms-top", type=int, default=20, help="manuscripts: sınıf başına seçilen aday")
     p.add_argument("--ms-reseed-top", type=int, default=5, help="manuscripts: yeniden tohumlanan aday")
     p.add_argument("--ms-reseeds", type=int, default=6, help="manuscripts: aday başına yeni tohum")
+    p.add_argument("--label", default="grille", help="probe: sınanacak sınıf")
+    p.add_argument("--set", action="append", help="probe: sabitlenecek ayar, anahtar=değer (tekrarlanabilir)")
+    p.add_argument("--probe-n", type=int, default=12, help="probe: el yazması sayısı")
     args = p.parse_args()
     steps = {
         "fetch": [cmd_fetch],
@@ -324,6 +380,7 @@ def main() -> None:
         "search": [cmd_search],
         "manuscripts": [cmd_manuscripts],
         "checks": [cmd_checks],
+        "probe": [cmd_probe],
     }
     for step in steps.get(args.command, [cmd_fetch, cmd_build, cmd_report]):
         step(args)

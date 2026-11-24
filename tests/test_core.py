@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from voynich_lab.abc import analyze_view
-from voynich_lab.checks import evaize, homogeneity_experiment
+from voynich_lab.checks import evaize, homogeneity_experiment, lexicon_stats, markov_surrogate
 from voynich_lab.manuscripts import (
     GROWTH_B,
     MEAN_A,
@@ -18,6 +18,8 @@ from voynich_lab.manuscripts import (
     voynich_reference,
 )
 from voynich_lab.manuscripts import analyze_view as analyze_manuscripts
+from voynich_lab.probe import profile, summarize
+from voynich_lab.probe import run as run_probe
 from voynich_lab.search import perturb, prior_for, run_search
 
 from voynich_lab.corpus import normalize
@@ -504,4 +506,41 @@ def test_codebook_is_one_to_one_on_word_types():
         assert len(set(mapping.values())) == len(mapping)  # farklı kelime farklı kod
         a, b = extract_features(_lines()), extract_features(lines)
         assert b["ttr"] == a["ttr"] and b["hapax_ratio"] == a["hapax_ratio"]
+
+
+def test_probe_flags_closed_vocabulary_before_any_chain_run():
+    """Ön sınama: doyan dağarcık büyüme bandına giremez, açık dağarcık girebilir."""
+    def closed(rng):
+        return GIBBERISH_PROCESSES["grille"](1500, rng, Layout(), fixed={"p_rows": 60, "p_n_grilles": 3})
+
+    df = run_probe(closed, n=3, window_words=300, n_windows=4)
+    assert len(df) == 3 and {"ttr", "hapax", "ed1", "h2"} <= set(df.columns)
+    assert df["ttr"].max() < 0.2  # 180 kelimelik döngü kendini tekrar eder
+    target = {"ttr": 0.27, "hapax": 0.7, "ed1": 0.88}
+    target |= {k: 0.0 for k in df.columns if k not in target}
+    s = summarize(df, {"v": target})
+    assert s["views"]["v"]["n_fitting_growth"] == 0 and not s["passes"]
+    near = df.copy()
+    near[["ttr", "hapax", "ed1"]] = [0.26, 0.69, 0.9]
+    assert summarize(near, {"v": target})["passes"]
+    assert profile([["ab", "ba"]] * 5, 300, 4) is None  # metin kısa
+
+
+def test_lexicon_test_separates_a_word_list_from_free_generation():
+    """Sözlük sınaması: sabit sözlükten gelen metinde vekil çok daha fazla tür üretir;
+    kelimeleri harf zincirinden serbestçe üretilen metinde vekil ile metin aynıdır."""
+    rng = np.random.default_rng(0)
+    letters = list("abcdefghijklmnop")
+    lexicon = ["".join(rng.choice(letters, size=int(rng.integers(3, 8)))) for _ in range(400)]
+    weights = 1 / np.arange(1, 401)
+    listed = [lexicon[int(i)] for i in rng.choice(400, size=2000, p=weights / weights.sum())]
+    a = lexicon_stats(listed, rng, half=1000)
+    assert a["type_ratio_k1"] > 2.5 and a["new_ratio_k1"] > 2.5
+
+    seed_words = ["".join(rng.choice(letters[:6], size=int(rng.integers(2, 6)))) for _ in range(300)]
+    free = markov_surrogate(seed_words, 1, 2000, rng)
+    b = lexicon_stats(free, rng, half=1000)
+    assert 0.8 < b["type_ratio_k1"] < 1.25 and 0.7 < b["new_ratio_k1"] < 1.4
+    assert lexicon_stats(free[:500], rng, half=1000) is None
+    assert all(set(w) <= set(letters[:6]) for w in free)
 

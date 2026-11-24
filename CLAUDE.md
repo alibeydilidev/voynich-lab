@@ -37,6 +37,7 @@ Metne anlam atayan kod ancak şu koşulların hepsi sağlanınca yazılır:
 5. **En az iki transliterasyon.** Tek transliterasyonda çıkan sonuç, transliterasyonun eseri olabilir. Sonuç görünümler arasında tutarlı değilse bulgu değildir.
 6. **CV dil bazında gruplu.** Model hiç görmediği dilde sınanır.
 7. **Sınıflandırıcının sınıf adı başlık değildir.** 2026-11-23 oturumunda sınıflandırıcının kararı, yalnız bir üretecin önseli genişletildiği için üç kez yön değiştirdi (v0.2 `grille`, v0.3 düz EVA'da `verbose`, v0.4 her yerde `grille`). Bir hipotez hakkında hüküm el yazması düzeyinde ve doğrulama yarısında verilir (`cli manuscripts`) ve iki ölçüt birlikte aranır: (a) pencere profili: tek tablo ve tek ayarla üretilen uzun metnin, seçimde kullanılmayan yarısı Voynich'in kendi yarıları kadar yakın mı (T); (b) büyüme profili: aynı yarının tamamında dağarcık Voynich'inki gibi büyüyor mu. Yalnız biri tutuyorsa hipotez geçmiş sayılmaz. Sınıflandırıcı raporu, pencere düzeyi ABC ve arama yardımcı göstergedir.
+8. **Zincirden önce ön sınama.** Yeni bir mekanizma üreteç sınıfı olarak yazılmadan ve zincir koşulmadan önce `probe` ile ölçülür (Python'dan `probe.run(make)`, var olan sınıflar için `cli probe`). Büyüme bandına hiçbir el yazması girmiyorsa sınıf yazılmaz, zincir koşulmaz; sonuç yine de CLAUDE.md'ye yazılır. Gerekçe: 2026-11-24'te dört hipotez arka arkaya yarım saatlik zincirlerle sınandı ve dördü de saniyede görülebilecek tek bir ölçü yüzünden tutmadı.
 
 ## Komutlar
 
@@ -50,7 +51,8 @@ python -m voynich_lab.cli all       # fetch + build + report, ~1 dk
 python -m voynich_lab.cli abc       # büyük tablo + ABC raporu -> results/abc.md, 4 çekirdekte ~3 dk
 python -m voynich_lab.cli search    # abc tablosundan başlayan yönlendirilmiş arama -> results/search.md, ~6 dk
 python -m voynich_lab.cli manuscripts --rebuild --ms-per-class 2000   # el yazması düzeyi -> results/manuscripts.md, ~8 dk
-python -m voynich_lab.cli checks    # hattın kendi sonuçlarını sınayan deneyler -> results/checks.md
+python -m voynich_lab.cli checks    # hattın kendi sonuçlarını sınayan deneyler -> results/checks.md, ~1 dk
+python -m voynich_lab.cli probe --label abjad --probe-n 12   # ön sınama, saniyeler; --set anahtar=değer ile ayar sabitlenir
 pytest -q
 ```
 
@@ -70,7 +72,8 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | `abc.py` | Rejection ABC: her sınıf Voynich'e en fazla ne kadar yaklaşıyor, neyi tutturamıyor, hangi ayarlarla. Mesafe birimi Voynich'in kendi pencereleri arası değişkenlik |
 | `search.py` | Yönlendirilmiş arama: ABC'nin en yakın örneklerinin ayarlarından başlar, önsel sınırları içinde oynatır, sonucu taze örneklerle ölçer. Sonsal dağılım vermez; "bu hipotezin Voynich'ten ayırt edilemeyen bir ayar bölgesi var mı" sorusunu yanıtlar |
 | `manuscripts.py` | El yazması düzeyinde karşılaştırma: aday = ayarlar + tohum, tek tablodan 16 pencere, 8'i seçim 8'i doğrulama. İstatistik T (standart hataya bölünmüş ortalama farkı; Voynich'in kendi yarıları için yaklaşık 1), yayılım oranı (iç değişkenlik) ve büyüme profili (yarı başına 16 bin kelimede tür/kelime, hapax/tür, ed1 oranı). Asıl hüküm buradan verilir |
-| `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor) ve homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) |
+| `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor), homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) ve sözlük sınaması (kelimeler sınırlı bir sözlükten mi geliyor; üretece ve önsele dayanmaz) |
+| `probe.py` | Ön sınama (bekçi): bir mekanizmayı birkaç el yazmasında saniyeler içinde ölçer (büyüme ölçüleri ve seçilmiş pencere feature'ları), Voynich ile yan yana koyar. Eleme aracıdır, hüküm aracı değildir |
 | `cli.py`, `fetch.py` | Komut satırı ve indirme |
 
 Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bir glif. Çok harfli glifler Unicode özel kullanım alanındaki tek karaktere eşlenir.
@@ -227,7 +230,7 @@ Eklenen: `verbose` için iki ayar, `p_drop_vowels` (şifrelemeden önce sesliler
 
 ## v0.10 bulguları: kod defteri sınandı, öngörü tutmadı (2026-11-24, seed 7, pencere 2000)
 
-Güncel durum budur. Rapor: `results/manuscripts.md` (sekiz sınıf, sınıf başına 2000 el yazması).
+Tarihçe (`9b92a97`). El yazması tablosu ve sıralamalar hâlâ geçerli (üreteçler v0.11'de değişmedi). Sonundaki aday v0.11'de ön sınamada elendi. Rapor: `results/manuscripts.md` (sekiz sınıf, sınıf başına 2000 el yazması).
 
 Eklenen: `codebook` sınıfı (dil tabanlı).
 
@@ -239,6 +242,23 @@ Eklenen: `codebook` sınıfı (dil tabanlı).
 - **Elde kalan en sağlam veri bulgusu (hipotezden bağımsız):** Voynich'in dağarcık büyüme profili (16 bin kelimede tür/kelime 0.25 ila 0.30, hapax 0.68 ila 0.72, ed1 0.86 ila 0.89; iki yarı 0.03 içinde tutarlı; beş görünümde aynı) seslisiz yazılmış çekimli bir doğal dilinkiyle örtüşüyor ve kapalı tablo üreteçlerininkiyle örtüşmüyor. Pencere profili ise tam tersini söylüyor. Hiçbir hipotez ikisini birleştiremiyor.
 - **Sıradaki aday (yazıldı, sınanmadı, önce ön sınama):** komşuluğu koruyan genişletme. `abjad` büyüme profilini veriyor ama kelimeleri kısa ve `h2`'si yüksek. Harf harf şifre kelimeyi uzatıp `h2`'yi düşürüyor ama bir harflik farkı çok glifli farka çevirip komşuluğu bozuyor. İkisini uzlaştırabilecek tek tür kodlama, her ünsüzü tek glifle yazıp aralara konuma bağlı, öngörülebilir dolgu glifleri koyandır: bir ünsüzü farklı iki kelime yine tek glifle ayrışır (komşuluk korunur), kelime uzar, dolgu öngörülebilir olduğu için `h2` düşer, dolgunun yeri sabit olduğu için konum yapısı güçlenir.
 
+## v0.11 bulguları: ön sınama aracı ve sözlük sınaması (2026-11-24, seed 7)
+
+Güncel durum budur. Üreteçler değişmedi; `results/manuscripts.md` v0.10 ile aynı. Yeni rapor: `results/checks.md` üçüncü bölüm.
+
+- **Ön sınama aracı (`probe`) yazıldı, ilke 8 oldu.** Var olan bir sınıfı 12 el yazmasında 9 saniyede ölçüyor.
+- **v0.10'daki aday ön sınamada elendi.** "Ünsüz başına tek glif + konuma bağlı dolgu" altı dilde ve beş ayarda denendi (30 düzen, 18 saniye): büyüme bandına giren el yazması yok. ed1 oranı 0.51 ila 0.76 çıktı, yalın seslisiz yazımın (0.86) altında. Neden: seslisiz yazımdaki komşulukların çoğu harf ekleme ya da silmeyle oluşuyor; dolgu konuma bağlı olunca bir harf eklemek öbür harflerin dolgusunu da değiştiriyor. Sınıf yazılmadı, zincir koşulmadı.
+- **Ortak adaylar nerede kalıyor (mevcut tablodan).** Büyümeye uyan en iyi 30 adayın ortak açıkları: çok fazla bir ve iki glifli kelime (`wlen_frac1` +6 ila +19, `wlen_frac_le2` +6 ila +17), `h2` yüksek (+7 ila +11), `jsd_last` düşük (-10 ila -11). Yani elimizdeki açık dağarcıklı üreteçler yoğun komşuluğu kısa kelimelerle elde ediyor; Voynich ise aynı yoğunluğu 4 ila 5 glifli kelimelerle ve çok öngörülebilir bir harf dizilişiyle elde ediyor.
+- **Sözlük sınaması: Voynich'in dağarcığında sözlük kısıtı görünmüyor.** Yöntem üretece ve önsele dayanmaz: metnin ilk 16 bin kelimesinden kelime içi glif zinciri öğrenilir, aynı sayıda kelime bağımsız çekilir (vekil), vekil hem gerçek metnin kendisiyle hem görülmemiş ikinci yarıyla karşılaştırılır. Sonuç (k = 2):
+  - Voynich, beş görünüm: tür oranı 0.96 ila 1.06, yeni kelime oranı 0.84 ila 0.95. Yani harf dizilişinden serbestçe üretilen kelimeler, gerçek metinle aynı sayıda farklı kelime veriyor ve gerçek metin, görülmemiş yarıda vekil kadar sık yeni kelime üretiyor.
+  - 22 doğal dil, düz metin: tür oranı 1.55 ila 3.24 (medyan 2.26), yeni kelime oranı 1.89 ila 5.18 (medyan 2.88). En düşükler İbranice ve Arapça (1.55, 1.62). Voynich aralığına giren dil yok.
+  - Aynı diller seslisiz yazılınca (19 dil): tür oranı 1.37 ila 1.80, yeni kelime oranı 0.96 ila 2.66. Tür oranında Voynich aralığına giren yok.
+  - k = 1'de de ayrım sürüyor: Voynich tür oranı 1.14 ila 1.39, diller en az 1.86.
+  - Üreteçler (sınıf başına 6 örnek): `slotgram` 0.85 ila 1.23 ve 0.00 ila 1.11; `selfcite` 0.97 ila 1.81 ve 0.56 ila 0.95; `codebook` 0.87 ila 1.81 ve 0.37 ila 2.14; `verbose` 1.17 ila 2.33 ve 1.28 ila 4.65; `grille` 1.15 ila 1.87 ve 2.56 ila 69.6 (kapalı tablo görülmemiş yarıda neredeyse hiç yeni kelime üretmez); `slotcite` 1.09 ila 1.75 ve 1.34 ila 10.7.
+- **Bunun anlamı ve sınırı.** Voynich kelimeleri, bir alfabeyle (sesli ya da seslisiz) bire bir yazılmış bir doğal dilin kelimeleri gibi davranmıyor: doğal dilde harf dizilişi kurallarına uyan olası kelimelerin çoğu sözlükte yoktur, Voynich'te ise kurala uyan her şey yazılıyor gibi. Bu, "metin anlamsız" demek değildir. Aynı imzayı verenler: sözlüksüz üretim (`slotgram`, `selfcite`) ve kod uzayını sık dolduran kelime kelime kodlama (`codebook` örneklerinin yarısı). Elenen: düz ya da seslisiz yazılmış doğal dil ve (altı örnekle) harf harf şifre. Sınırlar: diller modern İncil çevirileri (dönem metni yok); `verbose` ve `codebook` için örnek sayısı az; hece ya da kelime parçası yazan sistemler ayrıca sınanmadı.
+- **Hedef merdiveni açısından:** bu, 2. basamağa (daraltma) ait ilk veri bulgusu: aday "dil ve yazım türü" kümesinden "alfabeyle bire bir yazılmış doğal dil" çıkıyor. 1. basamak hâlâ geçilmedi: Voynich'i üreten bir süreç gösterilemedi.
+- **Sıradaki aday (yazıldı, sınanmadı; önce ön sınama):** Voynich'in kendi düşük dereceli glif zincirinden bağımsız çekilen kelimeler büyüme ölçülerini büyük ölçüde tutturuyor (k = 2 vekilde tür/kelime 0.25 ila 0.29, hapax 0.70 ila 0.73, ed1 0.75 ila 0.81; Voynich 0.25 ila 0.30, 0.68 ila 0.72, 0.86 ila 0.89). Bu, Voynich'ten öğrenilmiş bir betimlemedir, hipotez değil. Hipotez hâli: rastgele kurulmuş seyrek bir glif otomatı (önselden çekilen geçiş yapısı, Voynich'e bakmadan) aynı profili üretir mi. Ölçüt aynı: büyüme bandı ve doğrulama T'si.
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
@@ -247,7 +267,7 @@ Eklenen: `codebook` sınıfı (dil tabanlı).
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). **Sıradaki:** (a) hızlı ön sınama aracı (tek el yazmasında büyüme ölçüleri ve birkaç pencere feature'ı, zincir koşmadan); (b) komşuluğu koruyan genişletme (v0.10'daki aday), önce ön sınamayla; (c) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). **Sıradaki:** (a) rastgele glif otomatı (v0.11'deki aday), önce ön sınamayla; (b) sözlük sınamasını genişlet: dönem metinleri, hece yazan sistemler, `verbose` ve `codebook` için daha çok örnek; (c) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
 3. **Dönem metinleri.** İncil çevirileri modern. 15. yüzyıl Latince, İtalyanca, Almanca, İbranice, Osmanlıca öncesi Türkçe tıbbi ve botanik metinler ekle. `corpus.py` düz kelime listesi bekliyor, yeni yükleyici yazmak yeterli.
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.

@@ -12,11 +12,24 @@ gibi baştan üretir (yeni tablo, yeni alfabe). Voynich pencereleri ise tek bir
 el yazmasının parçalarıdır. Soru: sentetik örnekler arası farkın ne kadarı
 ayarlardan ve tablodan, ne kadarı aynı tablonun farklı metninden geliyor; ve
 tek bir tablo, Voynich'in kendi içindeki kadar değişken metin üretiyor mu?
+
+sözlük deneyi: bir metnin kelimeleri sınırlı bir sözlükten mi geliyor, yoksa
+kelime içi harf dizilişi kurallarının izin verdiği her şey mi yazılıyor? Ölçüm
+hiçbir üretece ya da önsele dayanmaz. Metnin ilk yarısından k. dereceden bir
+glif zinciri öğrenilir (kelime başı ve sonu dahil) ve aynı sayıda kelime
+bağımsız çekilir: bu "vekil" metindir. İki sayı:
+
+  tür oranı : vekildeki farklı kelime sayısı / gerçek metindeki farklı kelime
+              sayısı. Sözlüğü olan dilde vekil, dilde olmayan pek çok "kelime"
+              uydurur ve oran 1'in çok üstüne çıkar. Sözlük yoksa oran 1'dir.
+  yeni kelime oranı : vekildeki, ilk yarıda hiç görülmemiş kelimelerin payı /
+              gerçek ikinci yarıdaki aynı pay. Aynı sorunun görülmemiş veriyle
+              sorulmuş hâli: gerçek metin, vekil kadar sık yeni kelime üretiyor mu?
 """
 
 from __future__ import annotations
 
-from collections import Counter
+from collections import Counter, defaultdict
 
 import numpy as np
 import pandas as pd
@@ -150,6 +163,133 @@ def render_homogeneity(result: dict) -> str:
             f"| {view} | {r['voynich_within']:.2f} | "
             + " | ".join(f"{r[p]['within']:.2f} | {r[p]['between']:.2f}" for p in procs)
             + " |"
+        )
+    return "\n".join(md) + "\n"
+
+
+def markov_surrogate(words: list[str], k: int, n: int, rng: np.random.Generator) -> list[str]:
+    """`words` içindeki kelime içi glif dizilişinden (k. derece) n kelime bağımsız çeker."""
+    trans: dict[str, Counter] = defaultdict(Counter)
+    for w in words:
+        s = "\x02" * k + w + "\x03"
+        for i in range(k, len(s)):
+            trans[s[i - k : i]][s[i]] += 1
+    table = {
+        ctx: (list(c), np.cumsum(list(c.values())) / sum(c.values())) for ctx, c in trans.items()
+    }
+    out: list[str] = []
+    while len(out) < n:
+        ctx, w = "\x02" * k, ""
+        while True:
+            syms, cum = table[ctx]
+            ch = syms[min(int(np.searchsorted(cum, rng.random(), side="right")), len(syms) - 1)]
+            if ch == "\x03":
+                break
+            w += ch
+            ctx = (ctx + ch)[-k:]
+        if w:
+            out.append(w)
+    return out
+
+
+def lexicon_stats(
+    words: list[str], rng: np.random.Generator, half: int = 16000, orders: tuple[int, ...] = (1, 2)
+) -> dict[str, float] | None:
+    """Bir metin için sözlük ölçüleri. Metin 2 * half kelimeden kısaysa None."""
+    if len(words) < 2 * half:
+        return None
+    train, test = words[:half], words[half : 2 * half]
+    vocab = set(train)
+    real_new = sum(w not in vocab for w in test) / half
+    out = {
+        "types": float(len(vocab)),
+        "mean_len": float(np.mean([len(w) for w in train])),
+        "real_new": real_new,
+    }
+    for k in orders:
+        sur = markov_surrogate(train, k, half, rng)
+        out[f"type_ratio_k{k}"] = len(set(sur)) / len(vocab)
+        out[f"new_ratio_k{k}"] = (sum(w not in vocab for w in sur) / half) / max(real_new, 1e-9)
+    return out
+
+
+def lexicon_experiment(
+    voynich: dict[str, list[str]],
+    corpora: dict[str, list[str]],
+    n_per_class: int = 6,
+    seed: int = 11,
+    half: int = 16000,
+) -> dict:
+    """Voynich, doğal diller (düz ve seslisiz) ve üreteç sınıfları için sözlük ölçüleri."""
+    from .corpus import ABJAD_CAPABLE_SCRIPTS, dominant_script, is_vowel
+    from .generators import LANGUAGE_PROCESSES
+
+    rng = np.random.default_rng(seed)
+    need = 2 * half + 2000
+    out: dict = {"half": half, "voynich": {}, "groups": {}}
+    for view, words in voynich.items():
+        out["voynich"][view] = lexicon_stats(words, rng, half)
+    plain_rows, abjad_rows = {}, {}
+    for lang in sorted(corpora):
+        words = corpora[lang][20000 : 20000 + need]
+        plain_rows[lang] = lexicon_stats(words, rng, half)
+        if dominant_script(words) in ABJAD_CAPABLE_SCRIPTS:
+            bare = [("".join(ch for ch in w if not is_vowel(ch)) or w[0]) for w in words]
+            abjad_rows[lang] = lexicon_stats(bare, rng, half)
+    out["groups"]["doğal dil, düz"] = plain_rows
+    out["groups"]["doğal dil, seslisiz"] = abjad_rows
+    languages = sorted(corpora)
+    for name in ("verbose", "codebook"):
+        rows = {}
+        for i in range(n_per_class):
+            lang = languages[int(rng.integers(len(languages)))]
+            start = int(rng.integers(0, len(corpora[lang]) - need))
+            lines = LANGUAGE_PROCESSES[name](corpora[lang][start : start + need], rng)
+            r = lexicon_stats([w for ln in lines for w in ln], rng, half)
+            if r is not None:
+                rows[f"{name} {i} ({lang})"] = r
+        out["groups"][name] = rows
+    for name, proc in GIBBERISH_PROCESSES.items():
+        rows = {}
+        for i in range(n_per_class):
+            r = lexicon_stats([w for ln in proc(need, rng) for w in ln], rng, half)
+            if r is not None:
+                rows[f"{name} {i}"] = r
+        out["groups"][name] = rows
+    return out
+
+
+def render_lexicon(result: dict) -> str:
+    cols = ["type_ratio_k1", "type_ratio_k2", "new_ratio_k1", "new_ratio_k2"]
+    md = [
+        "# Sınama: kelimeler bir sözlükten mi geliyor",
+        "",
+        f"Her metnin ilk {result['half']} kelimesinden kelime içi glif zinciri öğrenildi (k = 1 ve 2) "
+        "ve aynı sayıda kelime bağımsız çekildi (vekil). Tür oranı: vekildeki farklı kelime sayısı / "
+        "gerçek metindeki. Yeni kelime oranı: vekilde, ilk yarıda görülmemiş kelimelerin payı / gerçek "
+        "ikinci yarıda aynı pay. İkisi de 1'e yakınsa metin, harf dizilişi kurallarının izin verdiği "
+        "her kelimeyi kullanıyor demektir (sözlük kısıtı görünmüyor); 1'in belirgin üstündeyse "
+        "kelimeler bu kuralların izin verdiğinden çok daha dar bir kümeden geliyor demektir.",
+        "",
+        "| metin | n | ort. kelime uzunluğu | tür oranı k=1 | tür oranı k=2 | yeni kelime oranı k=1 | yeni kelime oranı k=2 |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for view, r in result["voynich"].items():
+        md.append(
+            f"| Voynich {view} | 1 | {r['mean_len']:.1f} | "
+            + " | ".join(f"{r[c]:.2f}" for c in cols) + " |"
+        )
+    for group, rows in result["groups"].items():
+        vals = [r for r in rows.values() if r is not None]
+        if not vals:
+            continue
+        cells = []
+        for c in cols:
+            x = np.array([r[c] for r in vals])
+            cells.append(f"{np.median(x):.2f} [{x.min():.2f}, {x.max():.2f}]")
+        md.append(
+            f"| {group} (medyan [en az, en çok]) | {len(vals)} | "
+            f"{np.median([r['mean_len'] for r in vals]):.1f} | " + " | ".join(cells) + " |"
         )
     return "\n".join(md) + "\n"
 
