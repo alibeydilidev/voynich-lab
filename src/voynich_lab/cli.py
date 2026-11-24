@@ -280,8 +280,9 @@ def cmd_checks(args: argparse.Namespace) -> None:
         render_lexicon,
         render_markdown,
     )
+    from .corpus import load_period
     from .search import _corpora
-    from .transliteration import load_views
+    from .transliteration import ivtff_page_variables, load_ivtff, load_views
 
     out = Path(args.results)
     df = pd.read_csv(out / "synthetic.csv")
@@ -289,9 +290,23 @@ def cmd_checks(args: argparse.Namespace) -> None:
     views = load_views(args.raw)
     voynich = {name: voynich_features(lines, args.window) for name, lines in views.items()}
     homogeneity = homogeneity_experiment(df, voynich, args.window)
+    # Voynich bölümleri: ZL dosyasındaki sayfa değişkenlerinden (Currier dili ve çizim türü).
+    zl = Path(args.raw) / "zl_ivtff.txt"
+    sections: dict[str, list[str]] = {}
+    if zl.exists():
+        pages = ivtff_page_variables(zl)
+        for ln in load_ivtff(zl, "glyph"):
+            v = pages.get(ln.folio, {})
+            if v.get("L") in ("A", "B"):
+                sections.setdefault(f"Currier {v['L']} (zl_glyph)", []).extend(ln.words)
+            if "I" in v:
+                sections.setdefault(f"çizim türü {v['I']} (zl_glyph)", []).extend(ln.words)
+    period_dir = Path(args.raw) / "period"
     lexicon = lexicon_experiment(
         {name: [w for ln in lines for w in ln.words] for name, lines in views.items()},
         _corpora(args.raw),
+        period=load_period(period_dir) if period_dir.exists() else None,
+        sections=dict(sorted(sections.items())),
     )
     (out / "checks.json").write_text(
         json.dumps(

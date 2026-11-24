@@ -72,6 +72,20 @@ def load_bible(path: str | Path) -> list[str]:
     return words
 
 
+def load_period(period_dir: str | Path) -> dict[str, list[str]]:
+    """Dönem metinleri: {dosya adı: kelimeler}. Dosyalar `fetch` ile gelen düz metinlerdir.
+
+    Baştaki ve sondaki birkaç yüz kelime (sayfa başlığı, gezinme bağlantıları)
+    atılmaz; 30 bin kelimenin üstündeki metinde payları ihmal edilebilir.
+    """
+    out = {}
+    for p in sorted(Path(period_dir).glob("*.txt")):
+        words = normalize(p.read_text(encoding="utf-8", errors="replace"))
+        if len(words) > 30_000:
+            out[p.stem] = words
+    return out
+
+
 def dominant_script(words: list[str], sample: int = 2000) -> str:
     counts: dict[str, int] = {}
     for w in words[:sample]:

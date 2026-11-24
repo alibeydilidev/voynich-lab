@@ -144,6 +144,24 @@ def load_ivtff(
     return out
 
 
+_IVTFF_PAGE = re.compile(r"^<f(\w+)>\s*<!(.*)>\s*$")
+
+
+def ivtff_page_variables(path: str | Path) -> dict[str, dict[str, str]]:
+    """IVTFF sayfa başlıklarındaki değişkenler: {folio: {değişken: değer}}.
+
+    Kullanılanlar: L = Currier dili (A ya da B), H = el, I = çizim türü
+    (H bitki, A astronomi, Z zodyak, B banyo, C kozmoloji, P eczacılık,
+    S yıldızlı reçete, T yalnız metin).
+    """
+    out: dict[str, dict[str, str]] = {}
+    for raw in Path(path).read_text(encoding="latin-1").splitlines():
+        m = _IVTFF_PAGE.match(raw)
+        if m:
+            out[m.group(1)] = dict(re.findall(r"\$(\w)=(\S+)", m.group(2)))
+    return out
+
+
 def load_views(raw_dir: str | Path) -> dict[str, list[FolioLine]]:
     """Mevcut bütün transliterasyon görünümlerini yükler."""
     raw_dir = Path(raw_dir)

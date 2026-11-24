@@ -63,7 +63,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | Dosya | Görev |
 |---|---|
 | `transliteration.py` | Takahashi EVA, Claston v101 ve Zandbergen-Landini (IVTFF) ayrıştırıcıları, beş görünüm (`eva_basic`, `eva_glyph`, `v101`, `zl_basic`, `zl_glyph`), pencereleme |
-| `corpus.py` | 22 dilde paralel İncil, yazıya göre normalizasyon |
+| `corpus.py` | 22 dilde paralel İncil, yazıya göre normalizasyon; 15. yüzyıl dönem metinleri (`load_period`) |
 | `generators.py` | Üretim süreçleri. `LANGUAGE_PROCESSES` gerçek metni dönüştürür, `GIBBERISH_PROCESSES` sıfırdan üretir. Hepsinin üstünde ortak yazıcı katmanı (`Layout`, `lay_out`, `finish`): nadir harf çeşitlemeleri, kelime başı ve sonu için özel harf biçimleri, satırı genişliğe göre doldurma, paragraf, satır başı, satır sonu ve paragraf başı alışkanlıkları |
 | `features.py` | 32 feature: entropi, kelime uzunluğu, dağarcık, tekrar, kelime içi konum, satır konumu |
 | `dataset.py` | Sentetik korpus fabrikası: (dil penceresi x süreç) -> satır. Her satır üreten ayarları da taşır (`p_` süreç, `l_` yazıcı katmanı) |
@@ -74,7 +74,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | `manuscripts.py` | El yazması düzeyinde karşılaştırma: aday = ayarlar + tohum, tek tablodan 16 pencere, 8'i seçim 8'i doğrulama. İstatistik T (standart hataya bölünmüş ortalama farkı; Voynich'in kendi yarıları için yaklaşık 1), yayılım oranı (iç değişkenlik) ve büyüme profili (yarı başına 16 bin kelimede tür/kelime, hapax/tür, ed1 oranı). Asıl hüküm buradan verilir |
 | `checks.py` | Hattın kendi sonuçlarını sınayan deneyler: EVA'laştırma (bilinen anlamsız metni çok harfli yazınca sınıflandırıcı ne diyor), homojenlik (tek tablo Voynich kadar değişken metin üretiyor mu) ve sözlük sınaması (kelimeler sınırlı bir sözlükten mi geliyor; üretece ve önsele dayanmaz) |
 | `probe.py` | Ön sınama (bekçi): bir mekanizmayı birkaç el yazmasında saniyeler içinde ölçer (büyüme ölçüleri ve seçilmiş pencere feature'ları), Voynich ile yan yana koyar. Eleme aracıdır, hüküm aracı değildir |
-| `cli.py`, `fetch.py` | Komut satırı ve indirme |
+| `cli.py`, `fetch.py` | Komut satırı ve indirme. `fetch` dönem metinlerini de indirir; Wikisource hız sınırı koyduğu için istekler arası 4 sn bekler ve 429 gelirse söylenen süre kadar bekleyip yeniden dener (ilk indirme ~3 dk) |
 
 Ortak veri tipi `Lines = list[list[str]]`: satırlar, kelimeler, her karakter bir glif. Çok harfli glifler Unicode özel kullanım alanındaki tek karaktere eşlenir.
 
@@ -244,7 +244,7 @@ Eklenen: `codebook` sınıfı (dil tabanlı).
 
 ## v0.11 bulguları: ön sınama aracı ve sözlük sınaması (2026-11-24, seed 7)
 
-Güncel durum budur. Üreteçler değişmedi; `results/manuscripts.md` v0.10 ile aynı. Yeni rapor: `results/checks.md` üçüncü bölüm.
+Tarihçe (`e53aecc`). Sözlük sınamasının sayıları v0.12'de dönem metinleri, bölümler ve daha çok örnekle yenilendi; buradaki "harf harf şifre elenir" cümlesi v0.12'de düzeltildi. Üreteçler değişmedi; `results/manuscripts.md` v0.10 ile aynı. Yeni rapor: `results/checks.md` üçüncü bölüm.
 
 - **Ön sınama aracı (`probe`) yazıldı, ilke 8 oldu.** Var olan bir sınıfı 12 el yazmasında 9 saniyede ölçüyor.
 - **v0.10'daki aday ön sınamada elendi.** "Ünsüz başına tek glif + konuma bağlı dolgu" altı dilde ve beş ayarda denendi (30 düzen, 18 saniye): büyüme bandına giren el yazması yok. ed1 oranı 0.51 ila 0.76 çıktı, yalın seslisiz yazımın (0.86) altında. Neden: seslisiz yazımdaki komşulukların çoğu harf ekleme ya da silmeyle oluşuyor; dolgu konuma bağlı olunca bir harf eklemek öbür harflerin dolgusunu da değiştiriyor. Sınıf yazılmadı, zincir koşulmadı.
@@ -259,6 +259,21 @@ Güncel durum budur. Üreteçler değişmedi; `results/manuscripts.md` v0.10 ile
 - **Hedef merdiveni açısından:** bu, 2. basamağa (daraltma) ait ilk veri bulgusu: aday "dil ve yazım türü" kümesinden "alfabeyle bire bir yazılmış doğal dil" çıkıyor. 1. basamak hâlâ geçilmedi: Voynich'i üreten bir süreç gösterilemedi.
 - **Sıradaki aday (yazıldı, sınanmadı; önce ön sınama):** Voynich'in kendi düşük dereceli glif zincirinden bağımsız çekilen kelimeler büyüme ölçülerini büyük ölçüde tutturuyor (k = 2 vekilde tür/kelime 0.25 ila 0.29, hapax 0.70 ila 0.73, ed1 0.75 ila 0.81; Voynich 0.25 ila 0.30, 0.68 ila 0.72, 0.86 ila 0.89). Bu, Voynich'ten öğrenilmiş bir betimlemedir, hipotez değil. Hipotez hâli: rastgele kurulmuş seyrek bir glif otomatı (önselden çekilen geçiş yapısı, Voynich'e bakmadan) aynı profili üretir mi. Ölçüt aynı: büyüme bandı ve doğrulama T'si.
 
+## v0.12 bulguları: sözlük sınamasının sınırları (2026-11-24, seed 7)
+
+Güncel durum budur. Rapor: `results/checks.md` üçüncü bölüm. Üreteçler değişmedi; `results/manuscripts.md` ve `results/report.md` v0.10 ile aynı.
+
+Eklenen: dönem metinleri (`fetch_period`, `load_period`), ZL sayfa değişkenleri (`ivtff_page_variables`), sözlük sınamasında dönem metni grubu, Voynich bölümleri ve sınıf başına 30 örnek.
+
+VL-012'de yazılan dört sınırın durumu:
+
+- **1. "Diller modern çeviri" sınırı kapandı (üç dil için).** 15. yüzyıl metinlerinde sözlük kısıtı modern metinlerdeki kadar belirgin: tür oranı (k = 2) Latince 1.75, İspanyolca 1.79, İtalyanca 1.96; yeni kelime oranı 3.14 ila 3.57. Seslisiz yazılınca tür oranı 1.24 ila 1.48, yeni kelime oranı 1.92 ila 2.23. Voynich (0.96 ila 1.06; 0.84 ila 0.95) aralığına giren yok. Açık kalan: Almanca, İbranice ve tıbbi ya da botanik tür için dönem metni yok.
+- **2. Örnek sayısı artınca `verbose` hükmü değişti: elenmiyor.** 30 örnekte tür oranı 0.97 ila 3.00 (medyan 1.29), yeni kelime oranı 0.99 ila 8.27 (medyan 2.03); 2 örnek Voynich aralığında. Ayrı ölçüm (90 örnek, ayar kaydıyla): Voynich aralığına girenlerin neredeyse hepsi kelime içine yüksek olasılıkla (0.58 ila 0.65) rastgele boşluk koyan düzenler. Bu düzenlerde "kelime" düz metnin kelimesi değil, harf kodlarının rastgele parçası; sözlük yapısı zaten kayboluyor. Ama bu örneklerin kelimeleri çok kısa (ortalama 1.8 ila 2.5 glif; Voynich 3.8 ila 4.9) ve dağarcıkları küçük (16 bin kelimede 1000 ila 2600 tür; Voynich'te yaklaşık 4000). Kelime sınırını koruyan ya da hece hece yazan `verbose` düzenlerinde tür oranı en az 1.10 (medyan 1.97 ve 1.68).
+- **Sınıf başına 30 örnekte Voynich aralığına (tür oranı 0.90 ila 1.10, yeni kelime oranı 0.75 ila 1.10) girenler:** `slotgram` 13, `codebook` 6, `slotcite` 6, `verbose` 2, `selfcite` 1, `grille` 0. `grille` kapalı tablo olduğu için görülmemiş yarıda neredeyse hiç yeni kelime üretmiyor (yeni kelime oranı en az 1.42).
+- **4. Sonuç bölümlerin karışımından doğmuyor.** 5000 kelimelik yarılarla: Currier A tür oranı 0.97, Currier B 0.98, bitki bölümü 0.95, yıldızlı reçete bölümü 0.99. Aynı boyda 22 doğal dil: en az 1.32, medyan 1.84. Yeni kelime oranı bölümden bölüme oynuyor (A 0.65, B 1.18, bitki 0.71, yıldız 1.10; diller en az 1.41); B ve yıldız bölümünde ilk yarıdan öğrenilen zincir ikinci yarıyı biraz daha az kapsıyor, yani bu bölümlerin içi tam durağan değil. Banyo, eczacılık ve yalnız metin bölümleri ölçmek için kısa.
+- **3 ve 5 açık.** Hece ya da kelime parçası yazan sistemler ayrı sınıf olarak sınanmadı (yalnız `verbose` hece modu: tür oranı en az 1.20). Kelime uzunluğu eşlenmiş karşılaştırma yapılmadı; tabloda ortalama uzunluklar yan yana duruyor (Voynich 3.8 ila 4.9, düz diller 4.4, dönem metinleri 4.4 ila 5.4).
+- **Hüküm (v0.11'deki cümlenin düzeltilmiş hâli).** Voynich'in kelimeleri, kelime sınırı düz metnin kelime sınırı olan ve harfleri bire bir (sesli ya da seslisiz) yazan bir doğal dil metni gibi davranmıyor; bu, 22 modern ve 3 dönem metninde, beş Voynich görünümünde ve ölçülebilen dört bölümde ayrı ayrı tutuyor. Elenmeyenler: sözlüksüz üretim (`slotgram`, `slotcite`, `selfcite`), kod uzayını sık dolduran kelime kelime kodlama (`codebook`), ve Voynich "kelimesi"nin düz metin kelimesi olmadığı her sistem (kelime içi boşluklu şifre gibi). Sözlük sınaması tek başına "anlamlı mı, anlamsız mı" sorusunu yanıtlamaz; yanıtladığı soru "kelimeler bir dilin sözlüğünden mi geliyor" sorusudur.
+
 ## Yol haritası (öncelik sırasıyla)
 
 1. **Üreteç sadakati.** Asıl kaldıraç burada.
@@ -268,7 +283,7 @@ Güncel durum budur. Üreteçler değişmedi; `results/manuscripts.md` v0.10 ile
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
 2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). **Sıradaki:** (a) rastgele glif otomatı (v0.11'deki aday), önce ön sınamayla; (b) sözlük sınamasını genişlet: dönem metinleri, hece yazan sistemler, `verbose` ve `codebook` için daha çok örnek; (c) dil tarafında komşu benzerliği ve bol hapax üretebilecek hipotez; (c) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (d) el yazması düzeyinde yönlendirilmiş arama.
-3. **Dönem metinleri.** İncil çevirileri modern. 15. yüzyıl Latince, İtalyanca, Almanca, İbranice, Osmanlıca öncesi Türkçe tıbbi ve botanik metinler ekle. `corpus.py` düz kelime listesi bekliyor, yeni yükleyici yazmak yeterli.
+3. **Dönem metinleri.** Üç metin eklendi (v0.12: Latince, İtalyanca, İspanyolca; yalnız sözlük sınamasında kullanılıyor). Eksik: Almanca, İbranice, tıbbi ve botanik tür; dönem metinlerinin üreteçlere kaynak olarak bağlanması (`corpus.load_all` yalnız İncil okuyor).
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.
 6. **İkinci hat: char-level Transformer.** Yalnızca Voynich üzerinde küçük bir model eğit, sayfa embedding'leri çizim bölümlerine göre kümeleniyor mu bak. Kümeleniyorsa metin konuyla ilişkili. Kontrol: aynı testi satırları karıştırılmış metinde ve `selfcite` çıktısında tekrarla.
@@ -290,5 +305,6 @@ Güncel durum budur. Üreteçler değişmedi; `results/manuscripts.md` v0.10 ile
 - Zandbergen ve Landini (ZL), IVTFF 2.0: `voynich.nu/data/ZL3b-n.txt` (sürüm 3b, 13/05/2025). Aynı dizinde Currier dili, el ve çizim türü sayfa değişkenleri olarak hazır (yol haritası 5 için).
 - Claston v101: `musyoku/voynich-transcription` (GitHub)
 - İncil korpusu: `christos-c/bible-corpus` (GitHub)
+- Dönem metinleri (`data/raw/period/`): Thomas à Kempis, De imitatione Christi (Latince, yaklaşık 1420; The Latin Library, 41.9 bin kelime); Leon Battista Alberti, I libri della famiglia (İtalyanca, yaklaşık 1440; it.wikisource, 120.8 bin kelime); Fernando de Rojas, La Celestina (İspanyolca, 1499, 1913 baskısı eski yazımı koruyor; es.wikisource, yalnız "aucto" sayfaları, 65.0 bin kelime). Sayfa başlığı ve gezinme metni temizlenmedi (payı küçük); dipnotlar atıldı. Project Gutenberg 2026-11-24'te bakımdaydı, oradan metin alınamadı.
 
 Ham veri depoya girmez, `fetch` ile yeniden üretilir.

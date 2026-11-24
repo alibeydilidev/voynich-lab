@@ -22,7 +22,8 @@ from voynich_lab.probe import profile, summarize
 from voynich_lab.probe import run as run_probe
 from voynich_lab.search import perturb, prior_for, run_search
 
-from voynich_lab.corpus import normalize
+from voynich_lab.corpus import load_period, normalize
+from voynich_lab.fetch import _html_to_text
 from voynich_lab.dataset import _truncate
 from voynich_lab.features import FEATURE_NAMES, _is_ed1, extract_features
 from voynich_lab.generators import (
@@ -42,6 +43,7 @@ from voynich_lab.generators import (
 )
 from voynich_lab.transliteration import (
     _merge_eva_ligatures,
+    ivtff_page_variables,
     load_ivtff,
     load_takahashi,
     load_v101,
@@ -259,6 +261,7 @@ def test_ivtff_parser(tmp_path):
     assert lines[2].words[:4] == ["kchsy", "ol", "o", "l"] and len(lines[2].words[4]) == 4
     assert load_ivtff(p, comma_is_space=False)[1].words[1] == "ory"
     assert len(load_ivtff(p, "glyph")[0].words[2]) == len("cthres") - 2
+    assert ivtff_page_variables(p) == {"1r": {"Q": "A", "P": "A"}}
 
 
 def test_v101_parser(tmp_path):
@@ -543,4 +546,19 @@ def test_lexicon_test_separates_a_word_list_from_free_generation():
     assert 0.8 < b["type_ratio_k1"] < 1.25 and 0.7 < b["new_ratio_k1"] < 1.4
     assert lexicon_stats(free[:500], rng, half=1000) is None
     assert all(set(w) <= set(letters[:6]) for w in free)
+
+
+def test_period_text_loading_and_html_cleanup(tmp_path):
+    page = (
+        "<html><style>p {color: red}</style><body><p>Qui sequitur me<sup>[1]</sup> non ambulat"
+        " in tenebris&nbsp;dicit Dominus.</p><ol class=\"references\"><li>nota editoris</li></ol>"
+        "<script>alert(1)</script></body></html>"
+    )
+    text = _html_to_text(page)
+    assert text == "Qui sequitur me non ambulat in tenebris dicit Dominus."
+    (tmp_path / "latin_test_1420.txt").write_text((text + " ") * 6000, encoding="utf-8")
+    (tmp_path / "short.txt").write_text(text, encoding="utf-8")
+    period = load_period(tmp_path)
+    assert list(period) == ["latin_test_1420"]  # kısa metin alınmaz
+    assert period["latin_test_1420"][:4] == ["qui", "sequitur", "me", "non"]
 

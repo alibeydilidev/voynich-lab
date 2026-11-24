@@ -216,11 +216,20 @@ def lexicon_stats(
 def lexicon_experiment(
     voynich: dict[str, list[str]],
     corpora: dict[str, list[str]],
-    n_per_class: int = 6,
+    n_per_class: int = 30,
     seed: int = 11,
     half: int = 16000,
+    period: dict[str, list[str]] | None = None,
+    sections: dict[str, list[str]] | None = None,
+    section_half: int = 5000,
 ) -> dict:
-    """Voynich, doğal diller (düz ve seslisiz) ve üreteç sınıfları için sözlük ölçüleri."""
+    """Voynich, doğal diller (düz ve seslisiz), dönem metinleri ve üreteç sınıfları için sözlük ölçüleri.
+
+    period  : 15. yüzyıl metinleri (modern İncil çevirilerine karşı denetim).
+    sections: Voynich'in bölümleri (Currier dili, çizim türü). Bölümler kısa
+              olduğu için ayrı ve daha küçük bir yarı boyuyla (section_half)
+              ölçülür; karşılaştırma tabanı aynı boyda yeniden hesaplanır.
+    """
     from .corpus import ABJAD_CAPABLE_SCRIPTS, dominant_script, is_vowel
     from .generators import LANGUAGE_PROCESSES
 
@@ -238,6 +247,25 @@ def lexicon_experiment(
             abjad_rows[lang] = lexicon_stats(bare, rng, half)
     out["groups"]["doğal dil, düz"] = plain_rows
     out["groups"]["doğal dil, seslisiz"] = abjad_rows
+    if period:
+        rows, bare_rows = {}, {}
+        for name, words in period.items():
+            body = words[500:]  # baştaki sayfa başlığı ve gezinme metni
+            rows[name] = lexicon_stats(body, rng, half)
+            bare = [("".join(ch for ch in w if not is_vowel(ch)) or w[0]) for w in body]
+            bare_rows[name] = lexicon_stats(bare, rng, half)
+        out["groups"]["dönem metni (15. yy), düz"] = rows
+        out["groups"]["dönem metni (15. yy), seslisiz"] = bare_rows
+    if sections:
+        out["section_half"] = section_half
+        out["sections"] = {
+            name: lexicon_stats(words, rng, section_half) for name, words in sections.items()
+        }
+        need_s = 2 * section_half
+        out["section_reference"] = {
+            lang: lexicon_stats(corpora[lang][20000 : 20000 + need_s], rng, section_half)
+            for lang in sorted(corpora)
+        }
     languages = sorted(corpora)
     for name in ("verbose", "codebook"):
         rows = {}
@@ -289,6 +317,33 @@ def render_lexicon(result: dict) -> str:
             cells.append(f"{np.median(x):.2f} [{x.min():.2f}, {x.max():.2f}]")
         md.append(
             f"| {group} (medyan [en az, en çok]) | {len(vals)} | "
+            f"{np.median([r['mean_len'] for r in vals]):.1f} | " + " | ".join(cells) + " |"
+        )
+    if result.get("sections"):
+        md += [
+            "",
+            f"## Voynich bölüm bölüm (yarı boyu {result['section_half']} kelime)",
+            "",
+            "Bölümler kısa olduğu için daha küçük yarı boyuyla ölçüldü; doğal dil tabanı aynı boyda "
+            "yeniden hesaplandı. Yeterince uzun olmayan bölümler ölçülemedi.",
+            "",
+            "| metin | ort. kelime uzunluğu | tür oranı k=1 | tür oranı k=2 | yeni kelime oranı k=1 | yeni kelime oranı k=2 |",
+            "|---|---|---|---|---|---|",
+        ]
+        for name, r in result["sections"].items():
+            if r is None:
+                md.append(f"| Voynich {name} | metin kısa | | | | |")
+            else:
+                md.append(
+                    f"| Voynich {name} | {r['mean_len']:.1f} | " + " | ".join(f"{r[c]:.2f}" for c in cols) + " |"
+                )
+        vals = [r for r in result["section_reference"].values() if r is not None]
+        cells = []
+        for c in cols:
+            x = np.array([r[c] for r in vals])
+            cells.append(f"{np.median(x):.2f} [{x.min():.2f}, {x.max():.2f}]")
+        md.append(
+            f"| doğal dil, düz, {len(vals)} dil (medyan [en az, en çok]) | "
             f"{np.median([r['mean_len'] for r in vals]):.1f} | " + " | ".join(cells) + " |"
         )
     return "\n".join(md) + "\n"
