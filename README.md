@@ -172,7 +172,7 @@ Okunan on üç kaynağın tamamı ve her birinden ne alındığı: `CLAUDE.md`, 
 
 ## Kim ne yaptı
 
-Soruyu soran, projeyi yürüten ve kararları veren: Ali Beydili. Ölçümleri yapan, kodu ve bu notu yazan: Claude (Anthropic'in yapay zekâ modeli). Dışarıya kurulan cümle "Claude çözdü" değil, "Claude şunu ölçtü" biçimindedir.
+Soruyu soran, projeyi yürüten ve kararları veren: Ali Beydili. Ölçümleri yapan, kodu ve bu notu yazan: Claude (Anthropic'in yapay zekâ modeli).
 
 ## Lisans
 
