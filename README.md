@@ -105,10 +105,12 @@ Gerekenler: [uv](https://docs.astral.sh/uv/) ve internet bağlantısı (ham veri
 
 ```bash
 uv sync --extra dev --locked
-uv run --locked python -m voynich_lab.cli all      # veriyi indirir, sentetik tabloyu kurar (ilk koşuda birkaç dakika)
+uv run --locked python -m voynich_lab.cli all      # veriyi indirir, sentetik tabloyu kurar
 uv run --locked python -m voynich_lab.cli checks   # dört sınav -> results/checks.md (birkaç dakika)
 uv run --locked pytest -q
 ```
+
+İlk koşuda indirme uzun sürer (20 dakikayı geçebilir): Wikisource hız sınırı koyduğu için istekler arasında 4 saniye beklenir ve bir metin 189 ayrı sayfadan toplanır. Veri bir kez inince `all` yaklaşık bir dakika, `checks` birkaç dakika sürer.
 
 Tablolardaki sayılar `results/checks.md` dosyasındadır; karnenin altındaki uzaklık değerleri `results/manuscripts.md` dosyasından gelir. Aynı komut iki kez koşulduğunda dosyalar bayt bayt aynı çıkar. Depodaki `results/` klasörü bizim koşumuzun çıktısıdır; kendi koşunuzla karşılaştırmak için `git diff results/` yeter.
 
