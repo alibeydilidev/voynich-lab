@@ -72,7 +72,7 @@ Parametreler: `--window 2000`, `--per-language 24`, `--seed 7`. ABC için: `--ab
 | `transliteration.py` | Takahashi EVA, Claston v101 ve Zandbergen-Landini (IVTFF) ayrıştırıcıları, beş görünüm (`eva_basic`, `eva_glyph`, `v101`, `zl_basic`, `zl_glyph`), etiketsiz düz EVA okuyucu (`load_eva_plain`, denetim metinleri için), pencereleme |
 | `corpus.py` | 22 dilde paralel İncil, yazıya göre normalizasyon; 15. yüzyıl dönem metinleri (`load_period`) |
 | `generators.py` | Üretim süreçleri. `LANGUAGE_PROCESSES` gerçek metni dönüştürür, `GIBBERISH_PROCESSES` sıfırdan üretir. Hepsinin üstünde ortak yazıcı katmanı (`Layout`, `lay_out`, `finish`): nadir harf çeşitlemeleri, kelime başı ve sonu için özel harf biçimleri, satırı genişliğe göre doldurma, paragraf, satır başı, satır sonu ve paragraf başı alışkanlıkları |
-| `features.py` | 32 feature: entropi, kelime uzunluğu, dağarcık, tekrar, kelime içi konum, satır konumu |
+| `features.py` | 33 feature: entropi, kelime uzunluğu, dağarcık, tekrar, kelime içi konum, satır konumu, kelimeler arası uç bağı (`edge_mi`, v0.18) |
 | `dataset.py` | Sentetik korpus fabrikası: (dil penceresi x süreç) -> satır. Her satır üreten ayarları da taşır (`p_` süreç, `l_` yazıcı katmanı) |
 | `model.py` | XGBoost, `GroupKFold` |
 | `analyze.py` | Voynich çıkarımı, SHAP katkıları (`pred_contribs`), Mahalanobis tabanlı OOD |
@@ -425,7 +425,7 @@ Eklenen: `checks` içine kelime ucu deneyi (`edge_reduce`, `edge_stats`, `edge_e
 
 ## v0.17 bulguları: bağlı otomat sınandı (2026-11-24, seed 7, pencere 2000)
 
-Güncel durum budur (hüküm için v0.15 "Düzeltilmiş hüküm" ve v0.16 ile birlikte okunur). Raporlar: `results/manuscripts.md` (dokuz sınıf, sınıf başına 2000 el yazması; `automaton` yeni ayarla), `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`. Bütün zincir yeniden koşuldu.
+Tarihçe (`a951b97`); sayılar 32 feature ile. v0.18 aynı zinciri 33 feature ile yeniden koştu, sonuç değişmedi. Raporlar git geçmişinde.
 
 Eklenen: `automaton` için `p_link` ayarı. 0 ise kelimeler bağımsız (eski otomat); 0'dan büyükse kelimenin ilk glifi, önceki kelimenin son glifine özgü bir dağılım ile genel başlangıç dağılımının karışımından çekilir. Önsel: yarı yarıya kapalı ya da 0.1 ila 1 arasında.
 
@@ -439,7 +439,23 @@ Eklenen: `automaton` için `p_link` ayarı. 0 ise kelimeler bağımsız (eski ot
 
 **Ne öğrenildi.** Kelime ucu bağı ucuz bir mekanizmayla üretilebiliyor ve öbür üç ölçütü bozmuyor; yani v0.16'daki dördüncü ölçüt "anlamsız üretim" ihtimalini zorlaştırmıyor. Asıl açık yerinde duruyor: pencere profili (T 6 dolayında, hedef 1.5). Otomatın v0.13'te yazılan açıkları (kelime başı fazla kısıtlı, çift glif az, kelime uzunluğu çarpık, komşu kelime uzunluk benzerliği yok) bu ayarla kapanmıyor.
 
-**Sıradaki soru.** Pencere feature'larına birleşme yerindeki bağı ölçen bir feature eklenmeli mi. Eklenirse 32 feature 33 olur ve bütün raporlar değişir; karşılığında el yazması düzeyindeki hüküm dördüncü ölçütü de görür. Yapılmadı; ayrı iş (VL-010).
+**Sıradaki soru (v0.18'de yapıldı).** Pencere feature'larına birleşme yerindeki bağı ölçen bir feature eklenmeli mi. Eklenirse 32 feature 33 olur ve bütün raporlar değişir; karşılığında el yazması düzeyindeki hüküm dördüncü ölçütü de görür. Yapılmadı; ayrı iş (VL-010).
+
+## v0.18 bulguları: uç bağını gören 33. feature (2026-11-24, seed 7, pencere 2000)
+
+Güncel durum budur (hüküm için v0.15 "Düzeltilmiş hüküm", v0.16 ve v0.17 ile birlikte okunur). Raporlar: `results/manuscripts.md` (asıl hüküm; dokuz sınıf, sınıf başına 2000 el yazması, 33 feature), `results/report.md`, `results/abc.md`, `results/search.md`, `results/checks.md`. Bütün zincir yeniden koşuldu.
+
+Eklenen: `edge_mi` feature'ı. Aynı satırdaki komşu kelimelerde önceki kelimenin son glifi ile sonrakinin ilk glifi arasındaki karşılıklı bilgi, eksi satır içi karıştırılmış metindeki aynı değer (dört sabit tohumlu karıştırmanın ortalaması). Sembol adından bağımsızdır (ilke 3; testi geçiyor). Düz formüllü yanlılık düzeltmeleri denendi ve alfabe boyuna göre kaydığı için kullanılmadı (ayrı deneme): karıştırılmış metinde sıfır vermeleri gerekirken +0.04 ila +0.14 ya da -0.40 verdiler.
+
+Öngörü zincirden önce yazıldı (VL-010).
+
+- **Feature işini yapıyor.** Voynich pencerelerinde +0.18 ila +0.23 (pencereler arası sapma 0.06 ila 0.08); bağ üretemeyen sınıfların seçilen adaylarında -0.01 ila +0.01. Bu sınıflarda `edge_mi` artık "tutmayan feature" tablolarında, -6.5 ila -8.2 standart hata sapmayla duruyor.
+- **Öngörü (1), "bağ üretemeyen sınıfların T'si yükselir": yalnız kâğıt üstünde tuttu.** Artış 0.0 ila 0.2 (ör. `grille` 5.2 ila 6.7'den 5.3 ila 6.7'ye; en iyi tek aday 3.6'dan 3.8'e). T 33 feature'ın ortak ölçüsü olduğu için tek bir feature'daki 7 standart hatalık açık onu neredeyse oynatmıyor. Beklediğim belirgin ayrışma olmadı.
+- **Öngörü (2), `automaton`: yarım tuttu ve ölçütü kötü kurmuştum.** Seçilen adaylarda bağ gücünün medyanı 0.36 ila 0.44 (v0.17'de 0.28 ila 0.41; eşik 0.4, beş görünümün üçünde aşıldı). "Büyümeye uyanlar içinde en iyi T" sıralamasında `automaton` beş görünümün dördünde birinci (7.4, 6.2, 6.3, 6.3; `zl_glyph`'te 5.7 ile üçüncü). Ama v0.17'de de dördünde ilk ikideydi; öngörüyü yazmadan önce bu tabana bakmamıştım, dolayısıyla sıralama maddesi bir şey sınamadı.
+- **Öngörü (3) tuttu:** hiçbir sınıf referansa (en çok 1.7) yaklaşmıyor. Seçilen adayların doğrulama T medyanı: `grille` 5.3 ila 6.7, `slotcite` 5.7 ila 7.1, `slotgram` 5.6 ila 7.4, `automaton` 6.7 ila 8.3, `verbose` 6.9 ila 8.9, `selfcite` 7.0 ila 10.5, `codebook` 7.3 ila 9.3, `plain` 7.3 ila 12.7, `abjad` 7.4 ila 14.6.
+- **Büyümeye uyanlar içinde en iyi T:** `slotcite` 5.3 ila 12.6, `slotgram` 5.6 ila 9.8, `automaton` 5.7 ila 7.4, `grille` 6.6 ila 22.8, `verbose` 6.7 ila 13.5, `abjad` 7.1 ila 13.5, `plain` 7.3 ila 11.8, `selfcite` 11.7 ila 30.2, `codebook` uyan yok.
+
+**Ne öğrenildi.** Hüküm tablosu artık dördüncü ölçütü görüyor, ama tablo değişmedi: uzaklığın kaynağı tek bir eksik özellik değil, 33 ölçünün çoğuna yayılmış 5 ila 10 standart hatalık açıklar. `automaton` için en büyükleri aynı: kelime başı fazla kısıtlı (`jsd_first` +13 ila +17), kelime uzunluğu çarpık (`wlen_skew` +6 ila +21), çift glif yok (`char_double_rate` -6 ila -12). Bir sonraki mekanizma tek özelliği değil bu üçünü birlikte hedeflemeli; ya da aramanın kendisi el yazması düzeyine taşınmalı (seçilen adaylar önselden rastgele çekilenlerin en iyileri, yönlendirilmiş arama pencere düzeyinde kaldı).
 
 ## Yol haritası (öncelik sırasıyla)
 
@@ -449,7 +465,7 @@ Eklenen: `automaton` için `p_link` ayarı. 0 ise kelimeler bağımsız (eski ot
    - Verbose şifreye konuma duyarlı kod tabloları.
    - `selfcite` parametrelerini Timm ve Schinner 2019 makalesindeki değerlere çek.
    - Yeni sınıflar: homofonik şifre, hece yazısı, kısaltmalı Latince (ortaçağ abbreviatura).
-2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). Sözlük sınaması genişletildi (v0.12); rastgele glif otomatı sınandı, yarısı tuttu (v0.13). Kelime sırası sınaması ve bozulma taraması yapıldı (v0.14). Literatür okundu, Naibbe denetimi eklendi, hüküm düzeltildi (v0.15). **Sıradaki:** (a) sınıf arama sınaması ve güç denetimi (VL-015); (b) kelime ucu bağı ölçüldü (v0.16) ve bağlı otomatla üretildi (v0.17); sıradaki, bu bağı gören bir pencere feature'ı ve otomatın pencere profili açıkları; (c) uzak mesafeli bağlar için kalıcı sınama (VL-014); (d) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (e) kalan okumalar (VL-013): Timm ve Schinner 2020, Greshko 2025, forum.
+2. **ABC ile parametre kestirimi.** Rejection ABC (v0.3), yönlendirilmiş arama (v0.4) ve el yazması düzeyinde karşılaştırma (v0.5) yapıldı. Melez üreteç (v0.6) ve çok yuvalı gramer (v0.7) sınandı, ikisi de tutmadı. Büyüme profili ölçüldü (v0.8); `abjad` ile `verbose` bileşimi sınandı, tutmadı (v0.9). Kod defteri sınandı, tutmadı (v0.10). Ön sınama aracı yazıldı, komşuluğu koruyan genişletme ön sınamada elendi, sözlük sınaması eklendi (v0.11). Sözlük sınaması genişletildi (v0.12); rastgele glif otomatı sınandı, yarısı tuttu (v0.13). Kelime sırası sınaması ve bozulma taraması yapıldı (v0.14). Literatür okundu, Naibbe denetimi eklendi, hüküm düzeltildi (v0.15). **Sıradaki:** (a) sınıf arama sınaması ve güç denetimi (VL-015); (b) kelime ucu bağı ölçüldü (v0.16) ve bağlı otomatla üretildi (v0.17); 33. feature eklendi, hüküm tablosu değişmedi (v0.18); sıradaki, otomatın üç büyük pencere açığını birlikte hedefleyen mekanizma ya da el yazması düzeyinde yönlendirilmiş arama; (c) uzak mesafeli bağlar için kalıcı sınama (VL-014); (d) durağan olmayan üreteçler (bölümden bölüme kayan ayar ya da tablo), Voynich tarafında bölüm sınırları ZL sayfa değişkenlerinden; (e) kalan okumalar (VL-013): Timm ve Schinner 2020, Greshko 2025, forum.
 3. **Dönem metinleri.** Üç metin eklendi (v0.12: Latince, İtalyanca, İspanyolca; yalnız sözlük sınamasında kullanılıyor). Eksik: Almanca, İbranice, tıbbi ve botanik tür; dönem metinlerinin üreteçlere kaynak olarak bağlanması (`corpus.load_all` yalnız İncil okuyor).
 4. ~~Üçüncü transliterasyon~~: yapıldı (v0.3). `fetch` indiriyor; site Python'un varsayılan istemci adını reddettiği için genel bir ad gönderiliyor.
 5. **Bölüm ve lehçe kırılımı.** Currier A ve B, beş yazıcı eli, çizim bölümleri (bitki, astronomi, banyo, reçete) için ayrı analiz. Folio aralıkları zaten pencere etiketinde.

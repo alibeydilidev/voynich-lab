@@ -1,6 +1,6 @@
 """Yönlendirilmiş arama: her hipotez, önselinin içinde Voynich'e en fazla ne kadar yaklaşabilir?
 
-Rejection ABC (abc.py) ayarları rastgele dener; 32 feature'ı aynı anda tutturan
+Rejection ABC (abc.py) ayarları rastgele dener; bütün feature'ları aynı anda tutturan
 örnek seyrek olduğu için hipotezleri olduğundan kötü gösterir. Bu adım aramayı
 yönlendirir:
 

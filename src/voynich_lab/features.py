@@ -81,6 +81,30 @@ def _ed1_density(types: list[str]) -> float:
     return len(linked) / max(1, len(vocab))
 
 
+def _edge_mi(lines: Lines, n_shuffles: int = 4) -> float:
+    """Kelime ucu bağı: önceki kelimenin son glifi ile sonrakinin ilk glifi arasındaki
+    karşılıklı bilgi (bit), eksi satır içi karıştırılmış metindeki aynı değer.
+
+    Yalnız aynı satırdaki komşular sayılır. Küçük örnekte karşılıklı bilgi yukarı
+    yanlıdır ve yanlılık alfabe boyuna bağlıdır; karıştırılmış metindeki değer
+    çıkarılınca ikisi de gider. Karıştırma sabit tohumludur, sonuç yalnız girdiye bağlıdır.
+    """
+
+    def mi(ls: Lines) -> float:
+        pairs = [(a[-1], b[0]) for ln in ls for a, b in zip(ln, ln[1:])]
+        n = len(pairs)
+        if n == 0:
+            return 0.0
+        joint = Counter(pairs)
+        left = Counter(a for a, _ in pairs)
+        right = Counter(b for _, b in pairs)
+        return sum(c / n * log2(c * n / (left[a] * right[b])) for (a, b), c in joint.items())
+
+    rng = np.random.default_rng(20261124)
+    null = [mi([[ln[int(i)] for i in rng.permutation(len(ln))] for ln in lines]) for _ in range(n_shuffles)]
+    return mi(lines) - float(np.mean(null))
+
+
 def extract_features(lines: Lines) -> dict[str, float]:
     """Bir pencere için feature sözlüğü döndürür."""
     lines = [ln for ln in lines if ln]
@@ -164,6 +188,9 @@ def extract_features(lines: Lines) -> dict[str, float]:
     f["jsd_line_final"] = _jsd(lf_last, other_last)
     f["len_ratio_line_initial"] = float(np.mean([len(ln[0]) for ln in lines]) / mu)
     f["len_ratio_line_final"] = float(np.mean([len(ln[-1]) for ln in lines]) / mu)
+
+    # ---- kelimeler arası bağ (v0.18): birleşme yerindeki iki glif
+    f["edge_mi"] = _edge_mi(lines)
 
     return f
 

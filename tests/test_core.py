@@ -708,3 +708,19 @@ def test_automaton_link_couples_word_edges_without_word_order():
     assert abs(gains[0.0]["last_first"]) < 0.05
     assert gains[0.8]["last_first"] > gains[0.0]["last_first"] + 0.1
     assert abs(gains[0.8]["order"]) < 0.1  # kelime kimliği düzeyinde sıra bilgisi yok
+
+
+def test_edge_mi_feature_sees_coupling_at_word_joins():
+    rng = np.random.default_rng(4)
+    alphabet = list("abcdefgh")
+    coupled, last = [], "a"
+    for _ in range(2000):
+        w = last + "".join(rng.choice(alphabet, size=3)) + str(rng.choice(alphabet))
+        coupled.append(w)
+        last = w[-1]
+    free = ["".join(rng.choice(alphabet, size=5)) for _ in range(2000)]
+    lines = lambda ws: [ws[i : i + 10] for i in range(0, len(ws), 10)]
+    assert len(FEATURE_NAMES) == 33 and FEATURE_NAMES[-1] == "edge_mi"
+    assert extract_features(lines(coupled))["edge_mi"] > 2.5  # tam bağ: log2(8) = 3 bit
+    assert abs(extract_features(lines(free))["edge_mi"]) < 0.03
+    assert extract_features(lines(free))["edge_mi"] == extract_features(lines(free))["edge_mi"]

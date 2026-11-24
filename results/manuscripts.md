@@ -8,41 +8,41 @@ T yaklaşık 1 ise adayın ortalama profili Voynich'ten ayırt edilemez. Referan
 
 | görünüm | Voynich: rastgele medyan, %95, ardışık | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
 |---|---|---|---|---|---|---|---|---|---|---|
-| eva_basic | 0.89, 1.49, 1.70 | 14.8 (14.7) | 8.3 (8.3) | 9.3 (9.5) | 6.7 (6.7) | 12.9 (12.7) | 10.6 (10.4) | 7.1 (7.1) | 7.4 (7.5) | 9.0 (9.0) |
-| eva_glyph | 0.89, 1.55, 1.71 | 9.5 (9.7) | 8.3 (8.3) | 8.1 (8.4) | 5.8 (5.8) | 10.0 (10.1) | 8.2 (8.2) | 6.4 (6.3) | 6.5 (6.3) | 8.2 (8.3) |
-| v101 | 0.90, 1.53, 1.44 | 7.4 (7.2) | 6.7 (6.8) | 8.1 (8.4) | 5.6 (5.7) | 7.3 (7.2) | 8.9 (8.9) | 6.8 (6.9) | 6.5 (6.4) | 7.8 (7.8) |
-| zl_basic | 0.90, 1.54, 1.54 | 12.6 (12.5) | 7.8 (7.8) | 9.4 (9.6) | 5.9 (5.9) | 11.4 (11.2) | 9.1 (8.9) | 6.6 (6.6) | 6.3 (6.3) | 7.6 (7.7) |
-| zl_glyph | 0.90, 1.55, 1.66 | 8.4 (8.5) | 7.3 (7.3) | 7.3 (7.7) | 5.2 (5.2) | 9.3 (9.1) | 7.0 (6.9) | 5.6 (5.5) | 5.5 (5.5) | 7.0 (6.9) |
+| eva_basic | 0.89, 1.50, 1.69 | 14.6 (14.5) | 8.3 (8.2) | 9.2 (9.4) | 6.7 (6.7) | 12.7 (12.5) | 10.5 (10.3) | 7.1 (7.1) | 7.4 (7.5) | 8.9 (8.9) |
+| eva_glyph | 0.89, 1.55, 1.70 | 9.5 (9.6) | 8.2 (8.2) | 8.0 (8.4) | 5.8 (5.8) | 9.9 (9.9) | 8.2 (8.2) | 6.4 (6.4) | 6.5 (6.4) | 8.1 (8.2) |
+| v101 | 0.91, 1.51, 1.47 | 7.4 (7.1) | 6.7 (6.7) | 8.0 (8.4) | 5.7 (5.7) | 7.3 (7.1) | 8.8 (8.8) | 6.8 (6.9) | 6.5 (6.4) | 7.8 (7.7) |
+| zl_basic | 0.90, 1.54, 1.54 | 12.5 (12.4) | 7.8 (7.8) | 9.3 (9.5) | 5.9 (5.9) | 11.3 (11.1) | 9.1 (8.9) | 6.6 (6.6) | 6.3 (6.4) | 7.5 (7.6) |
+| zl_glyph | 0.89, 1.56, 1.65 | 8.3 (8.4) | 7.3 (7.4) | 7.3 (7.7) | 5.3 (5.3) | 9.1 (9.0) | 7.0 (6.9) | 5.7 (5.6) | 5.6 (5.6) | 6.9 (6.8) |
 
 ## 2. Doğrulama yarısında en iyi tek aday (T)
 
 | görünüm | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
 |---|---|---|---|---|---|---|---|---|---|
-| eva_basic | 13.1 | 7.0 | 8.3 | 5.5 | 9.6 | 7.9 | 5.7 | 6.0 | 8.0 |
-| eva_glyph | 8.3 | 6.3 | 6.7 | 4.4 | 7.6 | 5.9 | 4.7 | 5.3 | 6.8 |
-| v101 | 6.7 | 5.9 | 5.7 | 4.6 | 6.3 | 6.4 | 6.0 | 4.8 | 6.6 |
-| zl_basic | 11.2 | 6.4 | 6.7 | 4.8 | 8.7 | 7.0 | 3.7 | 5.4 | 6.6 |
-| zl_glyph | 7.7 | 5.7 | 5.3 | 3.6 | 7.1 | 5.9 | 3.7 | 4.3 | 5.5 |
+| eva_basic | 12.9 | 7.0 | 8.3 | 5.6 | 9.6 | 7.9 | 5.8 | 6.0 | 7.9 |
+| eva_glyph | 8.2 | 6.2 | 6.7 | 4.5 | 7.5 | 5.9 | 4.8 | 5.3 | 6.8 |
+| v101 | 6.7 | 5.9 | 5.7 | 4.7 | 6.2 | 6.4 | 6.0 | 4.9 | 6.6 |
+| zl_basic | 11.1 | 6.3 | 6.6 | 4.9 | 8.6 | 7.0 | 3.9 | 5.5 | 6.6 |
+| zl_glyph | 7.7 | 5.7 | 5.3 | 3.8 | 7.1 | 6.0 | 3.9 | 4.5 | 5.5 |
 
 ## 3. Aynı ayar, yeni tablo: seçilen ayarlar yeni tohumla yeniden üretilince medyan T
 
 | görünüm | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
 |---|---|---|---|---|---|---|---|---|---|
-| eva_basic | 15.3 | 10.6 | 11.4 | 9.9 | 12.6 | 9.7 | 8.1 | 8.8 | 10.9 |
-| eva_glyph | 9.2 | 11.7 | 9.3 | 7.5 | 9.5 | 7.7 | 7.5 | 8.5 | 9.3 |
-| v101 | 7.7 | 8.6 | 8.6 | 7.8 | 6.5 | 8.3 | 9.3 | 8.2 | 9.0 |
-| zl_basic | 13.2 | 10.3 | 11.2 | 8.0 | 10.5 | 8.8 | 7.6 | 8.5 | 9.5 |
-| zl_glyph | 8.5 | 10.7 | 8.4 | 6.7 | 8.5 | 6.6 | 6.0 | 7.3 | 7.2 |
+| eva_basic | 15.1 | 10.5 | 11.7 | 9.8 | 12.4 | 9.6 | 8.0 | 8.8 | 10.7 |
+| eva_glyph | 9.1 | 11.5 | 9.2 | 7.5 | 9.3 | 7.7 | 7.5 | 8.4 | 9.2 |
+| v101 | 7.6 | 8.6 | 8.5 | 7.8 | 6.5 | 8.3 | 9.3 | 8.1 | 8.9 |
+| zl_basic | 13.1 | 11.5 | 11.1 | 8.0 | 10.4 | 8.8 | 7.6 | 8.5 | 9.4 |
+| zl_glyph | 8.5 | 10.6 | 8.2 | 6.7 | 8.4 | 6.9 | 6.1 | 7.4 | 7.2 |
 
 ## 4. İç değişkenlik: seçilen adayların yayılım oranı (Voynich = 1)
 
 | görünüm | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
 |---|---|---|---|---|---|---|---|---|---|
-| eva_basic | 0.61 | 0.26 | 0.33 | 0.18 | 0.48 | 0.88 | 0.42 | 0.29 | 0.39 |
-| eva_glyph | 0.55 | 0.21 | 0.41 | 0.15 | 0.44 | 0.81 | 0.34 | 0.28 | 0.37 |
-| v101 | 0.57 | 0.25 | 0.40 | 0.19 | 0.47 | 0.74 | 0.40 | 0.30 | 0.41 |
-| zl_basic | 0.57 | 0.24 | 0.37 | 0.17 | 0.48 | 0.89 | 0.40 | 0.29 | 0.37 |
-| zl_glyph | 0.49 | 0.19 | 0.45 | 0.14 | 0.42 | 0.74 | 0.35 | 0.28 | 0.34 |
+| eva_basic | 0.60 | 0.25 | 0.32 | 0.17 | 0.47 | 0.85 | 0.42 | 0.29 | 0.38 |
+| eva_glyph | 0.54 | 0.21 | 0.41 | 0.15 | 0.44 | 0.79 | 0.34 | 0.28 | 0.36 |
+| v101 | 0.56 | 0.25 | 0.40 | 0.19 | 0.47 | 0.72 | 0.39 | 0.29 | 0.41 |
+| zl_basic | 0.55 | 0.24 | 0.36 | 0.16 | 0.48 | 0.85 | 0.40 | 0.28 | 0.36 |
+| zl_glyph | 0.50 | 0.19 | 0.43 | 0.14 | 0.42 | 0.72 | 0.35 | 0.27 | 0.34 |
 
 ## 5. Büyüme profili (16000 kelimede; doğrulama yarısı)
 
@@ -62,17 +62,17 @@ Uyma ölçütü: üç ölçünün her birinde Voynich ortalamasından fark en ç
 
 | görünüm | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
 |---|---|---|---|---|---|---|---|---|---|
-| eva_basic | 335 (28.2; 13.6) | 117 (16.2; 7.5) | 0 | 2 (29.9; 23.1) | 8 (13.2; 11.9) | 3 (34.5; 30.6) | 16 (18.1; 12.7) | 29 (21.3; 9.9) | 24 (22.4; 13.7) |
-| eva_glyph | 266 (20.0; 8.9) | 115 (14.5; 6.3) | 0 | 14 (18.1; 9.6) | 3 (10.1; 8.6) | 16 (21.2; 15.5) | 34 (16.9; 10.0) | 35 (14.9; 6.4) | 13 (16.4; 11.4) |
-| v101 | 105 (15.1; 7.2) | 83 (12.5; 6.4) | 0 | 15 (13.1; 6.7) | 5 (11.2; 7.3) | 18 (23.1; 11.8) | 26 (13.0; 6.3) | 33 (10.7; 6.5) | 4 (11.0; 9.1) |
-| zl_basic | 322 (22.3; 11.7) | 118 (14.4; 6.4) | 0 | 2 (18.0; 16.3) | 6 (11.4; 10.5) | 5 (27.0; 25.6) | 19 (11.5; 7.9) | 29 (16.2; 7.5) | 22 (14.7; 7.8) |
-| zl_glyph | 240 (16.1; 7.7) | 109 (12.1; 5.7) | 0 | 15 (10.2; 6.5) | 2 (10.3; 8.0) | 15 (19.2; 14.4) | 36 (9.6; 5.1) | 35 (10.5; 5.5) | 14 (11.0; 6.8) |
+| eva_basic | 335 (27.8; 13.5) | 117 (16.0; 7.4) | 0 | 2 (29.5; 22.8) | 8 (13.0; 11.8) | 3 (34.0; 30.2) | 16 (17.8; 12.6) | 29 (21.0; 9.8) | 24 (22.1; 13.5) |
+| eva_glyph | 266 (19.7; 8.8) | 115 (14.3; 6.2) | 0 | 14 (17.9; 9.5) | 3 (10.0; 8.5) | 16 (20.9; 15.3) | 34 (16.7; 9.9) | 35 (14.7; 6.5) | 13 (16.2; 11.2) |
+| v101 | 105 (14.9; 7.1) | 83 (12.4; 6.3) | 0 | 15 (12.9; 6.6) | 5 (11.1; 7.3) | 18 (22.8; 11.7) | 26 (12.9; 6.3) | 33 (10.6; 6.5) | 4 (10.8; 9.0) |
+| zl_basic | 322 (22.0; 11.6) | 118 (14.2; 6.3) | 0 | 2 (17.7; 16.1) | 6 (11.3; 10.4) | 5 (26.6; 25.2) | 19 (11.4; 7.9) | 29 (16.0; 7.5) | 22 (14.5; 7.7) |
+| zl_glyph | 240 (15.9; 7.7) | 109 (12.0; 5.7) | 0 | 15 (10.1; 6.6) | 2 (10.3; 8.0) | 15 (19.0; 14.3) | 36 (9.6; 5.3) | 35 (10.4; 5.6) | 14 (10.8; 6.7) |
 
 ## eva_basic: sınıf sınıf
 
-### grille: doğrulama medyan T 6.7, en iyi 5.5
+### grille: doğrulama medyan T 6.7, en iyi 5.6
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 19 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -83,22 +83,22 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 19 / 32
 | jsd_last | -6.6 | 0.719 | 0.584 |
 | rep_adjacent_ed1 | -6.5 | 0.032 | 0.013 |
 
-### slotcite: doğrulama medyan T 7.1, en iyi 5.7
+### slotcite: doğrulama medyan T 7.1, en iyi 5.8
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | hapax_ratio | -13.6 | 0.717 | 0.586 |
 | wlen_frac_le2 | -9.2 | 0.077 | 0.031 |
 | h2 | +8.4 | 2.016 | 2.456 |
-| rep_adjacent_exact | +8.4 | 0.009 | 0.020 |
 | jsd_last | -8.3 | 0.719 | 0.548 |
 | zipf_slope | +8.1 | -0.778 | -0.557 |
+| first_entropy_ratio | -7.8 | 0.806 | 0.745 |
 
 ### slotgram: doğrulama medyan T 7.4, en iyi 6.0
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -107,24 +107,24 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 32
 | hapax_ratio | -7.8 | 0.717 | 0.643 |
 | wlen_autocorr1 | -7.4 | 0.127 | 0.004 |
 | n_symbols | +6.6 | 19.562 | 23.000 |
-| type_len_mean | -5.5 | 5.692 | 5.283 |
+| edge_mi | -6.5 | 0.179 | -0.005 |
 
 ### automaton: doğrulama medyan T 8.3, en iyi 7.0
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
-| jsd_first | +17.0 | 0.385 | 0.635 |
+| jsd_first | +16.9 | 0.385 | 0.634 |
 | wlen_skew | +15.1 | 0.074 | 0.917 |
 | char_double_rate | -11.0 | 0.067 | 0.001 |
-| first_entropy_ratio | -8.5 | 0.806 | 0.740 |
 | wlen_std | +8.0 | 1.693 | 1.947 |
 | wlen_autocorr1 | -7.7 | 0.127 | -0.000 |
+| first_entropy_ratio | -5.9 | 0.806 | 0.760 |
 
-### verbose: doğrulama medyan T 9.0, en iyi 8.0
+### verbose: doğrulama medyan T 8.9, en iyi 7.9
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 28 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 29 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -135,9 +135,9 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 28 / 32
 | wlen_autocorr1 | -10.4 | 0.127 | -0.045 |
 | ttr | -8.8 | 0.443 | 0.234 |
 
-### codebook: doğrulama medyan T 9.3, en iyi 8.3
+### codebook: doğrulama medyan T 9.2, en iyi 8.3
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -148,9 +148,9 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 32
 | jsd_first | +11.8 | 0.385 | 0.558 |
 | wlen_skew | -10.5 | 0.074 | -0.515 |
 
-### selfcite: doğrulama medyan T 10.6, en iyi 7.9
+### selfcite: doğrulama medyan T 10.5, en iyi 7.9
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -161,9 +161,9 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 32
 | eff_symbols | +10.4 | 14.240 | 15.690 |
 | type_len_mean | -10.2 | 5.692 | 4.942 |
 
-### plain: doğrulama medyan T 12.9, en iyi 9.6
+### plain: doğrulama medyan T 12.7, en iyi 9.6
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -174,9 +174,9 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 32
 | h2_over_h1 | +18.7 | 0.524 | 0.775 |
 | wlen_frac_le2 | +16.0 | 0.077 | 0.157 |
 
-### abjad: doğrulama medyan T 14.8, en iyi 13.1
+### abjad: doğrulama medyan T 14.6, en iyi 12.9
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -190,48 +190,48 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 32
 
 ## eva_glyph: sınıf sınıf
 
-### grille: doğrulama medyan T 5.8, en iyi 4.4
+### grille: doğrulama medyan T 5.8, en iyi 4.5
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 19 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | hapax_ratio | -8.9 | 0.717 | 0.632 |
 | jsd_line_final | -7.1 | 0.110 | 0.011 |
 | wlen_autocorr1 | -6.8 | 0.103 | 0.005 |
+| edge_mi | -6.7 | 0.187 | -0.001 |
 | vocab_ed1_density | +6.4 | 0.850 | 0.912 |
 | zipf_slope | +5.3 | -0.778 | -0.635 |
-| h2_over_h1 | +5.1 | 0.556 | 0.640 |
 
-### slotcite: doğrulama medyan T 6.4, en iyi 4.7
+### slotcite: doğrulama medyan T 6.4, en iyi 4.8
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 21 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | hapax_ratio | -10.7 | 0.717 | 0.615 |
 | zipf_slope | +8.2 | -0.778 | -0.554 |
+| edge_mi | -6.9 | 0.187 | -0.006 |
 | jsd_line_final | -6.6 | 0.110 | 0.019 |
 | rep_adjacent_exact | +6.2 | 0.009 | 0.017 |
 | first_entropy_ratio | -5.7 | 0.867 | 0.812 |
-| h2_over_h1 | +5.6 | 0.556 | 0.647 |
 
 ### slotgram: doğrulama medyan T 6.5, en iyi 5.3
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 21 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | jsd_last | -8.2 | 0.718 | 0.549 |
 | wlen_frac1 | +6.9 | 0.017 | 0.052 |
 | jsd_line_final | -6.9 | 0.110 | 0.014 |
+| edge_mi | -6.8 | 0.187 | -0.004 |
 | wlen_autocorr1 | -6.8 | 0.103 | 0.005 |
 | vocab_ed1_density | +6.4 | 0.850 | 0.912 |
-| wlen_frac_le2 | +6.3 | 0.099 | 0.184 |
 
-### codebook: doğrulama medyan T 8.1, en iyi 6.7
+### codebook: doğrulama medyan T 8.0, en iyi 6.7
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -242,22 +242,9 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 32
 | wlen_autocorr1 | -8.8 | 0.103 | -0.025 |
 | h2 | +8.0 | 2.131 | 2.667 |
 
-### selfcite: doğrulama medyan T 8.2, en iyi 5.9
+### verbose: doğrulama medyan T 8.1, en iyi 6.8
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 32
-
-| tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
-|---|---|---|---|
-| hapax_ratio | -12.6 | 0.717 | 0.596 |
-| h2 | +10.5 | 2.131 | 2.838 |
-| h2_over_h1 | +10.2 | 0.556 | 0.722 |
-| rep_adjacent_exact | +8.3 | 0.009 | 0.020 |
-| vocab_ed1_density | +7.9 | 0.850 | 0.926 |
-| type_len_mean | -6.8 | 5.032 | 4.396 |
-
-### verbose: doğrulama medyan T 8.2, en iyi 6.8
-
-Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 27 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -268,35 +255,48 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 32
 | wlen_skew | +9.0 | 0.183 | 0.596 |
 | ttr | -7.8 | 0.443 | 0.259 |
 
-### automaton: doğrulama medyan T 8.3, en iyi 6.3
+### selfcite: doğrulama medyan T 8.2, en iyi 5.9
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 21 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 27 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
-| jsd_first | +16.5 | 0.350 | 0.643 |
+| hapax_ratio | -12.6 | 0.717 | 0.596 |
+| h2 | +10.5 | 2.131 | 2.838 |
+| h2_over_h1 | +10.2 | 0.556 | 0.722 |
+| rep_adjacent_exact | +8.3 | 0.009 | 0.020 |
+| vocab_ed1_density | +7.9 | 0.850 | 0.926 |
+| type_len_mean | -6.8 | 5.032 | 4.396 |
+
+### automaton: doğrulama medyan T 8.2, en iyi 6.2
+
+Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 33
+
+| tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
+|---|---|---|---|
+| jsd_first | +16.9 | 0.350 | 0.650 |
 | wlen_skew | +13.6 | 0.183 | 0.809 |
 | char_double_rate | -11.9 | 0.076 | 0.001 |
-| first_entropy_ratio | -10.5 | 0.867 | 0.766 |
+| first_entropy_ratio | -10.6 | 0.867 | 0.765 |
 | n_symbols | -7.2 | 25.250 | 21.500 |
 | wlen_autocorr1 | -7.2 | 0.103 | -0.000 |
 
-### abjad: doğrulama medyan T 9.5, en iyi 8.3
+### abjad: doğrulama medyan T 9.5, en iyi 8.2
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 27 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
-| wlen_frac1 | +22.6 | 0.017 | 0.132 |
-| wlen_frac_le2 | +18.4 | 0.099 | 0.349 |
-| wlen_skew | +13.2 | 0.183 | 0.789 |
-| h2_over_h1 | +12.2 | 0.556 | 0.754 |
-| h2 | +10.8 | 2.131 | 2.857 |
+| wlen_frac1 | +21.6 | 0.017 | 0.126 |
+| wlen_frac_le2 | +18.2 | 0.099 | 0.346 |
+| wlen_skew | +12.7 | 0.183 | 0.765 |
+| h2_over_h1 | +11.9 | 0.556 | 0.750 |
 | eff_symbols | +10.7 | 14.404 | 16.577 |
+| h2 | +10.7 | 2.131 | 2.851 |
 
-### plain: doğrulama medyan T 10.0, en iyi 7.6
+### plain: doğrulama medyan T 9.9, en iyi 7.5
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -310,35 +310,35 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 32
 
 ## v101: sınıf sınıf
 
-### grille: doğrulama medyan T 5.6, en iyi 4.6
+### grille: doğrulama medyan T 5.7, en iyi 4.7
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 18 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 19 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | char_double_rate | +12.1 | 0.015 | 0.043 |
 | wlen_autocorr1 | -7.2 | 0.179 | -0.005 |
+| edge_mi | -6.8 | 0.228 | -0.002 |
 | jsd_last | -6.5 | 0.679 | 0.535 |
 | rep_adjacent_ed1 | -6.0 | 0.043 | 0.025 |
 | jsd_line_final | -5.7 | 0.133 | 0.028 |
-| eff_symbols | +5.5 | 17.392 | 18.629 |
 
-### slotgram: doğrulama medyan T 6.5, en iyi 4.8
+### slotgram: doğrulama medyan T 6.5, en iyi 4.9
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 21 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | char_double_rate | +10.1 | 0.015 | 0.038 |
 | n_symbols | -8.3 | 69.529 | 36.125 |
 | wlen_autocorr1 | -7.0 | 0.179 | 0.000 |
+| edge_mi | -7.0 | 0.228 | -0.007 |
 | vocab_ed1_density | +6.5 | 0.854 | 0.918 |
 | jsd_last | +5.8 | 0.679 | 0.806 |
-| zipf_slope | +4.8 | -0.776 | -0.686 |
 
 ### automaton: doğrulama medyan T 6.7, en iyi 5.9
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 18 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 19 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -351,33 +351,33 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 18 / 32
 
 ### slotcite: doğrulama medyan T 6.8, en iyi 6.0
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 21 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | char_double_rate | +10.2 | 0.015 | 0.039 |
 | rep_adjacent_exact | +8.6 | 0.006 | 0.014 |
+| edge_mi | -7.1 | 0.228 | -0.011 |
 | n_symbols | -7.0 | 69.529 | 41.250 |
 | zipf_slope | +5.8 | -0.776 | -0.667 |
 | wlen_autocorr1 | -5.4 | 0.179 | 0.043 |
-| vocab_ed1_density | +5.0 | 0.854 | 0.903 |
 
-### plain: doğrulama medyan T 7.3, en iyi 6.3
+### plain: doğrulama medyan T 7.3, en iyi 6.2
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 21 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | vocab_ed1_density | -14.7 | 0.854 | 0.708 |
 | h2 | +12.0 | 2.383 | 3.256 |
 | h2_over_h1 | +10.8 | 0.595 | 0.787 |
+| rep_adjacent_ed1 | -10.5 | 0.043 | 0.010 |
 | wlen_frac1 | -10.5 | 0.046 | 0.000 |
-| rep_adjacent_ed1 | -10.4 | 0.043 | 0.011 |
-| n_symbols | -10.2 | 69.529 | 28.500 |
+| n_symbols | -10.3 | 69.529 | 28.000 |
 
 ### abjad: doğrulama medyan T 7.4, en iyi 6.7
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 27 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -390,7 +390,7 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 32
 
 ### verbose: doğrulama medyan T 7.8, en iyi 6.6
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -398,12 +398,12 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 32
 | type_len_mean | +11.9 | 4.440 | 5.060 |
 | wlen_frac1 | +10.6 | 0.046 | 0.093 |
 | hapax_ratio | -10.3 | 0.741 | 0.610 |
-| word_entropy_norm | -8.5 | 0.814 | 0.716 |
-| wlen_autocorr1 | -8.2 | 0.179 | -0.029 |
+| char_double_rate | +8.7 | 0.015 | 0.035 |
+| n_symbols | -8.1 | 69.529 | 36.875 |
 
-### codebook: doğrulama medyan T 8.1, en iyi 5.7
+### codebook: doğrulama medyan T 8.0, en iyi 5.7
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -414,9 +414,9 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 32
 | jsd_first | +9.1 | 0.310 | 0.507 |
 | first_entropy_ratio | -8.6 | 0.886 | 0.768 |
 
-### selfcite: doğrulama medyan T 8.9, en iyi 6.4
+### selfcite: doğrulama medyan T 8.8, en iyi 6.4
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 21 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -430,87 +430,87 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 32
 
 ## zl_basic: sınıf sınıf
 
-### grille: doğrulama medyan T 5.9, en iyi 4.8
+### grille: doğrulama medyan T 5.9, en iyi 4.9
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 18 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 19 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | h2_over_h1 | +7.9 | 0.521 | 0.636 |
+| edge_mi | -7.6 | 0.192 | -0.008 |
 | h2 | +7.0 | 2.013 | 2.437 |
 | wlen_autocorr1 | -6.3 | 0.123 | -0.006 |
 | rep_adjacent_ed1 | -6.0 | 0.034 | 0.016 |
 | vocab_ed1_density | +6.0 | 0.823 | 0.879 |
-| jsd_line_final | -5.6 | 0.110 | 0.017 |
 
-### slotgram: doğrulama medyan T 6.3, en iyi 5.4
+### slotgram: doğrulama medyan T 6.3, en iyi 5.5
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 27 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 28 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | vocab_ed1_density | +10.3 | 0.823 | 0.919 |
+| edge_mi | -7.5 | 0.192 | -0.005 |
 | wlen_frac_le2 | +6.0 | 0.097 | 0.131 |
 | zipf_slope | +5.6 | -0.785 | -0.619 |
 | wlen_autocorr1 | -5.4 | 0.123 | 0.013 |
 | type_len_mean | -5.2 | 5.640 | 5.231 |
-| hapax_ratio | -5.1 | 0.715 | 0.643 |
 
-### slotcite: doğrulama medyan T 6.6, en iyi 3.7
+### slotcite: doğrulama medyan T 6.6, en iyi 3.9
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | rep_adjacent_exact | +8.4 | 0.008 | 0.017 |
 | hapax_ratio | -8.0 | 0.715 | 0.604 |
 | wlen_frac_le2 | -7.8 | 0.097 | 0.052 |
+| edge_mi | -7.5 | 0.192 | -0.004 |
 | h2 | +7.4 | 2.013 | 2.456 |
 | h2_over_h1 | +7.2 | 0.521 | 0.625 |
-| zipf_slope | +6.3 | -0.785 | -0.598 |
 
-### verbose: doğrulama medyan T 7.6, en iyi 6.6
+### verbose: doğrulama medyan T 7.5, en iyi 6.6
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 28 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 29 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
+| jsd_last | -11.2 | 0.712 | 0.492 |
 | wlen_skew | +11.1 | 0.025 | 0.516 |
-| jsd_last | -10.8 | 0.712 | 0.500 |
+| hapax_ratio | -10.9 | 0.715 | 0.563 |
 | wlen_frac_le2 | +10.0 | 0.097 | 0.155 |
-| wlen_std | +9.0 | 1.768 | 2.005 |
-| hapax_ratio | -8.8 | 0.715 | 0.593 |
-| wlen_autocorr1 | -8.0 | 0.123 | -0.039 |
+| wlen_std | +9.3 | 1.768 | 2.011 |
+| wlen_autocorr1 | -8.0 | 0.123 | -0.040 |
 
-### automaton: doğrulama medyan T 7.8, en iyi 6.4
+### automaton: doğrulama medyan T 7.8, en iyi 6.3
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
-| wlen_skew | +20.9 | 0.025 | 0.951 |
-| jsd_first | +14.8 | 0.385 | 0.635 |
+| wlen_skew | +20.8 | 0.025 | 0.946 |
+| jsd_first | +12.8 | 0.385 | 0.603 |
 | char_double_rate | -10.1 | 0.066 | 0.000 |
-| wlen_std | +8.9 | 1.768 | 2.000 |
+| wlen_std | +9.5 | 1.768 | 2.017 |
 | wlen_frac1 | -7.3 | 0.033 | 0.000 |
-| first_entropy_ratio | -7.0 | 0.817 | 0.765 |
+| last_entropy_ratio | -6.8 | 0.636 | 0.442 |
 
 ### selfcite: doğrulama medyan T 9.1, en iyi 7.0
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 27 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | h2 | +13.8 | 2.013 | 2.842 |
 | h2_over_h1 | +13.1 | 0.521 | 0.711 |
 | rep_adjacent_exact | +12.4 | 0.008 | 0.022 |
-| type_len_mean | -9.9 | 5.640 | 4.867 |
-| eff_symbols | +9.6 | 14.493 | 16.153 |
+| eff_symbols | +10.7 | 14.493 | 16.349 |
+| type_len_mean | -10.2 | 5.640 | 4.846 |
 | vocab_ed1_density | +8.9 | 0.823 | 0.906 |
 
-### codebook: doğrulama medyan T 9.4, en iyi 6.7
+### codebook: doğrulama medyan T 9.3, en iyi 6.6
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -521,22 +521,22 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 32
 | h2 | +9.8 | 2.013 | 2.602 |
 | rep_adjacent_exact | -7.6 | 0.008 | 0.000 |
 
-### plain: doğrulama medyan T 11.4, en iyi 8.7
+### plain: doğrulama medyan T 11.3, en iyi 8.6
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 26 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 28 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | eff_symbols | +22.9 | 14.493 | 18.453 |
-| h2 | +19.8 | 2.013 | 3.207 |
-| h2_over_h1 | +17.1 | 0.521 | 0.771 |
+| h2 | +20.6 | 2.013 | 3.254 |
+| h2_over_h1 | +18.3 | 0.521 | 0.787 |
 | h1 | +15.9 | 3.862 | 4.088 |
-| vocab_ed1_density | -14.9 | 0.823 | 0.685 |
-| wlen_std | -14.3 | 1.768 | 1.392 |
+| wlen_std | -14.9 | 1.768 | 1.377 |
+| type_len_mean | -14.2 | 5.640 | 4.532 |
 
-### abjad: doğrulama medyan T 12.6, en iyi 11.2
+### abjad: doğrulama medyan T 12.5, en iyi 11.1
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 25 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -550,48 +550,48 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 32
 
 ## zl_glyph: sınıf sınıf
 
-### grille: doğrulama medyan T 5.2, en iyi 3.6
+### grille: doğrulama medyan T 5.3, en iyi 3.8
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 15 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 16 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
+| edge_mi | -8.2 | 0.199 | -0.006 |
 | vocab_ed1_density | +7.4 | 0.852 | 0.903 |
 | wlen_autocorr1 | -5.7 | 0.102 | 0.003 |
 | jsd_line_final | -5.7 | 0.110 | 0.017 |
 | rep_adjacent_ed1 | -5.2 | 0.041 | 0.019 |
 | h2_over_h1 | +4.6 | 0.554 | 0.636 |
-| h2 | +4.3 | 2.127 | 2.449 |
 
-### slotgram: doğrulama medyan T 5.5, en iyi 4.3
+### slotgram: doğrulama medyan T 5.6, en iyi 4.5
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 17 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 18 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
 | vocab_ed1_density | +8.5 | 0.852 | 0.911 |
+| edge_mi | -8.1 | 0.199 | -0.004 |
 | jsd_last | -7.1 | 0.712 | 0.570 |
 | jsd_line_final | -5.8 | 0.110 | 0.014 |
 | wlen_autocorr1 | -5.5 | 0.102 | 0.008 |
 | wlen_frac_le2 | +5.3 | 0.119 | 0.196 |
-| wlen_frac1 | +5.3 | 0.033 | 0.058 |
 
-### slotcite: doğrulama medyan T 5.6, en iyi 3.7
+### slotcite: doğrulama medyan T 5.7, en iyi 3.9
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 19 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
+| edge_mi | -8.2 | 0.199 | -0.006 |
 | rep_adjacent_exact | +7.3 | 0.008 | 0.016 |
-| vocab_ed1_density | +5.7 | 0.852 | 0.892 |
-| h2_over_h1 | +5.2 | 0.554 | 0.647 |
-| jsd_line_final | -5.2 | 0.110 | 0.024 |
-| h1 | +5.1 | 3.836 | 3.927 |
-| wlen_frac1 | -4.9 | 0.033 | 0.011 |
+| vocab_ed1_density | +5.7 | 0.852 | 0.891 |
+| h2_over_h1 | +5.5 | 0.554 | 0.652 |
+| jsd_line_final | -5.3 | 0.110 | 0.022 |
+| h2 | +4.5 | 2.127 | 2.470 |
 
-### verbose: doğrulama medyan T 7.0, en iyi 5.5
+### verbose: doğrulama medyan T 6.9, en iyi 5.5
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 28 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 29 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -602,9 +602,9 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 28 / 32
 | wlen_autocorr1 | -8.2 | 0.102 | -0.039 |
 | ttr | -6.6 | 0.434 | 0.259 |
 
-### selfcite: doğrulama medyan T 7.0, en iyi 5.9
+### selfcite: doğrulama medyan T 7.0, en iyi 6.0
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -615,9 +615,22 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 32
 | eff_symbols | +8.5 | 14.529 | 16.872 |
 | h1 | +8.3 | 3.836 | 3.982 |
 
+### automaton: doğrulama medyan T 7.3, en iyi 5.7
+
+Standart hatanın 2 katından fazla sapan feature sayısı: 20 / 33
+
+| tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
+|---|---|---|---|
+| jsd_first | +16.1 | 0.351 | 0.674 |
+| first_entropy_ratio | -14.6 | 0.875 | 0.717 |
+| char_double_rate | -11.0 | 0.076 | 0.000 |
+| wlen_skew | +10.7 | 0.154 | 0.624 |
+| eff_symbols | +8.1 | 14.529 | 16.780 |
+| h1 | +7.7 | 3.836 | 3.971 |
+
 ### codebook: doğrulama medyan T 7.3, en iyi 5.3
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
@@ -625,38 +638,25 @@ Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 32
 | wlen_std | -10.3 | 1.615 | 1.367 |
 | wlen_autocorr1 | -10.1 | 0.102 | -0.073 |
 | h2_over_h1 | +7.8 | 0.554 | 0.693 |
+| edge_mi | -7.5 | 0.199 | 0.012 |
 | rep_adjacent_exact | -7.2 | 0.008 | 0.001 |
-| h2 | +6.8 | 2.127 | 2.639 |
 
-### automaton: doğrulama medyan T 7.3, en iyi 5.7
+### abjad: doğrulama medyan T 8.3, en iyi 7.7
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 19 / 32
-
-| tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
-|---|---|---|---|
-| jsd_first | +15.8 | 0.351 | 0.667 |
-| first_entropy_ratio | -12.1 | 0.875 | 0.744 |
-| wlen_skew | +11.1 | 0.154 | 0.643 |
-| char_double_rate | -11.0 | 0.076 | 0.000 |
-| eff_symbols | +8.1 | 14.529 | 16.780 |
-| h1 | +7.7 | 3.836 | 3.971 |
-
-### abjad: doğrulama medyan T 8.4, en iyi 7.7
-
-Standart hatanın 2 katından fazla sapan feature sayısı: 22 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|
-| wlen_frac1 | +19.6 | 0.033 | 0.124 |
-| wlen_frac_le2 | +15.6 | 0.119 | 0.343 |
-| wlen_skew | +13.1 | 0.154 | 0.729 |
-| vocab_ed1_density | -12.2 | 0.852 | 0.768 |
-| eff_symbols | +11.7 | 14.529 | 17.766 |
-| h2_over_h1 | +10.4 | 0.554 | 0.739 |
+| wlen_frac1 | +19.6 | 0.033 | 0.123 |
+| wlen_frac_le2 | +15.8 | 0.119 | 0.346 |
+| wlen_skew | +12.8 | 0.154 | 0.714 |
+| eff_symbols | +12.0 | 14.529 | 17.854 |
+| vocab_ed1_density | -11.6 | 0.852 | 0.772 |
+| h2_over_h1 | +10.7 | 0.554 | 0.744 |
 
-### plain: doğrulama medyan T 9.3, en iyi 7.1
+### plain: doğrulama medyan T 9.1, en iyi 7.1
 
-Standart hatanın 2 katından fazla sapan feature sayısı: 23 / 32
+Standart hatanın 2 katından fazla sapan feature sayısı: 24 / 33
 
 | tutmayan feature | sapma (standart hata) | Voynich | seçilen adaylar |
 |---|---|---|---|

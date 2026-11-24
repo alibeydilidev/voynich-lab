@@ -4,29 +4,29 @@ Pencere boyutu: 2000 kelime.
 
 ## 1. Model sentetik veride ne kadar iyi (dil bazlı gruplu CV)
 
-Doğruluk: **0.924**
+Doğruluk: **0.927**
 
 | gerçek \ tahmin | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
 |---|---|---|---|---|---|---|---|---|---|
-| abjad | 421 | 0 | 0 | 0 | 3 | 0 | 0 | 27 | 5 |
-| automaton | 0 | 521 | 0 | 1 | 0 | 0 | 0 | 5 | 1 |
-| codebook | 0 | 0 | 508 | 8 | 0 | 0 | 0 | 12 | 0 |
-| grille | 1 | 1 | 4 | 494 | 0 | 0 | 14 | 14 | 0 |
-| plain | 1 | 2 | 0 | 3 | 492 | 0 | 1 | 1 | 28 |
-| selfcite | 0 | 0 | 0 | 0 | 0 | 501 | 25 | 2 | 0 |
-| slotcite | 0 | 0 | 0 | 17 | 0 | 19 | 462 | 28 | 2 |
-| slotgram | 5 | 12 | 3 | 36 | 0 | 12 | 43 | 415 | 2 |
-| verbose | 1 | 0 | 0 | 10 | 3 | 0 | 0 | 3 | 511 |
+| abjad | 431 | 0 | 0 | 1 | 2 | 0 | 0 | 18 | 4 |
+| automaton | 0 | 521 | 1 | 1 | 0 | 0 | 0 | 4 | 1 |
+| codebook | 0 | 0 | 507 | 7 | 0 | 0 | 0 | 14 | 0 |
+| grille | 2 | 1 | 5 | 489 | 0 | 0 | 12 | 17 | 2 |
+| plain | 2 | 1 | 0 | 3 | 494 | 0 | 1 | 0 | 27 |
+| selfcite | 1 | 0 | 0 | 0 | 0 | 499 | 25 | 3 | 0 |
+| slotcite | 0 | 1 | 0 | 15 | 0 | 19 | 464 | 29 | 0 |
+| slotgram | 5 | 10 | 1 | 31 | 0 | 11 | 48 | 422 | 0 |
+| verbose | 0 | 0 | 0 | 7 | 6 | 0 | 0 | 4 | 511 |
 
 ## 2. Voynich hangi sürece benziyor
 
 | görünüm | pencere | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
 |---|---|---|---|---|---|---|---|---|---|---|
-| eva_basic | 16 | 0.00 | 0.00 | 0.00 | 0.30 | 0.00 | 0.00 | 0.47 | 0.22 | 0.00 |
-| eva_glyph | 16 | 0.00 | 0.00 | 0.00 | 0.33 | 0.00 | 0.00 | 0.33 | 0.33 | 0.00 |
-| v101 | 17 | 0.00 | 0.00 | 0.00 | 0.29 | 0.00 | 0.02 | 0.15 | 0.54 | 0.01 |
-| zl_basic | 16 | 0.00 | 0.00 | 0.00 | 0.45 | 0.00 | 0.00 | 0.33 | 0.21 | 0.00 |
-| zl_glyph | 16 | 0.00 | 0.00 | 0.00 | 0.45 | 0.00 | 0.00 | 0.26 | 0.28 | 0.00 |
+| eva_basic | 16 | 0.00 | 0.00 | 0.00 | 0.72 | 0.00 | 0.00 | 0.18 | 0.04 | 0.05 |
+| eva_glyph | 16 | 0.00 | 0.00 | 0.00 | 0.78 | 0.00 | 0.00 | 0.10 | 0.08 | 0.03 |
+| v101 | 17 | 0.00 | 0.01 | 0.01 | 0.54 | 0.01 | 0.02 | 0.13 | 0.15 | 0.14 |
+| zl_basic | 16 | 0.00 | 0.00 | 0.00 | 0.78 | 0.00 | 0.00 | 0.13 | 0.04 | 0.04 |
+| zl_glyph | 16 | 0.00 | 0.00 | 0.00 | 0.84 | 0.00 | 0.00 | 0.07 | 0.06 | 0.03 |
 
 ## 3. Dağılım dışı kontrolü (asıl okunacak bölüm)
 
@@ -34,63 +34,63 @@ Yüzdelik 100'e yakınsa Voynich, en yakın sınıfın kendi örneklerinin tamam
 
 | görünüm | en yakın sınıf (mesafe) | medyan yüzdelik | mesafe / sınıf medyanı |
 |---|---|---|---|
-| eva_basic | slotgram: 16 | 57 | 1.0x |
-| eva_glyph | slotgram: 16 | 45 | 1.0x |
-| v101 | slotcite: 12, slotgram: 4, grille: 1 | 86 | 1.3x |
-| zl_basic | slotgram: 16 | 52 | 1.0x |
-| zl_glyph | slotgram: 15, grille: 1 | 38 | 0.9x |
+| eva_basic | verbose: 14, grille: 2 | 98 | 1.6x |
+| eva_glyph | verbose: 11, grille: 5 | 98 | 1.5x |
+| v101 | verbose: 10, grille: 7 | 99 | 1.6x |
+| zl_basic | verbose: 12, grille: 4 | 98 | 1.5x |
+| zl_glyph | verbose: 9, grille: 7 | 96 | 1.5x |
 
-### eva_basic: tahmin `slotcite`, en etkili feature'lar
-
-| feature | katkı | Voynich ort. | sentetik evrene göre z |
-|---|---|---|---|
-| rep_adjacent_exact | -1.22 | 0.009 | -0.4 |
-| wlen_autocorr1 | +0.56 | 0.127 | +0.8 |
-| h3 | +0.40 | 1.694 | -0.8 |
-| rep_within3 | -0.27 | 0.026 | -0.4 |
-| rep_adjacent_ed1 | +0.23 | 0.032 | -0.5 |
-| char_double_rate | +0.21 | 0.067 | +0.1 |
-
-### eva_glyph: tahmin `slotgram`, en etkili feature'lar
+### eva_basic: tahmin `grille`, en etkili feature'lar
 
 | feature | katkı | Voynich ort. | sentetik evrene göre z |
 |---|---|---|---|
-| h2 | +1.03 | 2.131 | -0.8 |
-| h3 | -0.65 | 1.818 | -0.5 |
-| wlen_frac1 | -0.47 | 0.017 | -0.6 |
-| h2_over_h1 | +0.29 | 0.556 | -0.7 |
-| zipf_slope | -0.22 | -0.778 | +0.1 |
-| char_double_rate | -0.19 | 0.076 | +0.2 |
+| hapax_ratio | -0.72 | 0.717 | +0.5 |
+| wlen_skew | +0.67 | 0.074 | -0.4 |
+| edge_mi | +0.57 | 0.179 | +1.5 |
+| h3 | +0.55 | 1.694 | -0.8 |
+| wlen_autocorr1 | -0.51 | 0.127 | +0.8 |
+| h2 | -0.50 | 2.016 | -1.0 |
 
-### v101: tahmin `slotgram`, en etkili feature'lar
+### eva_glyph: tahmin `grille`, en etkili feature'lar
 
 | feature | katkı | Voynich ort. | sentetik evrene göre z |
 |---|---|---|---|
-| n_symbols | -0.56 | 69.529 | +1.2 |
-| h1 | -0.28 | 4.005 | +0.1 |
-| h2 | +0.27 | 2.383 | -0.3 |
-| char_double_rate | +0.27 | 0.015 | -0.7 |
-| h3 | -0.26 | 2.015 | +0.1 |
-| h2_over_h1 | +0.22 | 0.595 | -0.4 |
+| hapax_ratio | -0.73 | 0.717 | +0.5 |
+| wlen_skew | +0.62 | 0.183 | -0.3 |
+| edge_mi | +0.55 | 0.187 | +1.6 |
+| wlen_autocorr1 | -0.48 | 0.103 | +0.6 |
+| h3 | +0.47 | 1.818 | -0.5 |
+| h2 | -0.39 | 2.131 | -0.8 |
+
+### v101: tahmin `grille`, en etkili feature'lar
+
+| feature | katkı | Voynich ort. | sentetik evrene göre z |
+|---|---|---|---|
+| char_double_rate | -0.88 | 0.015 | -0.7 |
+| hapax_ratio | -0.82 | 0.741 | +0.6 |
+| wlen_autocorr1 | -0.56 | 0.179 | +1.1 |
+| wlen_skew | +0.45 | 0.225 | -0.2 |
+| rep_adjacent_exact | +0.36 | 0.006 | -0.4 |
+| edge_mi | +0.35 | 0.228 | +2.1 |
 
 ### zl_basic: tahmin `grille`, en etkili feature'lar
 
 | feature | katkı | Voynich ort. | sentetik evrene göre z |
 |---|---|---|---|
-| hapax_ratio | -0.82 | 0.715 | +0.4 |
-| wlen_skew | +0.60 | 0.025 | -0.4 |
-| rep_adjacent_exact | +0.52 | 0.008 | -0.4 |
-| h3 | +0.50 | 1.692 | -0.8 |
+| wlen_skew | +0.68 | 0.025 | -0.4 |
+| hapax_ratio | -0.64 | 0.715 | +0.4 |
+| edge_mi | +0.54 | 0.192 | +1.7 |
+| h3 | +0.54 | 1.692 | -0.8 |
+| h2 | -0.46 | 2.013 | -1.0 |
 | wlen_autocorr1 | -0.46 | 0.123 | +0.7 |
-| h2 | -0.43 | 2.013 | -1.0 |
 
 ### zl_glyph: tahmin `grille`, en etkili feature'lar
 
 | feature | katkı | Voynich ort. | sentetik evrene göre z |
 |---|---|---|---|
-| hapax_ratio | -0.85 | 0.715 | +0.4 |
-| wlen_skew | +0.57 | 0.154 | -0.3 |
-| rep_adjacent_exact | +0.50 | 0.008 | -0.4 |
-| h3 | +0.47 | 1.817 | -0.5 |
+| wlen_skew | +0.66 | 0.154 | -0.3 |
+| hapax_ratio | -0.62 | 0.715 | +0.4 |
+| edge_mi | +0.52 | 0.199 | +1.8 |
+| h3 | +0.49 | 1.817 | -0.5 |
+| rep_adjacent_exact | +0.43 | 0.008 | -0.4 |
 | wlen_autocorr1 | -0.40 | 0.102 | +0.6 |
-| rep_within3 | -0.36 | 0.027 | -0.4 |

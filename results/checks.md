@@ -4,16 +4,16 @@ Her süreçten 300 anlamsız metin örneği üretildi. Her örnek iki kez sını
 
 | süreç | yazım | abjad | automaton | codebook | grille | plain | selfcite | slotcite | slotgram | verbose |
 |---|---|---|---|---|---|---|---|---|---|---|
-| grille | özgün | 1 | 2 | 2 | 276 | 0 | 0 | 6 | 12 | 1 |
-| grille | EVA'laştırılmış | 0 | 6 | 0 | 176 | 1 | 0 | 2 | 14 | 101 |
-| selfcite | özgün | 0 | 0 | 0 | 0 | 0 | 278 | 18 | 4 | 0 |
-| selfcite | EVA'laştırılmış | 0 | 0 | 0 | 0 | 0 | 88 | 88 | 77 | 47 |
-| slotcite | özgün | 0 | 0 | 0 | 13 | 0 | 7 | 266 | 13 | 1 |
-| slotcite | EVA'laştırılmış | 0 | 4 | 0 | 5 | 0 | 0 | 232 | 19 | 40 |
-| slotgram | özgün | 3 | 11 | 2 | 14 | 0 | 7 | 26 | 237 | 0 |
-| slotgram | EVA'laştırılmış | 0 | 22 | 0 | 10 | 0 | 2 | 29 | 179 | 58 |
-| automaton | özgün | 0 | 297 | 0 | 1 | 0 | 0 | 0 | 0 | 2 |
-| automaton | EVA'laştırılmış | 0 | 256 | 0 | 10 | 0 | 0 | 0 | 4 | 30 |
+| grille | özgün | 1 | 2 | 2 | 280 | 0 | 0 | 3 | 12 | 0 |
+| grille | EVA'laştırılmış | 0 | 5 | 0 | 176 | 1 | 0 | 2 | 23 | 93 |
+| selfcite | özgün | 0 | 0 | 0 | 0 | 0 | 280 | 17 | 3 | 0 |
+| selfcite | EVA'laştırılmış | 0 | 0 | 0 | 0 | 0 | 81 | 77 | 87 | 55 |
+| slotcite | özgün | 0 | 0 | 0 | 12 | 0 | 10 | 268 | 10 | 0 |
+| slotcite | EVA'laştırılmış | 0 | 4 | 0 | 6 | 0 | 0 | 237 | 24 | 29 |
+| slotgram | özgün | 4 | 9 | 2 | 10 | 0 | 5 | 27 | 242 | 1 |
+| slotgram | EVA'laştırılmış | 1 | 20 | 0 | 8 | 0 | 2 | 34 | 192 | 43 |
+| automaton | özgün | 0 | 297 | 0 | 2 | 0 | 0 | 0 | 0 | 1 |
+| automaton | EVA'laştırılmış | 0 | 254 | 0 | 11 | 0 | 0 | 0 | 4 | 31 |
 
 # Sınama: tek bir tablo Voynich kadar değişken metin üretiyor mu
 
@@ -21,11 +21,11 @@ Her süreçten 12 el yazması üretildi; her biri tek tablo ve tek ayar kümesiy
 
 | görünüm | Voynich iç | grille iç | grille arası | selfcite iç | selfcite arası | slotcite iç | slotcite arası | slotgram iç | slotgram arası | automaton iç | automaton arası |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| eva_basic | 0.92 | 0.33 | 6.21 | 1.69 | 6.88 | 0.82 | 7.59 | 0.75 | 11.53 | 0.43 | 7.49 |
-| eva_glyph | 0.93 | 0.31 | 5.49 | 1.37 | 5.91 | 0.72 | 6.68 | 0.70 | 9.98 | 0.41 | 6.73 |
-| v101 | 0.94 | 0.28 | 4.58 | 1.62 | 6.48 | 0.85 | 6.82 | 0.82 | 11.70 | 0.45 | 6.86 |
-| zl_basic | 0.95 | 0.27 | 4.58 | 1.56 | 5.84 | 0.78 | 6.64 | 0.75 | 10.76 | 0.41 | 6.86 |
-| zl_glyph | 0.95 | 0.26 | 3.78 | 1.26 | 4.88 | 0.68 | 5.65 | 0.69 | 9.39 | 0.40 | 6.07 |
+| eva_basic | 0.92 | 0.32 | 6.12 | 1.66 | 6.78 | 0.81 | 7.47 | 0.74 | 11.36 | 0.43 | 7.38 |
+| eva_glyph | 0.93 | 0.30 | 5.41 | 1.35 | 5.82 | 0.71 | 6.58 | 0.69 | 9.83 | 0.41 | 6.64 |
+| v101 | 0.94 | 0.28 | 4.51 | 1.60 | 6.38 | 0.84 | 6.71 | 0.81 | 11.52 | 0.45 | 6.77 |
+| zl_basic | 0.95 | 0.27 | 4.51 | 1.53 | 5.75 | 0.77 | 6.54 | 0.74 | 10.59 | 0.41 | 6.77 |
+| zl_glyph | 0.94 | 0.25 | 3.73 | 1.25 | 4.81 | 0.67 | 5.56 | 0.68 | 9.25 | 0.40 | 6.00 |
 
 # Sınama: kelimeler bir sözlükten mi geliyor
 

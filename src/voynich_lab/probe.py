@@ -35,6 +35,7 @@ PROBE_FEATURES = [
     "rep_adjacent_ed1",
     "hapax_ratio",
     "vocab_ed1_density",
+    "edge_mi",
 ]
 
 
